@@ -1,0 +1,89 @@
+//div.drop-target{
+//  all: revert;
+//  border-bottom: #02bcff solid 2px;
+//  //background-color: #02bcff;
+//  //transition-property: all;
+//  //transition-duration: 1s;
+//  //transform: revert;
+//  //transition-timing-function: cubic-bezier(0.34, 0, 0.84, 1);
+//}
+//.drag-over{
+//  background-color: #1890ff;
+//  border-bottom: #ff0202 solid 2px;
+//}
+//.drag-over-gap-bottom{
+//  background-color: #ff5a15;
+//  border-right: #35f054 solid 2px;
+//}
+
+//.ant-tree-drop-indicator{
+//  all: revert!important;
+//}
+//.ant-tree-drop-indicator:after{
+//  all: revert!important;
+//}
+.type-definition-tree {
+    min-width: 650px;
+}
+
+.dragging {
+    cursor: move;
+    background-color: transparent;
+    opacity: 0.7;
+    //box-shadow: 2px 2px slategray ;
+    //visibility: collapse;
+}
+
+// 如果其兄弟节点的子元素标记了禁用拖拽,则隐藏拖拽按钮
+.ant-tree-draggable-icon:has(~ .ant-tree-node-content-wrapper .drag-tree-disable) {
+    visibility: hidden;
+}
+
+.ant-tree-switcher:has(~ .ant-tree-node-content-wrapper .drag-tree-disable) {
+    visibility: hidden;
+    // display: none;
+}
+
+.ant-tree-node-selected {
+    background-color: unset !important;
+}
+
+
+.ant-tree-treenode:has(.drag-tree-disable) {
+    position: relative;
+
+    // display: none;
+    &::before {
+        display: flex;
+        font-size: 10px;
+        padding: 0 2px;
+        position: absolute;
+        font-weight: 700;
+        content: "内置";
+        color: white;
+        background-color: red;
+        border-radius: 25%;
+    }
+}
+
+.ant-row {
+    align-items: center;
+}
+
+.ant-col {
+    align-items: center;
+}
+
+.ant-collapse-item {
+    padding: 0 !important;
+}
+
+.ant-collapse-header {
+    padding: 0 !important;
+}
+
+// .ant-tree-treenode .ant-tree-switcher::before {
+//   content: "123";
+//   color: blueviolet;
+//   // background-color: blueviolet;
+// }

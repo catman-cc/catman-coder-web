@@ -1,0 +1,45 @@
+@import url("@/variables.less");
+
+.ant-menu-item-selected {
+    color: @primary-color;
+    border: 1px solid @primary-color ;
+    border-radius: 5px !important;
+    border-bottom: 1px solid @primary-color !important;
+}
+
+.ant-menu-inline .ant-menu-item {
+    height: 30px;
+    line-height: 30px;
+    background-color: @global-color;
+    border-bottom: 1px solid @border-color-base;
+    border-radius: 0;
+
+    &:hover {
+        box-shadow: 0 0 0 3px @border-color-base;
+        border-radius: 5px;
+    }
+}
+
+.type-definition-menu-label {
+    display: flex;
+    position: relative;
+
+    justify-content: space-between;
+    justify-items: baseline;
+    align-content: space-between;
+    align-items: baseline;
+
+    .td-name {
+        flex-shrink: 0;
+        flex-grow: 0;
+        margin-right: 20px;
+    }
+
+    .td-id {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 10px;
+        color: gray;
+    }
+
+}

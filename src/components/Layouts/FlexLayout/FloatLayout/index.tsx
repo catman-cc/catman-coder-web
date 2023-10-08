@@ -72,10 +72,12 @@ const mapToBoxs = (ws: WinBoxComponent[]) => {
             node: { ...w },
             ref: null,
             hide: false,
+            x: 500,
+            y: 100,
             width: 500,
             height: 500,
-            x: 500,
-            y: 100
+            minWidth: 500,
+            minHeight: 500
         }
     })
     return nbs
@@ -127,77 +129,79 @@ const WinBoxManager = (props: Props) => {
             onClose={() => {
                 // TODO 需要回调,从提供方移除该数据
                 // noClose
-                onMinimize = {() => {
-    // 最小化
-    const b = boxs[node.id]
+            }}
+            onMinimize={() => {
+                // 最小化
+                const b = boxs[node.id]
 
-    const position = b.ref?.getPosition()
-    b.x = position?.x || b.x
-    b.y = position?.y || b.y
+                const position = b.ref?.getPosition()
+                b.x = position?.x || b.x
+                b.y = position?.y || b.y
 
-    const size = b.ref?.getSize()
-    b.width = size?.width || b.width
-    b.height = size?.height || b.height
+                const size = b.ref?.getSize()
+                b.width = size?.width || b.width
+                b.height = size?.height || b.height
 
-    b.hide = true
+                b.hide = true
 
-    setBoxs({ ...boxs })
+                setBoxs({ ...boxs })
 
-}}
+            }}
         >
-    { n.hasNode() ? n.node! : <div>123312</div> }
+            {n.hasNode() ? n.node! : <div>123312</div>}
         </WinBox >
     }
-return (
-    <div
-        key={"default"}
-        style={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "gray"
-        }}>
-        {
-            props.windows.map((node) => {
-                return boxs[node.id].hide ? <div></div> : getWindow(node)
-            })
-        }
-        {
-            <FloatWindow
-                title={"asdas"}
-                content={"asdd"}
-            />
-        }
-        {/* 一个列表,用于来展示所有的float window */}
-        {
-            <List
-                itemLayout="horizontal"
-                dataSource={Object.keys(boxs)}
-                renderItem={(item) => (
-                    <Button
-                        icon={<IconCN type={boxs[item].hide ? "icon-ico-show" : "icon-hideinvisiblehidden"} />}
-                        key={`WinBoxComponent-${item}`}
-                        onClick={() => {
-                            const b = boxs[item]
-                            // box.ref?.restore()
-                            b.hide = !b.hide
-                            const position = b.ref?.getPosition()
-                            b.x = position?.x || b.x
-                            b.y = position?.y || b.y
+    return (
+        <div
+            key={"default"}
+            style={{
+                width: "100%",
+                height: "100%",
+                backgroundColor: "gray"
+            }}>
+            {
+                props.windows.map((node) => {
+                    return boxs[node.id].hide ? <div></div> : getWindow(node)
+                })
+            }
+            {
+                <FloatWindow
+                    key={"defalut"}
+                    title={"asdas"}
+                    content={"asdd"}
+                    update={() => { }} />
+            }
+            {/* 一个列表,用于来展示所有的float window */}
+            {
+                <List
+                    itemLayout="horizontal"
+                    dataSource={Object.keys(boxs)}
+                    renderItem={(item) => (
+                        <Button
+                            icon={<IconCN type={boxs[item].hide ? "icon-ico-show" : "icon-hideinvisiblehidden"} />}
+                            key={`WinBoxComponent-${item}`}
+                            onClick={() => {
+                                const b = boxs[item]
+                                // box.ref?.restore()
+                                b.hide = !b.hide
+                                const position = b.ref?.getPosition()
+                                b.x = position?.x || b.x
+                                b.y = position?.y || b.y
 
-                            const size = b.ref?.getSize()
-                            b.width = size?.width || b.width
-                            b.height = size?.height || b.height
-                            setBoxs({ ...boxs })
-                        }}
-                    >
-                        {boxs[item].node?.name}
-                    </Button>
-                )}
-            />
+                                const size = b.ref?.getSize()
+                                b.width = size?.width || b.width
+                                b.height = size?.height || b.height
+                                setBoxs({ ...boxs })
+                            }}
+                        >
+                            {boxs[item].node?.name}
+                        </Button>
+                    )}
+                />
 
-        }
-    </div >
-)
+            }
+        </div >
+    )
 }
 
 export default WinBoxManager

@@ -14,7 +14,6 @@ function getMenuItem(name: string, label: string) {
 }
 
 const TypeMenu = [
-    // getMenuItem("number","数值"),
     {
         key: "basic",
         label: '基础数据类型',

@@ -1,19 +1,10 @@
 import { Layout, Space } from 'antd';
-import { useState } from 'react';
 
-const { Header, Footer, Sider, Content } = Layout;
+const { Sider, Content } = Layout;
 
 // import './App.css'
 import { Outlet } from "react-router";
 
-const headerStyle: React.CSSProperties = {
-    textAlign: 'center',
-    color: '#fff',
-    height: 64,
-    paddingInline: 50,
-    lineHeight: '64px',
-    backgroundColor: '#7dbcea',
-};
 
 const contentStyle: React.CSSProperties = {
     position: "relative",
@@ -33,8 +24,6 @@ const siderStyle: React.CSSProperties = {
 
 
 function App() {
-    const [count, setCount] = useState(0)
-
     return (
         <Space direction="vertical" style={{ width: '100vw', height: "100vh" }} size={[0, 48]}>
             <Layout style={{ width: '100vw', height: "100vh" }}>

@@ -26,7 +26,6 @@ const LineEditor = (props: Props) => {
     const [td, setTd] = useState(props.td.copy())
 
     useEffect(() => {
-        console.log(123, props.tdKey, td.alias);
         if (td.alias !== props.td.alias) {
             // 每次调用更新时,都会延迟响应,避免卡顿
             props.updateTypeData(props.tdKey, td)

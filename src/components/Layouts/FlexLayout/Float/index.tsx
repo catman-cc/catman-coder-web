@@ -1,7 +1,7 @@
 import IconCN from '@/components/Icon';
 import { Button } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
-import { Rnd, RndProps } from 'react-rnd';
+import { Props, Rnd } from 'react-rnd';
 import './index.less';
 
 interface PropsState {
@@ -13,16 +13,16 @@ interface PropsState {
     show?: boolean
     icon?: React.ReactNode
     title: string | React.ReactNode
-    iconFactory?: (icon: string) => React.ReactNode
+    iconFactory?: (_icon: string) => React.ReactNode
     menus?: React.ReactNode[]
     content: string | React.ReactNode
-    config?: RndProps // 额外对外暴露rnd配置
+    config?: Props // 额外对外暴露rnd配置
     onPin?: () => void
     onMinimize?: () => void
     onMaxmize?: () => void
     onClose?: () => void
-    updateZIndex?: (front?: boolean) => void
-    update: (pos: {
+    updateZIndex?: (_front?: boolean) => void
+    update: (_pos: {
         x?: number
         y?: number
         w?: number | string
@@ -71,7 +71,7 @@ const FloatWindow = (props: PropsState) => {
                     //     }}
                     // />}></Button>,
                     <Button type="text" icon={<IconCN style={{ color: "white" }} type="icon-maxmize1"
-                        onDrag={(e) => {
+                        onDrag={() => {
                             // e.stopPropagation()
                             // e.preventDefault()
                         }}
@@ -116,11 +116,11 @@ const FloatWindow = (props: PropsState) => {
                             // e.preventDefault()
                             // setFullScreen(!fullScreen)
                         }}
-                        onDragStart={(e) => {
+                        onDragStart={() => {
                             // e.stopPropagation()
                             // e.preventDefault()
                         }}
-                        onClick={(e) => {
+                        onClick={() => {
                             // e.stopPropagation()
                             // e.preventDefault()
                             // console.log(666);
@@ -264,7 +264,7 @@ const FloatWindow = (props: PropsState) => {
                 height: "98vh"
             } : undefined
         }
-        onDragStart={(e) => {
+        onDragStart={() => {
             setDragging(true)
         }}
         onDragStop={(e, d) => {
@@ -284,7 +284,7 @@ const FloatWindow = (props: PropsState) => {
             // setDragging(false)
         }}
 
-        onResizeStop={(e, dir, element, delta, pos) => {
+        onResizeStop={(_e, _dir, element, _delta, pos) => {
             console.log("resizestop", fullScreen);
 
             setOldPos({
@@ -324,7 +324,7 @@ const FloatWindow = (props: PropsState) => {
                 style={{
                     maxWidth: maxSize?.w,
                     maxHeight: maxSize?.h
-                }}j
+                }}
                 onMouseDown={(e) => {
                     e.stopPropagation()
                 }}

@@ -1,7 +1,7 @@
 import { Tree } from 'antd';
 import type { TreeProps } from 'antd/es/tree';
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 
 import { ComplexType, DefaultTypeDefinition } from "@/common/core.ts";
 import constants from '@/config/constants';
@@ -22,27 +22,27 @@ interface Props {
  */
 const TypeDefinitionTreePanel = (props: Props) => {
     const id = ID()
-    const [data, setData] = useState<TypeDefinitionDataNode[]>([]);
+
     const [tree, setTree] = useState(props.tree);
+    const data = useCallback(() => {
+        return tree.toNode()
+    }, [tree])
+
     const [dragged, setDragged] = useState<string[]>([]);
     const [expands, setExpands] = useState<string[]>([]);
-    const [blurLine, setBlurLine] = useState<string | null>(null)
+    // const [blurLine, setBlurLine] = useState<string | null>(null)
     const [typeSelector, setTypeSelector] = useState<string>("")
 
-    useEffect(() => {
-        setTree(props.tree)
-    }, [props.tree]);
-
-    useEffect(() => {
-        setData([tree.toNode()])
-    }, [tree])
+    // useEffect(() => {
+    //     setTree(props.tree)
+    // }, [props.tree]);
 
     useEffect(() => {
         if (!expands.includes(tree.root)) {
             expands.push(tree.root)
             setExpands([...expands])
         }
-    }, [data])
+    }, [data()])
 
     const onDrop: TreeProps['onDrop'] = (info) => {
         const dropKey = info.node.key as string; // 目标元素

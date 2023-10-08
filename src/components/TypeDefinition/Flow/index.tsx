@@ -27,29 +27,18 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 
 export default function FlowExample(props: Props) {
+    // 不要随意调整下面参数的位置,初始化时拥有依赖性
     const nodeTypes = useMemo(() => ({ td: TypeDefinitionCard }), []);
-
-    const [flowInfo, setFlowInfo] = useState<FlowInfo>()
-    const [nodes, setNodes] = useState<Node[]>([])
-    const [edges, setEdges] = useState<Edge[]>([])
-    const [flowJson, setFlowJson] = useState<string>("")
-    const [source, setSouce] = useState(false);
     const [expand, setExpand] = useState(false)
+    const [source, setSouce] = useState(false);
 
-    const onNodesChange = useCallback(
-        (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-        [setNodes]
-    );
-    const onEdgesChange = useCallback(
-        (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-        [setEdges]
-    );
     const nodeWidth = useCallback(() => {
         return expand ? 150 : 150
     }, [expand]);
     const nodeHeight = useCallback(() => {
         return expand ? 50 : 120
     }, [expand]);
+
 
     const getLayoutedElements = ({ nodes, edges }: FlowInfo, direction = 'LR'): FlowInfo => {
 
@@ -85,19 +74,47 @@ export default function FlowExample(props: Props) {
         return { nodes, edges };
     };
 
+    const [flowInfo, setFlowInfo] = useState<FlowInfo>(getLayoutedElements(expand ? convert(props.td) : anotherConvert(props.td)))
+    const [flowJson, setFlowJson] = useState(JSON.stringify(flowInfo))
+    const [nodes, setNodes] = useState<Node[]>(flowInfo?.nodes || [])
+    const [edges, setEdges] = useState<Edge[]>(flowInfo?.edges || [])
+
+
+    // const [flowInfo, setFlowInfo] = useState<FlowInfo>()
     useEffect(() => {
-        setFlowInfo(getLayoutedElements(expand ? convert(props.td) : anotherConvert(props.td)))
-    }, [props, expand])
+        const fi = getLayoutedElements(expand ? convert(props.td) : anotherConvert(props.td))
+        setFlowInfo(getLayoutedElements(fi))
+        setFlowJson(JSON.stringify(fi))
+        setNodes(fi.nodes)
+        setEdges(fi.edges)
+    }, [expand, props.td])
 
-    useEffect(() => {
 
-        if (flowInfo) {
-            setNodes(flowInfo.nodes)
-            setEdges(flowInfo.edges)
-            setFlowJson(JSON.stringify(flowInfo))
-        }
+    const onNodesChange = useCallback(
+        (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+        [setNodes]
+    );
+    const onEdgesChange = useCallback(
+        (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+        [setEdges]
+    );
 
-    }, [flowInfo])
+
+
+
+    // useEffect(() => {
+    //     setFlowInfo(getLayoutedElements(expand ? convert(props.td) : anotherConvert(props.td)))
+    // }, [props, expand])
+
+    // useEffect(() => {
+
+    //     if (flowInfo) {
+    //         setNodes(flowInfo.nodes)
+    //         setEdges(flowInfo.edges)
+    //         setFlowJson(JSON.stringify(flowInfo))
+    //     }
+
+    // }, [flowInfo])
 
     // const onConnect = useCallback(
     //     (params) =>
@@ -111,8 +128,8 @@ export default function FlowExample(props: Props) {
 
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
-            <div>
+        <div className='space-y-2' style={{ width: '100%', height: '100%' }}>
+            <div className='space-x-3 '>
                 <Switch
                     checked={source}
                     checkedChildren="源码"

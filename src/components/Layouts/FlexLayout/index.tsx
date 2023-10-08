@@ -169,7 +169,7 @@ function FlexLayout() {
     const layout = useAppSelector(state => state.configuration).layout
     const [model, setModel] = useState<Model>(Model.fromJson(DefaultLayout))
     const [openedTabs, setOpenedTabs] = useState<string[]>([])
-    const [winBoxs, setWinBoxs] = useState<WinBoxComponent[]>([
+    const [winBoxs] = useState<WinBoxComponent[]>([
         new WinBoxComponent("111", "TestJsonView", "JsonView", { name: 13 })
     ])
 
@@ -214,9 +214,6 @@ function FlexLayout() {
     // const dispatch = useAppDispatch()
     const layoutRef = useRef<Layout>(null)
 
-    const addFloatWindow = () => {
-
-    }
 
     // useEffect(() => {
     //     // dispatch(LayoutQuery())
@@ -259,9 +256,8 @@ function FlexLayout() {
                 windows={winBoxs}
             />
         })
-        .nameMatch("FloatWindowManager", (node) => {
-            return
-            <List
+        .nameMatch("FloatWindowManager", (): JSX.Element => {
+            return <List
                 itemLayout="horizontal"
                 dataSource={Object.keys(floatWindows)}
                 renderItem={(item) => (
@@ -288,7 +284,6 @@ function FlexLayout() {
     // })
 
     EventBus.on(Events.Layout.ADD_TAB, (tab: IJsonTabNode) => {
-        console.log("===", tab);
         const node = model.getNodeById(tab.id!)
         if (node) {
             model.doAction(Actions.selectTab(tab.id!))
@@ -306,6 +301,7 @@ function FlexLayout() {
                 { width: '100vw', height: '100vh', position: "relative" }
             }>
                 <Layout
+                    key={"default-layout"}
                     supportsPopout={false}
                     ref={layoutRef}
                     model={model!}
@@ -318,7 +314,7 @@ function FlexLayout() {
                         return factory.create(node)
                     }}
                     iconFactory={(node => {
-                        return <IconCN className={"TypeDefinitionMenuIcon"} style={{
+                        return <IconCN key={node.getId()} className={"TypeDefinitionMenuIcon"} style={{
                             color: "purple"
                         }} type={node.getIcon()!} />
                     })}
@@ -340,8 +336,10 @@ function FlexLayout() {
                         }
                         rv.content = node.getName()
                         rv.buttons = [
-                            <IconCN type="icon-Tabs-1"
-                                onClick={(e) => {
+                            <IconCN
+                                key={node.getId()}
+                                type="icon-Tabs-1"
+                                onClick={() => {
 
                                 }}
                                 onMouseDown={(e) => {
@@ -398,9 +396,11 @@ function FlexLayout() {
                         } else if (node instanceof TabSetNode) {
                             rv.buttons = [
                                 <Popover placement="top"
+                                    key={node.getId()}
                                     title={""}
                                     content={
                                         <List
+                                            key={node.getId()}
                                             style={{
                                                 display: "flex"
                                             }}
@@ -410,7 +410,7 @@ function FlexLayout() {
                                                 <div>
                                                     <Button
                                                         icon={<IconCN type={floatWindows[item].show ? "icon-ico-show" : "icon-hideinvisiblehidden"} />}
-                                                        key={`float-window-${item}`}
+                                                        key={`float-window${node.getId()}-${item}`}
                                                         onClick={() => {
                                                             const b = floatWindows[item]
                                                             // box.ref?.restore()
@@ -428,7 +428,7 @@ function FlexLayout() {
                                         />
                                     }
                                     trigger="hover">
-                                    <Button key={2} icon={<IconCN type={"icon-Tabs-1"} />}>浮动窗口</Button>
+                                    <Button key={`float-window${node.getId()}-float`} icon={<IconCN type={"icon-Tabs-1"} />}>浮动窗口</Button>
                                 </Popover>
 
 

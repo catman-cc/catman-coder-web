@@ -35,7 +35,6 @@ const MonacoCodeEditor = (props: Props) => {
 
     return (
         <Editor
-
             height="90vh"
             options={{
                 minimap: {

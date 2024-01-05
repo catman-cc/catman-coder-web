@@ -189,8 +189,6 @@ const FloatWindow = (props: PropsState) => {
     }, [config])
 
     useEffect(() => {
-        console.log(fullScreen);
-
         if (fullScreen) {
             const nms = {
                 w: "98vw",
@@ -221,7 +219,10 @@ const FloatWindow = (props: PropsState) => {
             {
                 ... {
                     ... (config.show ? { zIndex: config.zIndex } : { display: "none" }),
-                    ...(fullScreen ? { top: 0, left: 0, width: "98vw", height: "98vh" } : {})
+                    ...(fullScreen ? { top: 0, left: 0, width: "100vw", height: "100vh" } : {
+                        // maxWidth: config.w,
+                        // maxHeight: config.h
+                    })
                 }
             }
         }
@@ -233,7 +234,6 @@ const FloatWindow = (props: PropsState) => {
         onMouseDown={(e) => {
             e.stopPropagation()
             e.preventDefault()
-            console.log(33312312313131);
 
         }}
         onMouseEnter={() => {
@@ -260,23 +260,20 @@ const FloatWindow = (props: PropsState) => {
         }
         size={
             fullScreen ? {
-                width: "98vw",
-                height: "98vh"
+                width: "100vw",
+                height: "100vh"
             } : undefined
         }
         onDragStart={() => {
             setDragging(true)
         }}
         onDragStop={(e, d) => {
-            console.log("drgstop", fullScreen, dragging);
-            console.log(d);
             const nps = {
                 ...oldPos,
                 x: d.x,
                 y: d.y
 
             }
-            console.log(nps);
 
             setOldPos(
                 nps
@@ -285,7 +282,6 @@ const FloatWindow = (props: PropsState) => {
         }}
 
         onResizeStop={(_e, _dir, element, _delta, pos) => {
-            console.log("resizestop", fullScreen);
 
             setOldPos({
                 x: pos.x,
@@ -294,8 +290,8 @@ const FloatWindow = (props: PropsState) => {
                 h: element.style.width
             })
         }}
-        minWidth={150}
-        minHeight={150}
+        // minWidth={150}
+        // minHeight={150}/
         enableResizing={!fullScreen}
         disableDragging={fullScreen}
         enableUserSelectHack={true}
@@ -319,24 +315,28 @@ const FloatWindow = (props: PropsState) => {
                     {config.menus}
                 </div>
             </div>
-            <div className='float-window-body'
+            <div className='float-window-body-wrapper'>
+                <div className='float-window-body'
 
-                style={{
-                    maxWidth: maxSize?.w,
-                    maxHeight: maxSize?.h
-                }}
-                onMouseDown={(e) => {
-                    e.stopPropagation()
-                }}
-                // onClick={(e) => {
-                //     e.stopPropagation()
-                //     e.preventDefault()
-                // }}
-                onDrag={(e) => {
-                    e.stopPropagation()
-                }}
-            >
-                {config.content}
+                    style={{
+                        // maxWidth: maxSize?.w,
+                        // maxHeight: maxSize?.h
+                        // maxWidth: "100%",
+                        // maxHeight: "100%"
+                    }}
+                    onMouseDown={(e) => {
+                        e.stopPropagation()
+                    }}
+                    // onClick={(e) => {
+                    //     e.stopPropagation()
+                    //     e.preventDefault()
+                    // }}
+                    onDrag={(e) => {
+                        e.stopPropagation()
+                    }}
+                >
+                    {config.content}
+                </div>
             </div>
         </div>
     </Rnd >

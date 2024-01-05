@@ -1,4 +1,4 @@
-import { CacheableComponentFactory, DefaultFactory, Node, WindowKind } from "@/common/component";
+import { CacheableComponentFactory, DefaultFactory, LayoutElement, WindowKind } from "@/common/component";
 import IconCN from "@/components/Icon";
 import { Button, List } from "antd";
 import { useEffect, useState } from "react";
@@ -13,7 +13,7 @@ type IconType = string | React.ReactNode
 /**
  * Winbox类型组件的定义
  */
-export class WinBoxComponent implements Node {
+export class WinBoxComponent implements LayoutElement {
     id: string
     name: string
     component: string

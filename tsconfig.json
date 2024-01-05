@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "types": [
+      "Core"
+      ,"jest"
+    ],
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": [

@@ -1,0 +1,54 @@
+.snapshot-panel{
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  .snapshot-list{
+    width: 30%;
+    padding: 10px;
+    overflow: auto;
+    .snapshot-card{
+        margin-bottom: 10px;
+        cursor: pointer;
+        .snapshot-card-title{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            .snapshot-card-title-name{
+            display: flex;
+            justify-content: space-between;
+            }
+        }
+    }
+    .snapshot-card-title-name{
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+  .snapshot-details{
+    width: 80%;
+    .snapshot-details-header{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        height: 2em;
+        .right{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            .anticon{
+            margin-left: 10px;
+            cursor: pointer;
+            }
+        }
+    }
+    .snapshot-details-content{
+      height: 100%;
+      .snapshot-details-content-data{
+        height: 100%-2em-10px;
+        border: 1px solid #ccc;
+      }
+    }
+  }
+}

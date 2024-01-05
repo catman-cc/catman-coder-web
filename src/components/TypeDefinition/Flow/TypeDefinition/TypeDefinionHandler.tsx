@@ -18,7 +18,6 @@ export interface FlowInfo {
  * @returns  节点集合
  */
 export const convert = (td: Core.TypeDefinition): FlowInfo => {
-    console.log("td", td);
 
     const dtd = DefaultTypeDefinition.ensure(td)
     const flowInfo: FlowInfo = {
@@ -67,7 +66,6 @@ export const convert = (td: Core.TypeDefinition): FlowInfo => {
 }
 
 export const anotherConvert = (td: Core.TypeDefinition): FlowInfo => {
-    console.log("td", td);
 
     const dtd = DefaultTypeDefinition.ensure(td)
     const flowInfo: FlowInfo = {

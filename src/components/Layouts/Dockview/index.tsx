@@ -10,11 +10,10 @@ import {IDockviewPanelProps} from "dockview/dist/cjs/dockview/dockview";
 import "./index.less"
 import {ID} from "@/common/id";
 import {Button} from "antd";
-const TDTP= (props: IDockviewPanelProps<{ td: DefaultTypeDefinition }>) =>{
-    return <TypeDefinitionTreePanel td={props.params.td}/>
-}
+import {useApplicationContext} from "@/core";
+import ResourceExplorer from "@/components/Resource/Explorer";
+
 const DockviewLayout=()=>{
-    const tdStore = useAppSelector(state => state.typeDefinitions)
     const dispatch = useAppDispatch()
     const [components,setComponents]=useState<PanelCollection<IDockviewPanelProps>>({})
     const [event,setEvent]=useState<DockviewReadyEvent>()
@@ -23,37 +22,19 @@ const DockviewLayout=()=>{
     React.useEffect(() => {
         dispatch(TypeDefinitionListQuery())
     }, [])
+    const context = useApplicationContext();
+    const renderFactory = context.layoutContext?.componentRenderFactory;
 
     React.useEffect(()=>{
-
         if (event){
             setReady(true)
-            // tdStore.tds.forEach(td=>{
-            //     event.api.addPanel({
-            //         id: td.id!+ID(),
-            //         component:"default",
-            //         params:{
-            //             td:td
-            //         }
-            //     })
-            // })
-            // event.api.addPanel({
-            //     id: "add",
-            //     component:"add",
-            //     params:{
-            //     }
-            // })
         }
-        // tdStore.tds.forEach(td=>{
-        //     components[td.id!]=TDTP
-        // })
-        // setComponents({...components})
-    }, [tdStore.tds],)
+    }, [event],)
 
     React.useEffect(()=>{
      if (ready){
          event?.api.addPanel({
-             id: "add",
+             id: ID(),
              component:"add",
              params:{
              }
@@ -62,55 +43,42 @@ const DockviewLayout=()=>{
     },[ready])
     return <div  style={
         {
-            width:"80vw",
-            height:"80vh"
+            width:"100vw",
+            height:"100vh"
         }
     }>
         <DockviewReact
+            hideBorders={true}
            className="dockview-theme-replit"
             onReady={(event=>{
                 setEvent(event)
-                if (tdStore.tds.length>1){
-                    setReady(true)
-                }
-
-                // event.api.addPanel({
-                //     id: ID(),
-                //     component:"add",
-                //     params:{
-                //     }
-                // })
-                  // if (tdStore.tds.length>0){
-                //     tdStore.tds.forEach(td=>{
-                //         event.api.addPanel({
-                //             id: td.id!+ID(),
-                //             component:"default",
-                //             params:{
-                //                 td:td
-                //             }
-                //         })
-                //     })
-                // }
-
             })}
            components={
             {
-                default:TDTP,
+                E:(props, context)=>{
+                   return renderFactory?.create(props.params)
+                },
                 add:(props: IDockviewPanelProps<{ td: DefaultTypeDefinition }>) =>{
-                    return <Button
-                        onClick={()=>{
-                            console.log(i)
-                            const td=tdStore.tds[i]
-                            i++
-                            event?.api.addPanel({
-                                id: td.id!+ID(),
-                                component:"default",
-                                params:{
-                                    td:td
-                                }
-                            })
-                        }}
-                    >add</Button>
+                    return <div>
+                        <Button
+                            onClick={()=>{
+                                i++
+                                var panel = event?.api.addPanel({
+                                    id: ID(),
+                                    component:"E",
+                                    params:{
+                                        id:ID(),
+                                        name:"ccc",
+                                        componentName:"node-service",
+                                    }
+                                });
+                                event?.api.addFloatingGroup(panel, {
+                                    x: 400,
+                                    y: 400,
+                                })
+                            }}
+                        >add</Button>
+                    </div>
                 }
             }
         }/>

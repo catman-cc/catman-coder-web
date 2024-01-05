@@ -1,9 +1,12 @@
 // @flow
 import { FuzzyQuery } from "@/common/api";
 import { ComplexType, DefaultTypeDefinition, Scope } from "@/common/core.ts";
+import EventBus, { Events } from "@/common/events";
 import IconCN from "@/components/Icon";
+import { wrapperTypeDefinitionToParameter } from "@/components/Parameter/utils";
 import constants from "@/config/constants";
 import { useAppDispatch, useAppSelector } from "@/stores";
+import { ParameterSlice } from "@/stores/parameter";
 import { TypeDefinitionListQuery, TypeDefinitionSlice } from "@/stores/typeDefinitions";
 import { Button, Dropdown, Menu, Popover, Select } from "antd";
 import Search from "antd/es/input/Search";
@@ -12,8 +15,11 @@ import { Actions, Layout, TabNode } from "flexlayout-react";
 import * as React from 'react';
 import { BiSearchAlt } from "react-icons/bi";
 import { HiDocumentAdd } from "react-icons/hi";
+import { PanelGroup } from "react-resizable-panels";
 import styled from "styled-components";
 import "./index.less";
+import {useApplicationContext} from "@/core";
+import {DefaultLayoutNode} from "@/core/Layout";
 // 一个菜单项,其主要作用是返回一组菜单信息
 
 type Props = {
@@ -58,6 +64,7 @@ border-bottom: 1px solid #ff1818;
      * @param td 类型定义
      */
 const TypeDefinitionMenu = (props: Props) => {
+    const layoutContext = useApplicationContext().layoutContext!;
     // const node = props.node
     const node = props.node
     const tdStore = useAppSelector(state => state.typeDefinitions)
@@ -147,6 +154,17 @@ const TypeDefinitionMenu = (props: Props) => {
         setMatchInfo(mi)
         return all
     }
+
+    React.useEffect(() => {
+        EventBus.on(Actions.DELETE_TAB, (node: TabNode) => {
+            if (node.getComponent() === "TypeDefinitionTreePanel") {
+                if (selected === node.getId()) {
+                    setSelected(undefined)
+                }
+            }
+        })
+    }, [])
+
     React.useEffect(() => {
         // node.getModel().getRoot().getChildren()[0].getChildren()[0].isVisible()
         // props.layoutRef.current.
@@ -172,8 +190,6 @@ const TypeDefinitionMenu = (props: Props) => {
 
     React.useEffect(() => {
         setTds(tdsComput())
-
-
     }, [tdStore.tds, tdStore.newTds, query])
 
     React.useEffect(() => {
@@ -193,33 +209,42 @@ const TypeDefinitionMenu = (props: Props) => {
             icon: <IconCN type={"icon-moxing"} style={{
                 color: "purple"
             }} />,
-            label: <div className="type-definition-menu-label">
+            label: <Popover
+                placement="bottomRight"
+                content={
+                    <div>
+                        <Button
+                            onClick={() => {
+                                // 使用当前类型定义创建参数定义
+                                const parameter = wrapperTypeDefinitionToParameter(td)
+                                // 将该类型定义传递给
+                                dispatch(ParameterSlice.actions.add(parameter))
+                            }}
+                        >create parameter</Button>
+                    </div>
+                }
+            >
+                <div className="type-definition-menu-label">
 
-                <div className="td-name">
-                    {td.name}
-                </div>
+                    <div className="td-name">
+                        {td.name}
+                    </div>
 
-                <div className="td-id">
-                    id: {td.id}
-                </div>
-
-                {/* <div> */}
-                {/* 保存标志 */}
-                {/* {queryKey ? <Tag color="red"> */}
-                {/* {matchInfo[td.id || ""]?.join(":")} */}
-                {/* </Tag> : <></>} */}
-                {/*<SettingOutlined size={11} />*/}
-                {/* {unSavedTds.includes(td.id!) && <Link onClick={() => { */}
-                {/* // TODO this.props.save(td) */}
-                {/* }} style={{ color: "red", margin: 0, padding: 0 }}>未保存</Link>} */}
-                {/* </div> */}
-            </div >,
+                    <div className="td-id">
+                        id: {td.id}
+                    </div>
+                </div >
+            </Popover>,
         }
     }
     // const items = React.useState(tds.map(t => toMenuItem(t)))
 
     const getItems = () => {
         return tds.map(td => toMenuItem(td))
+    }
+
+    const getParameters = () => {
+
     }
 
     React.useEffect(() => {
@@ -233,185 +258,212 @@ const TypeDefinitionMenu = (props: Props) => {
     // }, [tds])
 
     React.useEffect(() => {
+        return;
         if (!selected) {
             return
         }
         const key = selected
-        let tdNode = node.getModel().getNodeById(key) as TabNode
-        if (!tdNode) {
-            const find = tdStore.tds.find(t => t.id === key);
-            const newTdNode = {
-                id: key,
-                name: find?.name,
-                icon: "icon-moxing",
-                component: 'TypeDefinitionTreePanel',
-                enableFloat: true,
-                config: { id: key },
-            }
-            props.layoutRef.current?.addTabToActiveTabSet(newTdNode)
-            tdNode = node.getModel().getNodeById(key) as TabNode
-            tdNode.getExtraData().td = find
+        const find = tds.find(t => t.id === key);
+        if (!find) {
+            return
         }
-        node.getModel().doAction(Actions.selectTab(tdNode.getId()))
+        const layoutNode = DefaultLayoutNode.of(key,find?.name,'TypeDefinitionTreePanel');
+        layoutNode.settings.tab={
+            id: key,
+            name: find?.name,
+            icon: "icon-moxing",
+            component: 'TypeDefinitionTreePanel',
+            enableFloat: true,
+            config: { id: key, td: find },
+        }
+        layoutNode.data={ id: key, td: find }
+        layoutContext.createOrActive(layoutNode,"tab")
+        // EventBus.emit(Events.Layout.ADD_TAB, layoutNode)
+
+
+        // let tdNode = node.getModel().getNodeById(key) as TabNode
+        // if (!tdNode) {
+        //     const find = tdStore.tds.find(t => t.id === key);
+        //     const newTdNode = {
+        //         id: key,
+        //         name: find?.name,
+        //         icon: "icon-moxing",
+        //         component: 'TypeDefinitionTreePanel',
+        //         enableFloat: true,
+        //         config: { id: key },
+        //     }
+
+        //     props.layoutRef.current?.addTabToActiveTabSet(newTdNode)
+        //     tdNode = node.getModel().getNodeById(key) as TabNode
+        //     tdNode.getExtraData().td = find
+        // }
+        // node.getModel().doAction(Actions.selectTab(tdNode.getId()))
         // const find = this.state.tds.filter(t => t.id === key)
         // this.props.selectTypeDefinition(find[0])
-    }, [selected])
+    }, [selected, tds])
 
     return (
         <Container>
-            <Menu
-                style={{ fontSize: 13, overflowX: "auto" }}
-                selectedKeys={[selected || ""]}
-                defaultOpenKeys={["type-definitions",]}
-                mode="inline"
-                items={[
-                    {
-                        key: "type-definitions",
-                        label: <TitleBar>数据类型定义
-                            <div
-                                style={{
-                                    display: "flex",
-                                    flexWrap: "nowrap",
-                                    flexDirection: "row",
-                                    alignItems: "baseline",
-                                }}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                }}>
-                                <Popover placement="rightTop" content={
-                                    <div style={{
-                                        padding: "5",
-                                        maxWidth: 350
+            <PanelGroup autoSaveId="example" direction="vertical">
+                <Menu
+                    style={{ fontSize: 13, overflowX: "auto" }}
+                    selectedKeys={[selected || ""]}
+                    defaultOpenKeys={["type-definitions",]}
+                    mode="inline"
+                    items={[
+                        {
+                            key: "type-definitions",
+                            label: <TitleBar><IconCN type="icon-moxing" /> 数据类型定义
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        flexWrap: "nowrap",
+                                        flexDirection: "row",
+                                        alignItems: "baseline",
                                     }}
-                                    >
-                                        <Select
-                                            allowClear
-                                            mode="multiple"
-                                            style={{ width: 350, maxWidth: '350', marginBottom: 5 }}
-                                            placeholder="不选,默认为全部"
-                                            defaultValue={query.fields}
-                                            onChange={(value) => {
-                                                setQuery({ ...query, fields: value })
-                                            }}
-                                            value={query.fields}
-                                            optionLabelProp="label"
-                                            options={
-                                                [
-                                                    {
-                                                        label: "ID",
-                                                        value: "id",
-                                                    },
-                                                    {
-                                                        label: "名称",
-                                                        value: "name",
-                                                    },
-                                                    {
-                                                        label: "别名",
-                                                        value: "alias",
-                                                    },
-                                                    {
-                                                        label: "标签",
-                                                        value: "labels",
-                                                    },
-
-                                                    {
-                                                        label: "描述",
-                                                        value: "describe",
-                                                    }
-                                                ]
-                                            }
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                    }}>
+                                    <Popover placement="rightTop" content={
+                                        <div style={{
+                                            padding: "5",
+                                            maxWidth: 350
+                                        }}
                                         >
+                                            <Select
+                                                allowClear
+                                                mode="multiple"
+                                                style={{ width: 350, maxWidth: '350', marginBottom: 5 }}
+                                                placeholder="不选,默认为全部"
+                                                defaultValue={query.fields}
+                                                onChange={(value) => {
+                                                    setQuery({ ...query, fields: value })
+                                                }}
+                                                value={query.fields}
+                                                optionLabelProp="label"
+                                                options={
+                                                    [
+                                                        {
+                                                            label: "ID",
+                                                            value: "id",
+                                                        },
+                                                        {
+                                                            label: "名称",
+                                                            value: "name",
+                                                        },
+                                                        {
+                                                            label: "别名",
+                                                            value: "alias",
+                                                        },
+                                                        {
+                                                            label: "标签",
+                                                            value: "labels",
+                                                        },
 
-                                        </Select>
-                                        <Search
-                                            style={{
-                                                maxWidth: "350",
-                                                marginRight: "10px",
-                                                padding: "0"
-                                            }}
-                                            value={query.key}
-                                            onChange={(e) => {
-                                                setQuery({
-                                                    ...query,
-                                                    key: e.target.value
-                                                })
-                                            }}
-                                            placeholder="模糊查询,支持正则" onSearch={() => {
-                                            }}
-                                            enterButton={
-                                                <Button icon={<IconCN type="icon-a-qingkong3x" onClick={() => {
+                                                        {
+                                                            label: "描述",
+                                                            value: "describe",
+                                                        }
+                                                    ]
+                                                }
+                                            >
+
+                                            </Select>
+                                            <Search
+                                                style={{
+                                                    maxWidth: "350",
+                                                    marginRight: "10px",
+                                                    padding: "0"
+                                                }}
+                                                value={query.key}
+                                                onChange={(e) => {
                                                     setQuery({
-                                                        fields: [],
-                                                        key: ""
+                                                        ...query,
+                                                        key: e.target.value
                                                     })
-                                                }} />}></Button>
+                                                }}
+                                                placeholder="模糊查询,支持正则" onSearch={() => {
+                                                }}
+                                                enterButton={
+                                                    <Button icon={<IconCN type="icon-a-qingkong3x" onClick={() => {
+                                                        setQuery({
+                                                            fields: [],
+                                                            key: ""
+                                                        })
+                                                    }} />}></Button>
+                                                }
+                                            />
+                                        </div>
+                                    } trigger="click"
+                                    >
+                                        <Button shape={"circle"}
+                                            icon={<BiSearchAlt style={{ color: "gray", justifyContent: "center", marginTop: 4 }} />}
+                                            size={"small"}
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+
+                                            }}
+                                        ></Button>
+                                    </Popover>
+                                    {/*<Button shape={"circle"}*/}
+                                    {/*    icon={<HiDocumentAdd style={{ color: "green", justifyContent: "center", marginTop: 4 }} />}*/}
+                                    {/*    size={"small"}*/}
+                                    {/*    onClick={(e) => {*/}
+                                    {/*        e.stopPropagation()*/}
+                                    {/*        dispatch(TypeDefinitionSlice.actions.add(DefaultTypeDefinition.create({*/}
+                                    {/*            scope:Scope.PUBLIC*/}
+                                    {/*        })))*/}
+                                    {/*    }}*/}
+                                    {/*/>*/}
+                                    <Dropdown.Button
+                                        style={{ color: "green", justifyContent: "center", marginTop: 4 }}
+                                        menu={{
+                                            items: [{
+                                                key: '1',
+                                                label: 'from json entity',
+                                            },
+                                            {
+                                                key: '2',
+                                                label: 'from xml entity',
+                                            },
+                                            ],
+                                            onClick: (e) => {
+                                                console.log(e.key)
                                             }
-                                        />
-                                    </div>
-                                } trigger="click"
-                                >
-                                    <Button shape={"circle"}
-                                        icon={<BiSearchAlt style={{ color: "gray", justifyContent: "center", marginTop: 4 }} />}
-                                        size={"small"}
-                                        onClick={(e) => {
+                                        }}><HiDocumentAdd key={"312"} onClick={(e: Event) => {
                                             e.stopPropagation()
 
-                                        }}
-                                    ></Button>
-                                </Popover>
-                                {/*<Button shape={"circle"}*/}
-                                {/*    icon={<HiDocumentAdd style={{ color: "green", justifyContent: "center", marginTop: 4 }} />}*/}
-                                {/*    size={"small"}*/}
-                                {/*    onClick={(e) => {*/}
-                                {/*        e.stopPropagation()*/}
-                                {/*        dispatch(TypeDefinitionSlice.actions.add(DefaultTypeDefinition.create({*/}
-                                {/*            scope:Scope.PUBLIC*/}
-                                {/*        })))*/}
-                                {/*    }}*/}
-                                {/*/>*/}
-                                <Dropdown.Button
-                                    style={{ color: "green", justifyContent: "center", marginTop: 4 }}
-                                    menu={{
-                                        items: [{
-                                            key: '1',
-                                            label: 'from json entity',
-                                        },
-                                        {
-                                            key: '2',
-                                            label: 'from xml entity',
-                                        },
-                                        ],
-                                        onClick: (e) => {
-                                            console.log(e.key)
-                                        }
-                                    }}><HiDocumentAdd key={"312"} onClick={(e: Event) => {
-                                        e.stopPropagation()
+                                            const ntd = DefaultTypeDefinition.create({
+                                                scope: Scope.PUBLIC,
+                                                type: ComplexType.ofType(constants.Types.TYPE_NAME_STRING)
+                                            }).unWrapper();
 
-                                        const ntd = DefaultTypeDefinition.create({
-                                            scope: Scope.PUBLIC,
-                                            type: ComplexType.ofType(constants.Types.TYPE_NAME_STRING)
-                                        }).unWrapper();
 
-                                        dispatch(TypeDefinitionSlice.actions.add(ntd))
-                                        setSelected(ntd.id)
-                                        // 选择新建元素
-                                    }} /></Dropdown.Button>
-                            </div>
-                        </TitleBar>,
-                        // type:"group",
-                        children: getItems()
+                                            dispatch(TypeDefinitionSlice.actions.add(ntd))
+                                            setSelected(ntd.id)
+                                            // 选择新建元素
+                                        }} /></Dropdown.Button>
+                                </div>
+                            </TitleBar>,
+                            // type:"group",
+                            children: getItems()
+                        }, {
+                            key: "parameters",
+                            label: <div><IconCN type="icon-Link" /> 参数定义</div>,
+                            children: []
+                        }
+                    ]
                     }
-                ]
-                }
-                onClick={({ key }) => {
-                    if (selected === key) {
-                        return
-                    }
-                    setSelected(key)
+                    onClick={({ key }) => {
+                        if (selected === key) {
+                            return
+                        }
+                        setSelected(key)
 
-                }}
+                    }}
 
-            />
+                />
+            </PanelGroup>
         </Container>
     );
 }

@@ -2,7 +2,7 @@ import axios from "axios";
 
 const axiosInstance = axios.create({
     baseURL: "http://localhost:5173/",
-    timeout: 1000
+    timeout: 30000
 });
 
 // axiosInstance.defaults.baseURL = "http://localhost:8000/";
@@ -33,8 +33,6 @@ export const get = <T,>(url: string, params: AnyObject = {}, post?: (data: API.R
         axiosInstance
             .get(url, { params })
             .then((result) => {
-                console.log(123321312);
-
                 const res = result as unknown as API.Response<T>
                 resolve((post ? post(res) : res))
             })
@@ -74,6 +72,28 @@ export const put = <T,>(url: string, params: object, post?: (data: API.Response<
     new Promise((resolve) => {
         axiosInstance
             .put(url, { ...params }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then((result) => {
+                const res = result as unknown as API.Response<T>
+                resolve((post ? post(res) : res))
+            })
+            .catch((err) => {
+                resolve({
+                    success: false,
+                    message: err.message,
+                    timestamp: Date.now(),
+                    error: err
+                } as API.Response<T>)
+            })
+    })
+
+export const del = <T,>(url: string, post?: (data: API.Response<T>) => API.Response<T>): Promise<API.Response<T>> =>
+    new Promise((resolve) => {
+        axiosInstance
+            .delete(url,  {
                 headers: {
                     'Content-Type': 'application/json'
                 }

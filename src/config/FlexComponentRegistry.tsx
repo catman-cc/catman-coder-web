@@ -1,4 +1,4 @@
-import { Core } from "@/common/typings"
+import { Core } from "@/core/typings"
 import TypeMenu from "@/components/TypeDefinition/Menu"
 import TypeDefinitionTreePanel from "@/components/TypeDefinition/Tree"
 import { IJsonModel, TabNode } from "flexlayout-react"

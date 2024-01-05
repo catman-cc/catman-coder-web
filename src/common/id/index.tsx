@@ -8,3 +8,10 @@ export const uuid = (prefix?: string) => {
 export const ID = (prefix?: string) => {
     return (prefix || "") + nanoid();
 }
+
+export const encode = () => { }
+
+// [分类]-数据id
+export const IDDecode = (id: string) => {
+    return id.replace(/\[.*\]-/, "")
+}

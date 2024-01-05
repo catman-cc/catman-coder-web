@@ -1,12 +1,16 @@
 import { configureStore, } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import configurationSlice from './configuration';
+import ParameterSlice from './parameter';
 import typeDefinitionsSlice from './typeDefinitions';
+import resourceSlice from "./resource";
 
 export const store = configureStore({
     reducer: {
         typeDefinitions: typeDefinitionsSlice,
-        configuration: configurationSlice
+        parameter: ParameterSlice,
+        configuration: configurationSlice,
+        resource:resourceSlice
     }
 })
 

@@ -1,20 +1,31 @@
 import { ID } from "../id"
 
-export type WindowKind = "FLEX" | "FLOAT"
-export interface Node {
+/**
+ * 不同的窗口模式:
+ * FLEX: 默认布局
+ * FLOAT: 悬浮窗口
+ * STAND_ALONE: 独立窗口
+ */
+export type WindowKind = "FLEX" | "FLOAT" | "STAND_ALONE"
+/**
+ * 布局元素,所有被展示的元素都可以称之为布局元素
+ */
+export interface LayoutElement {
     id?: string   // 可选的唯一标志,用于生产节点的key值,如果不传,生成随机数
-    component: string // 组件的全局唯一名称
+    component: string // 组件的全局唯一名称,当需要创建时,布局操作将通过全局插件管理器进行操作
+    config: object // 布局容器需要的独特配置信息
+    data: object // 组件所需的数据
     window: WindowKind // 对应的窗口管理器名称
 }
 
 /**
  * 组件工厂
  */
-export interface ComponentFactory<T extends Node> {
+export interface ComponentFactory<T extends LayoutElement> {
     create(_node: T): Product<T>
 }
 
-export interface ComponentCreator<T extends Node> {
+export interface ComponentCreator<T extends LayoutElement> {
     support(_node: T): boolean
     create(_node: T): Product<T>
 }
@@ -32,7 +43,9 @@ export class Product<R> {
     }
 }
 
-export interface NamedNode extends Node {
+export interface NamedNode extends LayoutElement {
+    getName(): import("react").ReactNode
+    getId(): unknown
     name: string
 }
 
@@ -66,11 +79,11 @@ export class NamedComponentCreator<T extends NamedNode> implements ComponentCrea
     }
 }
 
-export class CacheableComponentFactory<T extends Node> {
+export class CacheableComponentFactory<T extends LayoutElement> {
     proxy: ComponentFactory<T>
     cache: { [index: string]: Product<T> }
 
-    static wrapper<T extends Node>(proxy: ComponentFactory<T>) {
+    static wrapper<T extends LayoutElement>(proxy: ComponentFactory<T>) {
         return new CacheableComponentFactory(proxy)
     }
 
@@ -116,7 +129,7 @@ export class DefaultFactory<T extends NamedNode> {
         return this
     }
 
-    nameMatch(name: string, createMethod: (node: T) => (Product<T> | JSX.Element)) {
+    nameMatch(name: string, createMethod: (_node: T) => (Product<T> | JSX.Element)) {
         return this.add(NamedComponentCreator.of<T>(name, createMethod))
     }
 

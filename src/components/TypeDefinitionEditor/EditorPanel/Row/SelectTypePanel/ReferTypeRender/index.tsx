@@ -51,6 +51,10 @@ export const ReferTypeRender = (props: BasicSelectTypePanelProps) => {
                   resource.details as Core.TypeDefinitionSchema;
                 if (clickSchema.definitions) {
                   for (const definitionsKey in clickSchema.definitions) {
+                    if (props.schema.root === definitionsKey) {
+                      // 禁止修改当前正在编辑的类型定义
+                      continue;
+                    }
                     props.schema.definitions[definitionsKey] =
                       clickSchema.definitions[definitionsKey];
                   }

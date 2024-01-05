@@ -228,9 +228,13 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     return `${this.parent.generatorFullKey()}.${this.key}`;
   }
 
-  updateType(type: Core.Type) {
+  updateType(type: Core.Type, allowChangeRoot?: boolean) {
     // 更新当前节点的类型,主要需要调整当前节点的children,包括新增和删除
     const definition = this.getTypeDefinition();
+    if (this.schema.root === definition.id && !allowChangeRoot) {
+      // 根节点不允许修改类型
+      return this;
+    }
     definition.type = type;
     // return this;
     return this.update(definition);
@@ -637,18 +641,17 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     return this.getType().typeName;
   }
 
-
   flushSelf(): TypeDefinitionSchemaTree {
     // 从root节点开始遍历,找到所有child中包含自己的元素,修改引用到自身
-    const root = this.root()
-    const refs = root.deepfilter((leaf => {
-      const index = leaf.children.findIndex(c => c.id === this.id)
+    const root = this.root();
+    const refs = root.deepfilter((leaf) => {
+      const index = leaf.children.findIndex((c) => c.id === this.id);
       if (index !== -1) {
-        leaf.children[index] = this
-        return true
+        leaf.children[index] = this;
+        return true;
       }
-      return false
-    }))
+      return false;
+    });
     console.log("flush child refs", refs.length);
     return this;
   }
@@ -703,8 +706,8 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
   }
 
   deepCopy(): TypeDefinitionSchemaTree {
-    const newSchmea = this.toSchema()
-    return schemaParse(newSchmea)
+    const newSchmea = this.toSchema();
+    return schemaParse(newSchmea);
   }
   copy(): TypeDefinitionSchemaTree {
     // return {
@@ -844,8 +847,8 @@ function deepParse(
     parent,
   );
   // 这里直接修改leafs数据,不会影响到已渲染节点中的child字段,所以此处在tree发生了变化之后,需要手动修改所有引用了该节点的节点引用
-  leafs[id] = tree
-  tree.flushSelf()
+  leafs[id] = tree;
+  tree.flushSelf();
   // 避免重复渲染,循环引用不显示子节点,判断一个节点是否是循环引用,只需要判断其子节点是否包含了祖宗节点即可
   // if (tree.isCircularReference()) {
   //   return tree;
@@ -854,9 +857,15 @@ function deepParse(
   // 一个被解析过的类型定义本质上,应该已经被注册为叶子结点了,但是因为叶子节点id问题,会导致无法直接找到
   // 因为叶子节点的路径和父节点进行了关联,难道这里要做多次生成?
   // 如果一个节点是公开的,那么Ta的子节点路径直接相对于其本身即可.
+  if (schema.root !== typeDefinition.id) {
+    schema.definitions[tree.typeDefinitionId] = typeDefinition;
+  }
 
-  schema.definitions[tree.typeDefinitionId] = typeDefinition;
   for (const pik in type.privateItems) {
+    // 不允许替换根节点
+    if (pik === schema.root) {
+      continue;
+    }
     schema.definitions[pik] = type.privateItems[pik];
   }
   // 移除和自己关联的循环引用

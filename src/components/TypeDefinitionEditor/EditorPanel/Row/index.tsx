@@ -23,7 +23,20 @@ export const TreeRow = (props: {
   if (!props.tree.getTypeDefinition()) {
     return null;
   }
-
+  function computeReferIndexs(tree: TypeDefinitionSchemaTree = props.tree) {
+    const refers = Object.entries(tree.schema.circularRefs!)
+      .map(([key, value]) => {
+        if (value.includes(tree.getTypeDefinition().id!)) {
+          return key;
+        }
+        return null;
+      })
+      .filter((v) => v !== null);
+    if (refers.length > 0) {
+      return tree.circular.indexOf(refers[0]!);
+    }
+    return -1;
+  }
   // 名称,类型,别名,描述
   return (
     <div className={"type-definition-tree-row"}>
@@ -93,9 +106,7 @@ export const TreeRow = (props: {
                       color: "white",
                     }}
                   >
-                    {Object.keys(props.tree.schema.circularRefs).indexOf(
-                      props.tree.typeDefinitionId,
-                    ) + 1}
+                    {computeReferIndexs(props.tree) + 1}
                   </span>
                   的类型定义之间存在
                   <span style={{ color: "skyblue" }}>
@@ -236,7 +247,7 @@ export const TreeRow = (props: {
                     type={
                       props.tree.isPublic() ? "icon-lock_is_open1" : "icon-lock"
                     }
-                    onClick={() => { }}
+                    onClick={() => {}}
                   />
                 }
               />

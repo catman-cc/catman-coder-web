@@ -68,7 +68,7 @@ declare namespace Core {
     root: string;
     definitions: { [index: string]: TypeDefinition };
     refs: Map<string, TypeDefinition>;
-    circularRefs?: string[];
+    circularRefs?: { [index: string]: string[] };
   }
 
   interface TypeDefinition {

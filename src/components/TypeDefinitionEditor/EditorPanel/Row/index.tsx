@@ -63,8 +63,9 @@ export const TreeRow = (props: {
             {selectTypeFactory.render(
               props.tree.getTypeDefinition().type,
               (t) => {
-                // props.tree.updateType(t);
-                props.tree.getTypeDefinition().type = t;
+                console.log("change type definition type", t);
+                props.tree.updateType(t);
+                // props.tree.getTypeDefinition().type = t;
                 props.onChange(props.tree);
               },
               props.tree.schema,

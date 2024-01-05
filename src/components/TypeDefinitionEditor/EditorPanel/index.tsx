@@ -82,7 +82,7 @@ export const TypeDefinitionEditor = (props: TypeDefinitionEditorProps) => {
         // }
         if (
           node.schema.circularRefs &&
-          node.schema.circularRefs.includes(node.typeDefinitionId)
+          node.schema.circularRefs[node.typeDefinitionId] !== undefined
         ) {
           return (
             <Badge.Ribbon
@@ -91,7 +91,9 @@ export const TypeDefinitionEditor = (props: TypeDefinitionEditorProps) => {
                 <Tooltip
                   title={"当前类型被循环引用,此处展示一个唯一标记📌,便于查看"}
                 >
-                  {node.schema.circularRefs.indexOf(node.typeDefinitionId) + 1}
+                  {Object.keys(node.schema.circularRefs).indexOf(
+                    node.typeDefinitionId,
+                  ) + 1}
                 </Tooltip>
               }
             >
@@ -218,9 +220,11 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     if (this.getTypeDefinition().scope.toString() === "PUBLIC") {
       return this.key;
     }
+
     if (this.parent.getTypeDefinition().scope.toString() === "PUBLIC") {
       return `${this.parent.typeDefinitionId}.${this.key}`;
     }
+
     return `${this.parent.generatorFullKey()}.${this.key}`;
   }
 
@@ -791,18 +795,20 @@ function deepParse(
   parent?: TypeDefinitionSchemaTree,
 ): TypeDefinitionSchemaTree {
   const type = typeDefinition.type;
-
   const leafs = parent?.leafs || {};
 
-  const id = parent
-    ? parent.generatorFullKey() + "." + typeDefinition.id!
-    : typeDefinition.id!;
+  // 公开类型的id,直接使用类型定义的id即可
+  const id =
+    typeDefinition.scope.toString() === "PUBLIC"
+      ? typeDefinition.id!
+      : parent
+        ? parent.generatorFullKey() + "." + typeDefinition.id!
+        : typeDefinition.id!;
+
   if (typeDefinition.scope.toString() === "PUBLIC") {
     // ① 优先读取缓存,如果缓存中不存在,则需要重新解析
     const cache = leafs[id];
     if (cache) {
-      console.log("empty-cache", id, cache);
-      console.log("empty-cache", id, cache);
       return cache;
     }
   }
@@ -817,6 +823,7 @@ function deepParse(
     leafs,
     parent,
   );
+  leafs[id] = tree;
 
   // 避免重复渲染,循环引用不显示子节点,判断一个节点是否是循环引用,只需要判断其子节点是否包含了祖宗节点即可
   // if (tree.isCircularReference()) {
@@ -831,7 +838,25 @@ function deepParse(
   for (const pik in type.privateItems) {
     schema.definitions[pik] = type.privateItems[pik];
   }
+  // 移除和自己关联的循环引用
+  if (schema.circularRefs) {
+    Object.entries(schema.circularRefs).forEach(([key, value]) => {
+      if (value.includes(typeDefinition.id!)) {
+        if (value.length === 1) {
+          delete schema.circularRefs![key];
+        } else {
+          const index = value.findIndex((c) => c === typeDefinition.id!);
+          if (index !== -1) {
+            value.splice(index, 1);
+          }
+        }
+      }
+    });
+  }
 
+  tree.children = [];
+  // 准备重置当前元素的循环引用标志
+  let circularReference = false;
   // 处理子元素定义
   type.sortedAllItems.forEach((item) => {
     // 获取子节点的类型定义
@@ -840,22 +865,29 @@ function deepParse(
     const itemTree = deepParse(itemTypeDefinition, schema, tree);
     // 拿到子节点之后,根据当前类型,选择合适的目标容器存放
     // 引用类型的存到refs中,其他类型的存到children中
-
     if (["refer", "generic"].includes(type.typeName)) {
       // 已经包含了该类型定义,理论上可以直接返回,但是如果属于循环引用,则需要返回一个空的树
+      console.log("asddasas");
       if (id.includes(itemTree.typeDefinitionId)) {
+        console.warn("检测到循环引用", id, itemTree.typeDefinitionId);
         // 如果当前节点的id包含了引用的类型定义,则表示循环引用
         if (!schema.circularRefs) {
-          schema.circularRefs = [];
-          schema.circularRefs.push(itemTree.typeDefinitionId);
-        } else {
-          if (
-            !schema.circularRefs.find((c) => c === itemTree.typeDefinitionId)
-          ) {
-            schema.circularRefs.push(itemTree.typeDefinitionId!);
-          }
+          schema.circularRefs = {};
         }
-        tree.circularReference = true;
+        if (!schema.circularRefs[itemTree.typeDefinitionId]) {
+          schema.circularRefs[itemTree.typeDefinitionId] = [];
+        }
+
+        if (
+          !schema.circularRefs[itemTree.typeDefinitionId].find(
+            (c) => c === typeDefinition.id,
+          )
+        ) {
+          !schema.circularRefs[itemTree.typeDefinitionId].push(
+            typeDefinition.id!,
+          );
+        }
+        circularReference = true;
       } else {
         // 不是循环引用,允许渲染出子元素
         tree.addLeaf(itemTree);
@@ -866,7 +898,8 @@ function deepParse(
       tree.addLeaf(itemTree);
     }
   });
-
+  // 重新确认一下是否是循环引用
+  tree.circularReference = circularReference;
   return tree;
 }
 

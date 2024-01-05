@@ -1,9 +1,9 @@
+import { ComplexType, DefaultTypeDefinition } from "@/common/core.ts";
+import { TreeRow } from "@/components/TypeDefinitionEditor/EditorPanel/Row";
+import { useDebounceFn } from "ahooks";
 import { Badge, InputRef, Tooltip, Tree } from "antd";
 import { DataNode } from "antd/es/tree";
 import { useState } from "react";
-import { TreeRow } from "@/components/TypeDefinitionEditor/EditorPanel/Row";
-import { ComplexType, DefaultTypeDefinition } from "@/common/core.ts";
-import { useDebounceFn } from "ahooks";
 import "./index.less";
 export interface TypeDefinitionEditorProps {
   /**
@@ -637,6 +637,22 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     return this.getType().typeName;
   }
 
+
+  flushSelf(): TypeDefinitionSchemaTree {
+    // 从root节点开始遍历,找到所有child中包含自己的元素,修改引用到自身
+    const root = this.root()
+    const refs = root.deepfilter((leaf => {
+      const index = leaf.children.findIndex(c => c.id === this.id)
+      if (index !== -1) {
+        leaf.children[index] = this
+        return true
+      }
+      return false
+    }))
+    console.log("flush child refs", refs.length);
+    return this;
+  }
+
   getTypeDefinition(): Core.TypeDefinition {
     let td = this.schema.definitions[this.typeDefinitionId]!;
     if (td) {
@@ -686,6 +702,10 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     return undefined;
   }
 
+  deepCopy(): TypeDefinitionSchemaTree {
+    const newSchmea = this.toSchema()
+    return schemaParse(newSchmea)
+  }
   copy(): TypeDefinitionSchemaTree {
     // return {
     //   ...this,
@@ -823,8 +843,9 @@ function deepParse(
     leafs,
     parent,
   );
-  leafs[id] = tree;
-
+  // 这里直接修改leafs数据,不会影响到已渲染节点中的child字段,所以此处在tree发生了变化之后,需要手动修改所有引用了该节点的节点引用
+  leafs[id] = tree
+  tree.flushSelf()
   // 避免重复渲染,循环引用不显示子节点,判断一个节点是否是循环引用,只需要判断其子节点是否包含了祖宗节点即可
   // if (tree.isCircularReference()) {
   //   return tree;

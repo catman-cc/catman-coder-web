@@ -1,10 +1,10 @@
-import { TypeDefinitionSchemaTree } from "@/components/TypeDefinitionEditor/EditorPanel";
-import { useCallback, useEffect, useState } from "react";
-import "./index.less";
-import { Button, Input, InputRef, message, Popover, Tooltip } from "antd";
-import { PeekTypeColor } from "@/components/TypeDefinitionEditor/EditorPanel/Row/TypeSelector/common.tsx";
 import IconCN from "@/components/Icon";
+import { TypeDefinitionSchemaTree } from "@/components/TypeDefinitionEditor/EditorPanel";
 import { SelectTypePanelFactory } from "@/components/TypeDefinitionEditor/EditorPanel/Row/SelectTypePanel";
+import { PeekTypeColor } from "@/components/TypeDefinitionEditor/EditorPanel/Row/TypeSelector/common.tsx";
+import { Button, Input, InputRef, Tooltip, message } from "antd";
+import { useCallback, useState } from "react";
+import "./index.less";
 export const TreeRow = (props: {
   tree: TypeDefinitionSchemaTree;
   onChange: (tree: TypeDefinitionSchemaTree) => void;
@@ -66,7 +66,7 @@ export const TreeRow = (props: {
                 console.log("change type definition type", t);
                 props.tree.updateType(t);
                 // props.tree.getTypeDefinition().type = t;
-                props.onChange(props.tree);
+                props.onChange(props.tree.deepCopy());
               },
               props.tree.schema,
             )}
@@ -93,8 +93,8 @@ export const TreeRow = (props: {
                       color: "white",
                     }}
                   >
-                    {props.tree.schema.circularRefs!.indexOf(
-                      props.tree.getTypeDefinition().id!,
+                    {Object.keys(props.tree.schema.circularRefs).indexOf(
+                      props.tree.typeDefinitionId,
                     ) + 1}
                   </span>
                   的类型定义之间存在
@@ -236,7 +236,7 @@ export const TreeRow = (props: {
                     type={
                       props.tree.isPublic() ? "icon-lock_is_open1" : "icon-lock"
                     }
-                    onClick={() => {}}
+                    onClick={() => { }}
                   />
                 }
               />

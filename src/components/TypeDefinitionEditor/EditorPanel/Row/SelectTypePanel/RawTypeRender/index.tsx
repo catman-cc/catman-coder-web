@@ -5,6 +5,18 @@ import TypeSelectorPanel from "@/components/TypeDefinitionEditor/EditorPanel/Row
 import { ComplexType } from "@/common/core.ts";
 
 export const RawTypeRender = (props: BasicSelectTypePanelProps) => {
+  if (props.disabled) {
+    return (
+      <Button
+        disabled={props.disabled}
+        size={"small"}
+        type={"dashed"}
+        icon={PeekTypeIcon(props.type.typeName)}
+      >
+        {props.type.typeName}
+      </Button>
+    );
+  }
   return (
     <Popover
       trigger={"click"}

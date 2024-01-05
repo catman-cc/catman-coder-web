@@ -9,6 +9,7 @@ export type SelectTypePanelCreator = (
   update: (type: Core.Type) => void,
   schema: Core.TypeDefinitionSchema,
   factory: SelectTypePanelFactory,
+  disabled?: boolean,
 ) => JSX.Element;
 
 export class SelectTypePanelFactory {
@@ -27,57 +28,111 @@ export class SelectTypePanelFactory {
       update,
       schema: Core.TypeDefinitionSchema,
       factory,
+      disabled?: boolean,
     ) => {
-      return <RawTypeRender type={type} updateType={update} schema={schema} />;
+      return (
+        <RawTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+        />
+      );
     };
     this.creators["number"] = (
       type,
       update,
       schema: Core.TypeDefinitionSchema,
       factory,
+      disabled?: boolean,
     ) => {
-      return <RawTypeRender type={type} updateType={update} schema={schema} />;
+      return (
+        <RawTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+        />
+      );
     };
     this.creators["boolean"] = (
       type,
       update,
       schema: Core.TypeDefinitionSchema,
       factory,
+      disabled?: boolean,
     ) => {
-      return <RawTypeRender type={type} updateType={update} schema={schema} />;
+      return (
+        <RawTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+        />
+      );
     };
     this.creators["array"] = (
       type,
       update,
       schema: Core.TypeDefinitionSchema,
       factory,
+      disabled?: boolean,
     ) => {
-      return <RawTypeRender type={type} updateType={update} schema={schema} />;
+      return (
+        <RawTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+        />
+      );
     };
     this.creators["map"] = (
       type,
       update,
       schema: Core.TypeDefinitionSchema,
       factory,
+      disabled?: boolean,
     ) => {
-      return <RawTypeRender type={type} updateType={update} schema={schema} />;
+      return (
+        <RawTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+        />
+      );
     };
     this.creators["struct"] = (
       type,
       update,
       schema: Core.TypeDefinitionSchema,
       factory,
+      disabled?: boolean,
     ) => {
-      return <RawTypeRender type={type} updateType={update} schema={schema} />;
+      return (
+        <RawTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+        />
+      );
     };
     this.creators["refer"] = (
       type,
       update,
       schema: Core.TypeDefinitionSchema,
       factory,
+      disabled?: boolean,
     ) => {
       return (
-        <ReferTypeRender type={type} updateType={update} schema={schema} />
+        <ReferTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+        />
       );
     };
   }
@@ -85,10 +140,14 @@ export class SelectTypePanelFactory {
     type: Core.Type,
     update: (type: Core.Type) => void,
     schema: Core.TypeDefinitionSchema,
+    disabled?: boolean,
   ): JSX.Element {
     console.log("render type", type.privateItems, type);
     const creator = this.creators[type.typeName];
     if (creator) {
+      if (disabled) {
+        return creator(type, update, schema, this, disabled);
+      }
       return (
         <Popover
           trigger={"click"}
@@ -102,7 +161,7 @@ export class SelectTypePanelFactory {
             />
           }
         >
-          {creator(type, update, schema, this)}
+          {creator(type, update, schema, this, disabled)}
         </Popover>
       );
     }
@@ -113,4 +172,5 @@ export interface BasicSelectTypePanelProps {
   type: Core.Type;
   schema: Core.TypeDefinitionSchema;
   updateType: (type: Core.Type) => void;
+  disabled?: boolean;
 }

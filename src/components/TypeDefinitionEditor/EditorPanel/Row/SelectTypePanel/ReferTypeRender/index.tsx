@@ -19,6 +19,23 @@ export const ReferTypeRender = (props: BasicSelectTypePanelProps) => {
   useEffect(() => {
     setRefer(props.type.sortedAllItems[0]);
   }, [props]);
+  if (props.disabled) {
+    return (
+      <div className={"flex justify-between"}>
+        <Button
+          disabled={props.disabled}
+          size={"small"}
+          type={"dashed"}
+          icon={PeekTypeIcon(props.type.typeName)}
+        >
+          {props.type.typeName}
+        </Button>
+        <Button size={"small"} type={"dashed"}>
+          {refer ? props.schema.definitions[refer.itemId!]?.name : "未选择"}
+        </Button>
+      </div>
+    );
+  }
   return (
     <div className={"flex justify-between"}>
       <Popover
@@ -33,6 +50,7 @@ export const ReferTypeRender = (props: BasicSelectTypePanelProps) => {
         }
       >
         <Button
+          disabled={props.disabled}
           size={"small"}
           type={"dashed"}
           icon={PeekTypeIcon(props.type.typeName)}

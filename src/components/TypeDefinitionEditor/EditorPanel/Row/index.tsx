@@ -10,6 +10,7 @@ export const TreeRow = (props: {
   onChange: (tree: TypeDefinitionSchemaTree) => void;
   nameRefs: { [index: string]: InputRef };
   addNameRef: (id: string, ref: InputRef) => void;
+  disable?: boolean;
 }) => {
   const [messageApi, contextHolder] = message.useMessage();
   const [selectTypeFactory, setSelectTypeFactory] = useState(
@@ -54,7 +55,7 @@ export const TreeRow = (props: {
               }
             }
           }}
-          disabled={!props.tree.canRename()}
+          disabled={!props.tree.canRename() || !props.tree.canEdit()}
           size={"small"}
           bordered={false}
           value={props.tree.getTypeDefinition().name}
@@ -82,11 +83,13 @@ export const TreeRow = (props: {
                 props.onChange(props.tree.deepCopy());
               },
               props.tree.schema,
+              !props.tree.canEdit(),
             )}
             {/*{props.tree.maxLevel()} , {props.tree.getLevel()}*/}
           </div>
           <div className={"type-definition-tree-row-describe"}>
             <Input
+              disabled={!props.tree.canEdit()}
               size={"small"}
               bordered={false}
               value={props.tree.getTypeDefinition().describe}
@@ -116,6 +119,7 @@ export const TreeRow = (props: {
               }
             >
               <Button
+                disabled={!props.tree.canEdit()}
                 size={"small"}
                 icon={
                   <IconCN
@@ -135,6 +139,7 @@ export const TreeRow = (props: {
               }
             >
               <Button
+                disabled={!props.tree.canEdit()}
                 size={"small"}
                 icon={
                   <IconCN
@@ -165,6 +170,7 @@ export const TreeRow = (props: {
                 }
               >
                 <Button
+                  disabled={!props.tree.canEdit()}
                   size={"small"}
                   icon={
                     <IconCN
@@ -193,6 +199,7 @@ export const TreeRow = (props: {
                 }
               >
                 <Button
+                  disabled={!props.tree.canEdit()}
                   size={"small"}
                   icon={
                     <IconCN
@@ -218,6 +225,7 @@ export const TreeRow = (props: {
           {props.tree.canRemove() ? (
             <Tooltip title={"删除"}>
               <Button
+                disabled={!props.tree.canEdit()}
                 size={"small"}
                 icon={
                   <IconCN
@@ -241,7 +249,7 @@ export const TreeRow = (props: {
             >
               <Button
                 size={"small"}
-                disabled={props.tree.isPublic()}
+                disabled={props.tree.isPublic() || !props.tree.canEdit()}
                 icon={
                   <IconCN
                     type={

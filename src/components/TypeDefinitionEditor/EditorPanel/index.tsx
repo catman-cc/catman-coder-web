@@ -48,7 +48,7 @@ export const TypeDefinitionEditor = (props: TypeDefinitionEditorProps) => {
       }}
       className={"type-definition-tree"}
       defaultExpandAll
-      draggable={true}
+      // draggable={true}
       treeData={tree}
       showLine={true}
       onDrop={(info) => {
@@ -577,7 +577,28 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
   canRename(): boolean {
     return this.getParent()?.getTypeName() !== "array";
   }
-
+  isReferFieldButNotRoot(): boolean {
+    // 判断当前是否是被引用的字段,从自身网上查,如果有refer类型,则是被引用的字段
+    const parent = this.getParent();
+    if (!parent) {
+      return false;
+    }
+    if (parent.typeDefinitionId === this.schema.root) {
+      return false;
+    }
+    if (parent.getTypeDefinition().scope.toString() === "PUBLIC") {
+      return true;
+    }
+    return parent.isReferFieldButNotRoot();
+  }
+  canEdit(): boolean {
+    // 被引入的类型,不允许编辑
+    if (this.schema.root !== this.typeDefinitionId && this.isPublic()) {
+      return false;
+    }
+    // 同理,被引入的类型的子字段,也不允许编辑
+    return !this.isReferFieldButNotRoot();
+  }
   getBelongPublic(): TypeDefinitionSchemaTree | undefined {
     const parent = this.getParent();
     if (!parent) {

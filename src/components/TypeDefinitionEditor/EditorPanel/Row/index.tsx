@@ -25,16 +25,21 @@ export const TreeRow = (props: {
     return null;
   }
   function computeReferIndexs(tree: TypeDefinitionSchemaTree = props.tree) {
+    console.log(
+      "compute refer indexs",
+      tree.typeDefinitionId!,
+      tree.schema.circularRefs,
+    );
     const refers = Object.entries(tree.schema.circularRefs!)
       .map(([key, value]) => {
-        if (value.includes(tree.getTypeDefinition().id!)) {
+        if (value.includes(tree.typeDefinitionId!)) {
           return key;
         }
         return null;
       })
       .filter((v) => v !== null);
     if (refers.length > 0) {
-      return tree.circular.indexOf(refers[0]!);
+      return Object.keys(tree.schema.circularRefs!).indexOf(refers[0]!);
     }
     return -1;
   }

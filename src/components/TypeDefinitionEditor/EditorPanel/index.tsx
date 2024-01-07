@@ -3,24 +3,24 @@ import { TreeRow } from "@/components/TypeDefinitionEditor/EditorPanel/Row";
 import { useDebounceFn } from "ahooks";
 import { Badge, InputRef, Tooltip, Tree } from "antd";
 import { DataNode } from "antd/es/tree";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./index.less";
 export interface TypeDefinitionEditorProps {
   /**
    * 传入的类型定义
    */
-  schema: Core.TypeDefinitionSchema;
+  defaultSchema: Core.TypeDefinitionSchema;
   /**
    * 保存类型定义的回调
    */
-  onSave?: (schema: Core.TypeDefinitionSchema) => void;
+  onChange?: (schema: Core.TypeDefinitionSchema) => void;
 }
 
 export const TypeDefinitionEditor = (props: TypeDefinitionEditorProps) => {
   const [nameRefs, setNameRefs] = useState<{ [index: string]: InputRef }>({});
   // 以一个树状结构展示所有的类型定义
   const [tree, setTree] = useState<TypeDefinitionSchemaTree[]>([
-    schemaParse(props.schema),
+    schemaParse(props.defaultSchema),
   ]);
 
   // useEffect(() => {
@@ -33,13 +33,16 @@ export const TypeDefinitionEditor = (props: TypeDefinitionEditorProps) => {
 
   const save = useDebounceFn(
     (tree: TypeDefinitionSchemaTree) => {
-      if (props.onSave) {
+      if (props.onChange) {
         console.warn("save", tree, tree.toSchema());
-        props.onSave(tree.toSchema());
+        props.onChange(tree.toSchema());
       }
     },
-    { wait: 10, leading: true, trailing: true },
+    { wait: 200, leading: true, trailing: true },
   );
+  useEffect(() => {
+    save.run(tree[0]);
+  }, [tree]);
 
   return (
     <Tree
@@ -251,7 +254,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     // 首先需要查找到当前节点的父节点,然后将当前节点替换为新的节点
     const parent = this.getParent();
     // 如果没有父节点,则说明当前节点是根节点,那就直接按照public的方式更新
-    this.schema.definitions[this.id] = td;
+    // this.schema.definitions[this.id] = td;
     this.schema.definitions[this.typeDefinitionId] = td;
     if (parent) {
       const pt = parent.getType();
@@ -918,9 +921,8 @@ function deepParse(
     // 引用类型的存到refs中,其他类型的存到children中
     if (["refer", "generic"].includes(type.typeName)) {
       // 已经包含了该类型定义,理论上可以直接返回,但是如果属于循环引用,则需要返回一个空的树
-      console.log("asddasas");
       if (id.includes(itemTree.typeDefinitionId)) {
-        console.warn("检测到循环引用", id, itemTree.typeDefinitionId);
+        console.info("检测到循环引用", id, itemTree.typeDefinitionId);
         // 如果当前节点的id包含了引用的类型定义,则表示循环引用
         if (!schema.circularRefs) {
           schema.circularRefs = {};

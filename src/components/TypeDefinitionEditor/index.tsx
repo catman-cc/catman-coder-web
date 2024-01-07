@@ -21,10 +21,10 @@ export const TypeDefinitionSchemaEditor = (
       <div className={"type-definition-schema-editor-title"}>
         <Button
           onClick={() => {
-            console.log(schema);
-            // saveSchema(schema!).then((res) => {
-            //   console.log(res);
-            // });
+            console.log("schema was changed", schema);
+            saveSchema(schema!).then((res) => {
+              console.log(res);
+            });
           }}
         >
           save
@@ -32,8 +32,8 @@ export const TypeDefinitionSchemaEditor = (
       </div>
       <div className={"type-definition-schema-editor-body"}>
         <TypeDefinitionEditor
-          schema={schema}
-          onSave={(newSchema) => {
+          defaultSchema={schema!}
+          onChange={(newSchema) => {
             setSchema(newSchema);
           }}
         />

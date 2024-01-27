@@ -1,5 +1,16 @@
 import { get, put } from "@/common/api";
 
+export class TypeeDefinitionService {
+  static findById(id: string,): Promise<API.Response<Core.TypeDefinition>> {
+    return findById(id)
+  }
+
+}
+
+export class TypeeDefinitionSchemaService {
+
+}
+
 export function findById(
   id: string,
 ): Promise<API.Response<Core.TypeDefinition>> {

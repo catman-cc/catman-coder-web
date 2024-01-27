@@ -13,6 +13,7 @@ export class DefaultTypeDefinition implements Core.TypeDefinition {
   tag: Core.Tag[] = [];
   alias: string[] = [];
   labels!: Core.Labels;
+  required: boolean = false
   type: ComplexType;
   defaultValue!: string;
   describe!: string;
@@ -63,6 +64,7 @@ export class DefaultTypeDefinition implements Core.TypeDefinition {
       labels: this.labels,
       type: this.type.unWrapper(),
       tag: this.tag,
+      required: this.required,
       group: this.group,
       mock: this.mock,
       alias: this.alias,
@@ -84,14 +86,14 @@ export class DefaultTypeDefinition implements Core.TypeDefinition {
       type?: ComplexType;
       scope?: Core.Scope;
     } = {
-      childCount: 0,
-      name: constants.DEFAULT_NEW_TYPE_DEFINITION_NAME,
-      type: ComplexType.ofType(constants.Types.TYPE_NAME_STRING),
-    },
+        childCount: 0,
+        name: constants.DEFAULT_NEW_TYPE_DEFINITION_NAME,
+        type: ComplexType.ofType(constants.Types.TYPE_NAME_STRING),
+      },
   ) {
     const ctd = new DefaultTypeDefinition();
     ctd.id = ID();
-    ctd.name = config.name || constants.DEFAULT_NEW_TYPE_DEFINITION_NAME;
+    ctd.name = config.name === undefined ? constants.DEFAULT_NEW_TYPE_DEFINITION_NAME : config.name
     ctd.scope = config.scope || Scope.PRIVATE;
     if (config.type) {
       ctd.type = config.type;
@@ -122,6 +124,9 @@ export class DefaultTypeDefinition implements Core.TypeDefinition {
     if (!this.alias) {
       this.alias = [];
     }
+    if (!this.required) {
+      this.required = false;
+    }
     if (!this.type) {
       this.type = new ComplexType();
     } else {
@@ -136,6 +141,9 @@ export class ComplexType implements Core.Type {
   privateItems: { [index: string]: Core.TypeDefinition } = {};
   sortedAllItems: Core.TypeItem[] = [];
   config: Core.Config = {};
+  static of(type: Core.Type) {
+    return new ComplexType(type)
+  }
   static ofType(typeName: string = constants.Types.TYPE_NAME_STRING) {
     const t = new ComplexType();
     t.typeName = typeName;
@@ -190,6 +198,9 @@ export class ComplexType implements Core.Type {
       this.getTypeName() === constants.Types.TYPE_NAME_REFER ||
       this.getTypeName() === constants.Types.TYPE_NAME_STRUCT
     );
+  }
+  isEnum(): boolean {
+    return this.getTypeName() === constants.Types.TYPE_NAME_ENUM
   }
   isMap(): boolean {
     return this.getTypeName() === constants.Types.TYPE_NAME_MAP;

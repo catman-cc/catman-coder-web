@@ -1,20 +1,20 @@
 /**
  * 资源视图面板,以树状结构展示所有资源数据
  */
-import { useContextMenu } from "react-contexify";
+import IconCN from "@/components/Icon";
+import { SelectorPanel } from "@/components/LabelSelector/SelectorPanel";
+import { LabelSelectFactory } from "@/components/LabelSelector/common";
+import { useApplicationContext } from "@/core";
+import { useAppDispatch, useAppSelector } from "@/stores";
+import { ResourceSlice, RootResourceQuery } from "@/stores/resource";
 import { Button, Card, Popover, Tree } from "antd";
 import type { DataNode, DirectoryTreeProps } from "antd/es/tree";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
-import { useApplicationContext } from "@/core";
-import "./index.css";
+import { useContextMenu } from "react-contexify";
 import "react-contexify/dist/ReactContexify.css";
-import { useAppDispatch, useAppSelector } from "@/stores";
-import { ResourceSlice } from "@/stores/resource";
-const { DirectoryTree } = Tree;
+import "./index.css";
 import "./index.less";
-import IconCN from "@/components/Icon";
-import { LabelSelectFactory } from "@/components/LabelSelector/common";
-import { SelectorPanel } from "@/components/LabelSelector/SelectorPanel";
+const { DirectoryTree } = Tree;
 // 加载数据后,在转换时,调用上下文处理器,重新处理数据的同时,为其生成合适的icon
 /**
  * 一个默认的资源浏览器
@@ -85,7 +85,7 @@ const ResourceExplorer: React.FC = () => {
     });
   };
 
-  const onExpand: DirectoryTreeProps["onExpand"] = (keys, info) => {};
+  const onExpand: DirectoryTreeProps["onExpand"] = (keys, info) => { };
 
   const menuContext = explorerContext.menuContext!;
   const { show } = useContextMenu({
@@ -111,6 +111,10 @@ const ResourceExplorer: React.FC = () => {
       ?.watchByName("resource-flush", (e) => {
         dispatch(ResourceSlice.actions.save(e.data));
       })
+      .watchByName("resource-reload", () => {
+        // 加载所有的resource资源
+        dispatch(RootResourceQuery());
+      })
       .watchByName("resource-remove", (e) => {
         dispatch(ResourceSlice.actions.remove(e.data));
       })
@@ -129,7 +133,12 @@ const ResourceExplorer: React.FC = () => {
 
   return (
     // 此处展示了title数据,后面需要放到上下文的控制项中,用于动态处理
-    <div>
+    <div
+      tabIndex={-1}
+      onKeyDown={(e) => {
+        // TODO 做一个占位,后面实现简单的搜索和快捷键等操作
+        // console.log(e.key);
+      }}>
       <Card
         title={
           <div
@@ -155,6 +164,9 @@ const ResourceExplorer: React.FC = () => {
                       onChange={(v) => {
                         setSelector(v);
                       }}
+                      onApply={(search) => {
+
+                      }}
                       keyAutoOptions={ResourceNames}
                     />
                   </div>
@@ -174,9 +186,40 @@ const ResourceExplorer: React.FC = () => {
         <DirectoryTree
           className={"resource-explorer"}
           showIcon={true}
+          allowDrop={({ dragNode, dropNode, dropPosition }) => {
+            if (dropNode.resource.leaf) {
+              console.log("drop pos", dropPosition);
+
+              return dropPosition !== 0
+            }
+            return true
+          }}
+          onDrop={(info) => {
+            // over内部
+            // over 内部,表示第一个
+            const cid = info.node.resource.id
+            if (info.node.dragOver) {
+              // 调用接口
+              resourceContext.service?.move(info.dragNode.resource.id, info.node.resource.id).then(res => {
+                dispatch(RootResourceQuery())
+              })
+            } else {
+              if (info.node.dragOverGapTop) {
+                // 在某一个资源上面,则需要寻找到该资源的前一个资源,表示插入到二者中间
+                resourceContext.service?.move(info.dragNode.resource.id, "", "", cid,).then(res => {
+                  dispatch(RootResourceQuery())
+                })
+              } else {
+                resourceContext.service?.move(info.dragNode.resource.id, "", cid).then(res => {
+                  dispatch(RootResourceQuery())
+                })
+              }
+            }
+          }}
           // multiple
           defaultExpandAll
           showLine
+          draggable={{ icon: false }}
           // 后面再处理switchIcon
           // multiple
           onSelect={onSelect}

@@ -1,10 +1,10 @@
-import { DockViewHttpProvider } from "@/components/Provider/http/DockView";
-import { Constants } from "@/core/common";
 import IconCN from "@/components/Icon";
-import { ItemParams } from "react-contexify";
+import { DockViewHttpProvider } from "@/components/Provider/http/DockView";
 import { DefaultLayoutNode } from "@/core/Layout";
+import { Constants } from "@/core/common";
 import { CreationModal } from "@/core/component/CreationModel";
 import { Resource } from "@/core/typings";
+import { ItemParams } from "react-contexify";
 
 export class HttpRequest implements Core.Processor {
   before(context: Core.ApplicationContext) {
@@ -66,7 +66,7 @@ export class HttpRequest implements Core.Processor {
                   <div style={{ marginRight: "5px" }}>
                     <IconCN type={"icon-http1"} />
                   </div>
-                  <div>新建HTTP请求</div>
+                  <div>新建HTTP快捷请求</div>
                 </div>
               ),
               onMenuClick: (
@@ -78,7 +78,7 @@ export class HttpRequest implements Core.Processor {
                 while (group.kind !== "resource") {
                   group =
                     context.resourceContext?.store?.resources[
-                      resource.parentId
+                    resource.parentId
                     ];
                 }
 
@@ -94,6 +94,7 @@ export class HttpRequest implements Core.Processor {
                           kind: "HttpValueProviderQuicker",
                           name: info.name,
                           config: {},
+                          previousId: resource.kind === "resource" ? null : resource.id
                         } as unknown as Core.Resource)
                         .then((res) => {
                           const resourceDetails = res.data;
@@ -138,6 +139,7 @@ export class HttpRequest implements Core.Processor {
                 style={{
                   height: "100%",
                   color: "#1890ff",
+                  fontWeight: 300,
                   fontSize: ".7em",
                 }}
               >
@@ -227,6 +229,7 @@ export class HttpRequest implements Core.Processor {
                 ...resource,
                 name: `副本-${resource.name}`,
                 id: undefined,
+                previousId: resource.kind === "resource" ? null : resource.id
               } as unknown as Core.Resource)
               .then((res) => {
                 const resourceDetails = res.data;

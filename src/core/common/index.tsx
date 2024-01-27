@@ -21,6 +21,8 @@ export class Constants {
     kind: {
       typeDefinition: "td",
       httpValueProviderQuicker: "HttpValueProviderQuicker",
+      function: "function",
+      job: "job"
     },
   };
 }

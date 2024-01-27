@@ -1,3 +1,4 @@
+
 declare namespace Core {
   import type { DataNode } from "antd/es/tree";
   import { ReactNode } from "react";
@@ -21,8 +22,12 @@ declare namespace Core {
     type: Type;
     tag?: Tag[];
     group?: Group;
+    /**
+     * 被标注资源的版本信息,根据资源的版本信息,访问者可以考虑如何处理资源的版本信息
+     */
+    version?: string
   }
-  interface Config {}
+  interface Config { }
   type Scope = "PRIVATE" | "PUBlIC";
 
   interface Mock {
@@ -64,11 +69,23 @@ declare namespace Core {
     sortedAllItems: TypeItem[];
   }
 
+  /**
+   *  用于存放循环引用数据的上下文
+   */
+  interface LoopReferenceContext {
+    typeDefinitions: { [index: string]: TypeDefinition }
+    valueProviderDefinitions: { [index: string]: unknown }
+    parameters: { [index: string]: Parameter }
+    functionInfos: { [index: string]: unknown }
+  }
+
   interface TypeDefinitionSchema {
     root: string;
+    context: Core.LoopReferenceContext
     definitions: { [index: string]: TypeDefinition };
     refs: Map<string, TypeDefinition>;
     circularRefs?: { [index: string]: string[] };
+
   }
 
   interface TypeDefinition {
@@ -84,6 +101,7 @@ declare namespace Core {
     defaultValue?: string;
     describe?: string;
     wiki?: string;
+    required?: boolean
   }
 
   export interface ValueDefinition extends Core.Base {
@@ -102,6 +120,11 @@ declare namespace Core {
     defaultValue: ValueDefinition;
   }
 
+  export interface ParameterSchema {
+    root: string,
+    context: LoopReferenceContext
+  }
+
   export interface JobDefinition extends Core.Base {
     id: string;
     name: string;
@@ -115,8 +138,10 @@ declare namespace Core {
     parentId: string;
     resourceId: string;
     isLeaf: boolean;
-    extra: string;
+    extra?: string;
     children: Resource[];
+    previousId?: string
+    nextId?: string
   }
 
   /**
@@ -304,23 +329,25 @@ declare namespace Core {
   }
 
   export interface ResourceService {
-    root(selector?: string): Promise<API.Response<Core.Resource>>;
-    findById(id: string): Promise<API.Response<Core.Resource>>;
+    root(_selector?: string): Promise<API.Response<Core.Resource>>;
+    findById(_id: string): Promise<API.Response<Core.Resource>>;
 
-    save(resource: Resource): Promise<API.Response<Core.Resource>>;
+    save(_resource: Resource): Promise<API.Response<Core.Resource>>;
 
-    rename(id: string, name: string): Promise<API.Response<Core.Resource>>;
+    rename(_id: string, _name: string): Promise<API.Response<Core.Resource>>;
 
-    delete(resource: Resource): Promise<API.Response<Core.Resource>>;
+    delete(_resource: Resource): Promise<API.Response<Core.Resource>>;
     /**
      * 根据resource定义,获取对应的具体资源数据
      * @param resource resource定义
      */
-    loadDetails<T>(resource: Resource): Promise<API.Response<T>>;
+    loadDetails<T>(_resource: Resource): Promise<API.Response<T>>;
 
     create<T>(
-      resource: Resource,
+      _resource: Resource,
     ): Promise<API.Response<Core.ResourceDetails<T>>>;
+    move(_id: string, _parentId?: string, _previousId?: string, _nextId?: string, index?: number): Promise<API.Response<boolean>>
+    flush(_id: string): Promise<API.Response<boolean>>
   }
 
   /**

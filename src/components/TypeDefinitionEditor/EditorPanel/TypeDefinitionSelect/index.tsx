@@ -1,6 +1,6 @@
+import { findAllSimples } from "@/services/typeDefinitions";
 import { Select } from "antd";
 import { useEffect, useState } from "react";
-import { findAllSimples } from "@/services/typeDefinitions";
 
 export const TypeDefinitionSelect = ({
   value,

@@ -1,7 +1,11 @@
+import applicationContext from "@/ApplicationContext.tsx";
 import EventBus, { Events } from "@/common/events/index.tsx";
 import IconCN from "@/components/Icon";
 import global from "@/config/index.tsx";
+import { useLayoutContext } from "@/core";
+import { DefaultLayoutNode } from "@/core/Layout";
 import { useAppDispatch, useAppSelector } from "@/stores";
+import { RootResourceQuery } from "@/stores/resource";
 import { Button, List, Modal, Popover, Tooltip } from "antd";
 import {
   Actions,
@@ -19,11 +23,6 @@ import "flexlayout-react/style/light.css";
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import FloatWindow from "./Float/index.tsx";
 import "./index.less";
-import { RootResourceQuery } from "@/stores/resource";
-import { useLayoutContext } from "@/core";
-import { Core, LayoutNode } from "@/core/typings";
-import { DefaultLayoutNode } from "@/core/Layout";
-import applicationContext from "@/ApplicationContext.tsx";
 
 const postProcessModel = (model: Model) => {
   // 处理拖拽事件
@@ -64,16 +63,21 @@ class FlexLayoutRender implements Core.LayoutRender {
   };
   activeTabSetId: string;
   model: Model;
-  constructor(model: Model, activeTabSetId?: string) {
+  factory: Core.ComponentFactory
+  constructor(model: Model, factory: Core.ComponentFactory, activeTabSetId?: string) {
     this.nodes = {};
     this.model = model;
+    this.factory = factory;
     this.activeTabSetId =
       activeTabSetId ||
       this.model.getActiveTabset()?.getId() ||
       "#688e372a-3c7b-4bdd-977d-bfa6a3736f9f";
   }
 
-  close(node: Core.LayoutNode): void {}
+  close(node: Core.LayoutNode): void {
+    // 显式执行关闭时,一定要移除缓存
+    this.factory.remove(node)
+  }
 
   support(node: Core.LayoutNode): boolean {
     return node.layoutType === "tab";
@@ -195,7 +199,7 @@ function FlexLayout() {
   const renderFactory = layoutContext.renderFactory;
   // 开始注册布局渲染器
   // 注册flex布局渲染器
-  const flexLayoutRender = new FlexLayoutRender(model);
+  const flexLayoutRender = new FlexLayoutRender(model, factory);
   // renderFactory.registry(flexLayoutRender)
   useEffect(() => {
     renderFactory.replace("flex-layout-render", flexLayoutRender);
@@ -373,7 +377,7 @@ function FlexLayout() {
                   <IconCN
                     key={node.getId()}
                     type="icon-Tabs-1"
-                    onClick={() => {}}
+                    onClick={() => { }}
                     onMouseDown={(e) => {
                       e.stopPropagation();
                       e.preventDefault();

@@ -1,12 +1,19 @@
-import { ComplexType } from "@/common/core.ts";
+import { ComplexType, Scope } from "@/common/core.ts";
+import { ID } from "@/common/id";
+import { TypeDefinitionSelect } from "@/components/TypeDefinitionEditor/EditorPanel/TypeDefinitionSelect";
 import { SettingOutlined } from "@ant-design/icons";
-import { Menu, Popover, Select, Space } from "antd";
+import { Menu, Popover, Space } from "antd";
 import * as React from "react";
 import { PeekTypeIcon } from "./common";
-import { findAllSimples } from "@/services/typeDefinitions";
-import { TypeDefinitionSelect } from "@/components/TypeDefinitionEditor/EditorPanel/TypeDefinitionSelect";
 
-function getMenuItem(name: string, label: string) {
+export interface TypeSelectorMenuItem {
+  key: string,
+  icon: JSX.Element,
+  label: JSX.Element,
+  value: string
+}
+
+function getMenuItem(name: string, label: string): TypeSelectorMenuItem {
   return {
     key: name,
     icon: PeekTypeIcon(name),
@@ -20,7 +27,7 @@ function getMenuItem(name: string, label: string) {
   };
 }
 
-function getRefferItem(name: string, label: string) {
+function getRefferItem(name: string, label: string): TypeSelectorMenuItem {
   return {
     key: name,
     icon: PeekTypeIcon(name),
@@ -48,50 +55,87 @@ function getRefferItem(name: string, label: string) {
   };
 }
 
-const TypeMenu = [
-  {
-    key: "basic",
-    label: "基础数据类型",
-    type: "group",
-    children: [
-      getMenuItem("string", "字符串"),
-      getMenuItem("number", "数值"),
-      getMenuItem("boolean", "布尔"),
-    ],
-  },
-  {
-    key: "complex",
-    label: "复合数据类型",
-    type: "group",
-    children: [
-      getMenuItem("array", "集合"),
-      getMenuItem("map", "对象"),
-      getMenuItem("struct", "自定义对象"),
-    ],
-  },
-  {
-    key: "advanced",
-    label: "高级数据类型",
-    type: "group",
-    children: [
-      getRefferItem("refer", "引用"),
-      getMenuItem("slot", "扩展点"),
-      getMenuItem("enum", "枚举"),
-      getMenuItem("generic", "泛型"),
-      getMenuItem("anonymous", "匿名类型"),
-    ],
-  },
+// const TypeMenu = [
+//   {
+//     key: "basic",
+//     label: "基础数据类型",
+//     type: "group",
+//     children: [
+//       getMenuItem("string", "字符串"),
+//       getMenuItem("number", "数值"),
+//       getMenuItem("boolean", "布尔"),
+//       getMenuItem("file", "文件"),
+//     ],
+//   },
+//   {
+//     key: "complex",
+//     label: "复合数据类型",
+//     type: "submenu",
+//     children: [
+//       getMenuItem("array", "集合"),
+//       getMenuItem("map", "对象"),
+//       getMenuItem("struct", "固定对象"),
+//     ],
+//   },
+//   {
+//     key: "advanced",
+//     label: "高级数据类型",
+//     type: "submenu",
+//     children: [
+//       getRefferItem("refer", "引用"),
+//       getMenuItem("slot", "扩展点"),
+//       getMenuItem("enum", "枚举"),
+//       getMenuItem("generic", "泛型"),
+//       getMenuItem("anonymous", "匿名类型"),
+//     ],
+//   },
+// ];
+
+export type TypeSelectorMenuItemFilter = (item: TypeSelectorMenuItem) => boolean
+
+const TypeMenu: TypeSelectorMenuItem[] = [
+  getMenuItem("string", "字符串"),
+  getMenuItem("number", "数值"),
+  getMenuItem("boolean", "布尔"),
+  getMenuItem("file", "文件"),
+  getMenuItem("array", "集合"),
+  getMenuItem("map", "对象"),
+  getMenuItem("struct", "固定对象"),
+  getRefferItem("refer", "引用"),
+  getMenuItem("slot", "扩展点"),
+  getMenuItem("enum", "枚举"),
+  getMenuItem("generic", "泛型"),
+  getMenuItem("anonymous", "匿名类型"),
 ];
+
 
 function buildComplexType(name: string) {
   const type = new ComplexType();
   type.typeName = name;
+  if (name === "array") {
+    const itemId = ID()
+    // 如果是集合类型,则为其添加一个默认元素elements
+    type.sortedAllItems.push(
+      {
+        itemId: itemId,
+        name: "elements",
+        scope: Scope.PRIVATE
+      }
+    )
+    type.privateItems[itemId] = {
+      id: ID(),
+      name: "elements",
+      scope: Scope.PRIVATE,
+      type: ComplexType.ofType("string")
+    } as unknown as Core.TypeDefinition
+  }
   return type;
 }
 
 type Props = {
   type: ComplexType; // 当前所使用的类型,不同的类型将对应着不同的处理逻辑
   completeTheSelection: (_type: ComplexType) => void; // 完成类型选择后,需要将选择的类型传递给父组件
+  filter?: TypeSelectorMenuItemFilter
 };
 
 type State = {
@@ -106,31 +150,37 @@ export default class TypeSelectorPanel extends React.Component<Props, State> {
     super(props);
   }
   render() {
+    const menus = TypeMenu.filter((item) => {
+      if (this.props.filter) {
+        return this.props.filter(item)
+      }
+      return true
+    })
     return (
       <div>
-        <Popover content={<div></div>} placement={"right"}>
-          <Menu
-            onSelect={({ key }) => {
-              // 需要对扩展点进行特殊处理
-              this.props.completeTheSelection(buildComplexType(key));
-            }}
-            onClick={({ key }) => {
-              if (key === "slot") {
-                findAllSimples().then((res) => {
-                  console.log(res);
-                });
-              }
-              // 需要对扩展点进行特殊处理
-              this.props.completeTheSelection(buildComplexType(key));
-            }}
-            style={{ fontSize: 13 }}
-            activeKey={this.props.type.typeName}
-            defaultSelectedKeys={[this.props.type.typeName]}
-            defaultOpenKeys={[this.props.type.typeName]}
-            mode="inline"
-            items={TypeMenu}
-          />
-        </Popover>
+        <Menu
+          mode="vertical"
+          onSelect={({ key }) => {
+            // 需要对扩展点进行特殊处理
+            console.log("select", key);
+            this.props.completeTheSelection(buildComplexType(key));
+          }}
+          onClick={({ key }) => {
+            // if (key === "slot") {
+            //   findAllSimples().then((res) => {
+            //     console.log(res);
+            //   });
+            // }
+            // console.log("select233", key);
+            // // 需要对扩展点进行特殊处理
+            // this.props.completeTheSelection(buildComplexType(key));
+          }}
+          style={{ fontSize: 13 }}
+          activeKey={this.props.type.typeName}
+          defaultSelectedKeys={[this.props.type.typeName]}
+          defaultOpenKeys={[this.props.type.typeName]}
+          items={menus}
+        />
       </div>
     );
   }

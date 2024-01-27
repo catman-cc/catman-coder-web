@@ -15,7 +15,9 @@ export const ExperimentHtmlRenderer = ({
       return;
     }
     container = containerRef.current;
-    shadowRoot = container.attachShadow({ mode: "closed" });
+    shadowRoot = container.attachShadow({
+      mode: "closed"
+    });
   }, [containerRef]);
   useEffect(() => {
     // 创建一个 range

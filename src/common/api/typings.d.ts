@@ -14,4 +14,42 @@ declare namespace API {
         timestamp: number; // 时间戳
         error: Error | null; // 错误
     }
+
+    interface Sort {
+        [index: string]: "ASC" | "DESC"
+    }
+
+    interface Page {
+        [index: string]: unknown
+        pageSize: number
+        current?: number
+        startId?: string
+        type?: "GENERAL" | "SCROLL" | "AUTO"
+        sorts?: Sort
+    }
+
+
+
+    export interface VPage<T> {
+        size?: number
+
+        pages?: number
+
+        current?: number
+
+        total?: number
+
+        isFirst?: boolean
+
+        isLast?: boolean
+
+        hasPre?: boolean
+
+        hasNext?: boolean
+
+        records?: T[]
+
+        ex?: unknown
+    }
+
 }

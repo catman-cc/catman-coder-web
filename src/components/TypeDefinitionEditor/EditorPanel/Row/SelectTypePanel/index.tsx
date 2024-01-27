@@ -1,15 +1,17 @@
+import { ComplexType } from "@/common/core.ts";
 import { RawTypeRender } from "@/components/TypeDefinitionEditor/EditorPanel/Row/SelectTypePanel/RawTypeRender";
 import { ReferTypeRender } from "@/components/TypeDefinitionEditor/EditorPanel/Row/SelectTypePanel/ReferTypeRender";
-import TypeSelectorPanel from "@/components/TypeDefinitionEditor/EditorPanel/Row/TypeSelector";
-import { ComplexType } from "@/common/core.ts";
+import TypeSelectorPanel, { TypeSelectorMenuItemFilter } from "@/components/TypeDefinitionEditor/EditorPanel/Row/TypeSelector";
 import { Popover } from "antd";
+import { EnumTypeRender } from "./EnumTypeRender";
 
 export type SelectTypePanelCreator = (
-  type: Core.Type,
-  update: (type: Core.Type) => void,
-  schema: Core.TypeDefinitionSchema,
-  factory: SelectTypePanelFactory,
-  disabled?: boolean,
+  _type: Core.Type,
+  _update: (_type: Core.Type) => void,
+  _schema: Core.TypeDefinitionSchema,
+  _factory: SelectTypePanelFactory,
+  _disabled?: boolean,
+  _filter?: TypeSelectorMenuItemFilter
 ) => JSX.Element;
 
 export class SelectTypePanelFactory {
@@ -27,8 +29,9 @@ export class SelectTypePanelFactory {
       type,
       update,
       schema: Core.TypeDefinitionSchema,
-      factory,
+      _factory,
       disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
     ) => {
       return (
         <RawTypeRender
@@ -36,6 +39,7 @@ export class SelectTypePanelFactory {
           updateType={update}
           schema={schema}
           disabled={disabled}
+          filter={filter}
         />
       );
     };
@@ -43,8 +47,9 @@ export class SelectTypePanelFactory {
       type,
       update,
       schema: Core.TypeDefinitionSchema,
-      factory,
+      _factory,
       disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
     ) => {
       return (
         <RawTypeRender
@@ -52,6 +57,7 @@ export class SelectTypePanelFactory {
           updateType={update}
           schema={schema}
           disabled={disabled}
+          filter={filter}
         />
       );
     };
@@ -59,8 +65,9 @@ export class SelectTypePanelFactory {
       type,
       update,
       schema: Core.TypeDefinitionSchema,
-      factory,
+      _factory,
       disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
     ) => {
       return (
         <RawTypeRender
@@ -68,6 +75,79 @@ export class SelectTypePanelFactory {
           updateType={update}
           schema={schema}
           disabled={disabled}
+          filter={filter}
+        />
+      );
+    };
+    this.creators["slot"] = (
+      type,
+      update,
+      schema: Core.TypeDefinitionSchema,
+      _factory,
+      disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
+    ) => {
+      return (
+        <RawTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+          filter={filter}
+        />
+      );
+    }
+    this.creators["file"] = (
+      type,
+      update,
+      schema: Core.TypeDefinitionSchema,
+      _factory,
+      disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
+    ) => {
+      return (
+        <RawTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+          filter={filter}
+        />
+      );
+    }
+    this.creators["anonymous"] = (
+      type,
+      update,
+      schema: Core.TypeDefinitionSchema,
+      _factory,
+      disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
+    ) => {
+      return (
+        <RawTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+          filter={filter}
+        />
+      );
+    };
+    this.creators["any"] = (
+      type,
+      update,
+      schema: Core.TypeDefinitionSchema,
+      _factory,
+      disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
+    ) => {
+      return (
+        <RawTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+          filter={filter}
         />
       );
     };
@@ -75,8 +155,9 @@ export class SelectTypePanelFactory {
       type,
       update,
       schema: Core.TypeDefinitionSchema,
-      factory,
+      _factory,
       disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
     ) => {
       return (
         <RawTypeRender
@@ -84,6 +165,7 @@ export class SelectTypePanelFactory {
           updateType={update}
           schema={schema}
           disabled={disabled}
+          filter={filter}
         />
       );
     };
@@ -91,8 +173,9 @@ export class SelectTypePanelFactory {
       type,
       update,
       schema: Core.TypeDefinitionSchema,
-      factory,
+      _factory,
       disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
     ) => {
       return (
         <RawTypeRender
@@ -100,6 +183,7 @@ export class SelectTypePanelFactory {
           updateType={update}
           schema={schema}
           disabled={disabled}
+          filter={filter}
         />
       );
     };
@@ -107,8 +191,9 @@ export class SelectTypePanelFactory {
       type,
       update,
       schema: Core.TypeDefinitionSchema,
-      factory,
+      _factory,
       disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
     ) => {
       return (
         <RawTypeRender
@@ -116,6 +201,7 @@ export class SelectTypePanelFactory {
           updateType={update}
           schema={schema}
           disabled={disabled}
+          filter={filter}
         />
       );
     };
@@ -123,8 +209,9 @@ export class SelectTypePanelFactory {
       type,
       update,
       schema: Core.TypeDefinitionSchema,
-      factory,
+      _factory,
       disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
     ) => {
       return (
         <ReferTypeRender
@@ -132,17 +219,54 @@ export class SelectTypePanelFactory {
           updateType={update}
           schema={schema}
           disabled={disabled}
+          filter={filter}
         />
       );
     };
+    this.creators["generic"] = (
+      type,
+      update,
+      schema: Core.TypeDefinitionSchema,
+      _factory,
+      disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
+    ) => {
+      return (
+        <ReferTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+          filter={filter}
+        />
+      );
+    }
+    this.creators["enum"] = (
+      type,
+      update,
+      schema: Core.TypeDefinitionSchema,
+      _factory,
+      disabled?: boolean,
+      filter?: TypeSelectorMenuItemFilter
+    ) => {
+      return (
+        <EnumTypeRender
+          type={type}
+          updateType={update}
+          schema={schema}
+          disabled={disabled}
+          filter={filter}
+        />
+      );
+    }
   }
   render(
     type: Core.Type,
     update: (type: Core.Type) => void,
     schema: Core.TypeDefinitionSchema,
     disabled?: boolean,
+    filter?: TypeSelectorMenuItemFilter
   ): JSX.Element {
-    console.log("render type", type.privateItems, type);
     const creator = this.creators[type.typeName];
     if (creator) {
       if (disabled) {
@@ -158,10 +282,11 @@ export class SelectTypePanelFactory {
                 type.typeName = t.typeName;
                 update(t);
               }}
+              filter={filter}
             />
           }
         >
-          {creator(type, update, schema, this, disabled)}
+          {creator(type, update, schema, this, disabled, filter)}
         </Popover>
       );
     }
@@ -171,6 +296,7 @@ export class SelectTypePanelFactory {
 export interface BasicSelectTypePanelProps {
   type: Core.Type;
   schema: Core.TypeDefinitionSchema;
-  updateType: (type: Core.Type) => void;
+  updateType: (_type: Core.Type) => void;
   disabled?: boolean;
+  filter?: TypeSelectorMenuItemFilter
 }

@@ -1,8 +1,10 @@
 import { ComplexType, DefaultTypeDefinition } from "@/common/core.ts";
+import IconCN from "@/components/Icon";
 import constants from "@/config/constants";
 import { QuestionOutlined, RetweetOutlined } from "@ant-design/icons";
 import { BsQuestion, BsTranslate } from "react-icons/bs";
 import { FaBimobject } from "react-icons/fa";
+import { FcGenericSortingAsc } from "react-icons/fc";
 import {
   MdDataArray,
   MdDataObject,
@@ -11,7 +13,6 @@ import {
 } from "react-icons/md";
 import { PiNumberOneFill } from "react-icons/pi";
 import { v4 as uuidv4 } from "uuid";
-import { FcGenericSortingAsc } from "react-icons/fc";
 /**
  * 根据类型返回类型颜色
  * @param type 类型,比如:string,number,array...
@@ -26,6 +27,9 @@ export const PeekTypeColor = (type: string): string => {
     }
     case "struct" || "map": {
       return "#ff5a15";
+    }
+    case "file": {
+      return "#3903eb"
     }
     case "map": {
       return "#ff5a15";
@@ -69,8 +73,17 @@ export const PeekTypeIcon = (type: string) => {
     case "number": {
       return <PiNumberOneFill style={{ color: PeekTypeColor(type) }} />;
     }
+    case "boolean": {
+      return <FaBimobject style={{ color: PeekTypeColor(type) }} />;
+    }
+    case "slot": {
+      return <MdExtension style={{ color: PeekTypeColor(type) }} />;
+    }
+    case "file": {
+      return <IconCN type="icon-file-word-fill" style={{ color: PeekTypeColor(type) }} />;
+    }
     case "struct": {
-      return <MdDataObject style={{ color: PeekTypeColor(type) }} />;
+      return <IconCN type="icon-java1" style={{ color: PeekTypeColor(type) }} />;
     }
     case "map": {
       return <MdDataObject style={{ color: PeekTypeColor(type) }} />;
@@ -80,12 +93,6 @@ export const PeekTypeIcon = (type: string) => {
     }
     case "refer": {
       return <RetweetOutlined style={{ color: PeekTypeColor(type) }} />;
-    }
-    case "boolean": {
-      return <FaBimobject style={{ color: PeekTypeColor(type) }} />;
-    }
-    case "slot": {
-      return <MdExtension style={{ color: PeekTypeColor(type) }} />;
     }
     case "enum": {
       return <MdOutlineNumbers style={{ color: PeekTypeColor(type) }} />;
@@ -114,8 +121,11 @@ export const PeekTypeIconWithConfig = (type: string, config: object = {}) => {
     case "number": {
       return <PiNumberOneFill {...config} />;
     }
+    case "file": {
+      return <IconCN type="icon-file-word-fill" {...config} />;
+    }
     case "struct": {
-      return <MdDataObject {...config} />;
+      return <IconCN type="icon-java-ext" {...config} />;
     }
     case "map": {
       return <MdDataObject {...config} />;

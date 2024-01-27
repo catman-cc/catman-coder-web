@@ -1,10 +1,10 @@
-import { Button, Popover } from "antd";
-import { BasicSelectTypePanelProps } from "@/components/TypeDefinitionEditor/EditorPanel/Row/SelectTypePanel";
-import { PeekTypeIcon } from "@/components/TypeDefinitionEditor/EditorPanel/Row/TypeSelector/common.tsx";
-import { useEffect, useState } from "react";
-import TypeSelectorPanel from "@/components/TypeDefinitionEditor/EditorPanel/Row/TypeSelector";
 import { ComplexType } from "@/common/core.ts";
 import { SimpleResourceView } from "@/components/Resource/Explorer/SimpleResourceView";
+import { BasicSelectTypePanelProps } from "@/components/TypeDefinitionEditor/EditorPanel/Row/SelectTypePanel";
+import TypeSelectorPanel from "@/components/TypeDefinitionEditor/EditorPanel/Row/TypeSelector";
+import { PeekTypeColor, PeekTypeIcon } from "@/components/TypeDefinitionEditor/EditorPanel/Row/TypeSelector/common.tsx";
+import { Button, Popover } from "antd";
+import { useEffect, useState } from "react";
 
 export const ReferTypeRender = (props: BasicSelectTypePanelProps) => {
   // 1. 从props中获取被引用的类型定义,泛型定义不需要展示,其将会作为子元素被渲染出来
@@ -27,10 +27,15 @@ export const ReferTypeRender = (props: BasicSelectTypePanelProps) => {
           size={"small"}
           type={"dashed"}
           icon={PeekTypeIcon(props.type.typeName)}
+          style={{
+            color: PeekTypeColor(props.type.typeName)
+          }}
         >
           {props.type.typeName}
         </Button>
-        <Button size={"small"} type={"dashed"}>
+        <Button size={"small"} type={"dashed"} style={{
+          color: PeekTypeColor(props.type.typeName)
+        }}>
           {refer ? props.schema.definitions[refer.itemId!]?.name : "未选择"}
         </Button>
       </div>
@@ -46,6 +51,7 @@ export const ReferTypeRender = (props: BasicSelectTypePanelProps) => {
             completeTheSelection={(t) => {
               props.updateType(t);
             }}
+            filter={props.filter}
           />
         }
       >
@@ -53,6 +59,9 @@ export const ReferTypeRender = (props: BasicSelectTypePanelProps) => {
           disabled={props.disabled}
           size={"small"}
           type={"dashed"}
+          style={{
+            color: PeekTypeColor(props.type.typeName)
+          }}
           icon={PeekTypeIcon(props.type.typeName)}
         >
           {props.type.typeName}
@@ -96,7 +105,9 @@ export const ReferTypeRender = (props: BasicSelectTypePanelProps) => {
           </div>
         }
       >
-        <Button size={"small"} type={"dashed"}>
+        <Button size={"small"} type={"dashed"} style={{
+          color: PeekTypeColor(props.type.typeName)
+        }}>
           {refer ? props.schema.definitions[refer.itemId!]?.name : "未选择"}
         </Button>
       </Popover>

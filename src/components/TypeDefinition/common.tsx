@@ -3,6 +3,7 @@ import constants from "@/config/constants";
 import { QuestionOutlined, RetweetOutlined } from "@ant-design/icons";
 import { BsQuestion, BsTranslate } from "react-icons/bs";
 import { FaBimobject } from "react-icons/fa";
+import { FcGenericSortingAsc } from "react-icons/fc";
 import {
   MdDataArray,
   MdDataObject,
@@ -11,7 +12,6 @@ import {
 } from "react-icons/md";
 import { PiNumberOneFill } from "react-icons/pi";
 import { v4 as uuidv4 } from "uuid";
-import { FcGenericSortingAsc } from "react-icons/fc";
 /**
  * 根据类型返回类型颜色
  * @param type 类型,比如:string,number,array...
@@ -34,7 +34,7 @@ export const PeekTypeColor = (type: string): string => {
       return "#b97307";
     }
     case "refer": {
-      return "#090000";
+      return "#914501";
     }
     case "boolean": {
       return "#0a44c5";

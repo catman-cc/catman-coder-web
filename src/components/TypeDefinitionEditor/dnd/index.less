@@ -1,0 +1,82 @@
+.type-definition-line {
+    // &:hover {
+    //     border: rgb(255, 0, 225) 0.25px solid;
+    //     border-radius: 5px;
+    // }
+}
+
+.type-definition-line-info {
+    display: flex;
+    justify-self: start;
+    align-items: baseline;
+    border-bottom: 1px solid #BBCCDD;
+    border-radius: 5px;
+    padding: 5px;
+    padding-left: 10px;
+}
+
+.type-definition-line-info>div:not(:last-child) {
+    padding-right: 10px;
+}
+
+
+.type-definition-line-drag {}
+
+.type-definition-line-fold {
+    width: 20px;
+}
+
+.type-definition-line-fold-expand {
+    transform: rotate(90deg);
+}
+
+.type-definition-line-tag-group {
+    .type-definition-line-tag {}
+}
+
+.type-definition-line-children {}
+
+.type-definition-tree-row-describe {
+    .ant-input-group-addon {
+        background: transparent;
+        border: none;
+        width: 10px;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.type-definition-tree-row-right-basic {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    align-items: center;
+    width: 600px;
+
+    .ant-input:hover {
+        border: #68d1fb 1px solid;
+    }
+}
+
+.type-definition-tree-row-right-basic>div:not(:last-child) {
+    padding-right: 10px;
+}
+
+
+.type-definition-tree-row-right-operation {
+    display: flex;
+}
+
+.type-definition-tree-row-right-operation>div:not(:last-child) {
+    padding-right: 10px;
+}
+
+.expand {
+    height: 0;
+    overflow: hidden;
+    transition: height 5s ease-in-out;
+}
+
+.show {
+    height: auto;
+}

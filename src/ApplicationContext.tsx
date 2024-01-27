@@ -1,7 +1,29 @@
 // 构建上下文对象
+import { AccessControlProcessor } from "@/Processors/AccessControl";
+import { HttpRequest } from "@/Processors/HttpRequest";
+import { MessageProcessor } from "@/Processors/Message";
+import { ParameterProcessor } from "@/Processors/Parameter";
+import { QuickerCodeEditorProcessor } from "@/Processors/QuickerCodeEditor";
+import { ResourceProcessor } from "@/Processors/Resource";
+import { SnapshotProcessor } from "@/Processors/Snapshot";
+import TypeDefinitionProcessor from "@/Processors/TypeDefinition";
+import MonacoCodeEditor from "@/components/CodeEditor";
+import IconCN from "@/components/Icon";
+import Menus from "@/components/Menus";
+import ParameterEditor from "@/components/Parameter/Editor";
+import ParameterMenu from "@/components/Parameter/menu";
+import ResourceExplorer from "@/components/Resource/Explorer";
+import Editor from "@/components/TypeDefinition/Editor";
+import TypeDefinitionMenu from "@/components/TypeDefinition/Menu";
+import global from "@/config";
 import { DefaultApplicationContext } from "@/core";
 import { DefaultEventBusContext } from "@/core/Event";
 import { DefaultLayoutContext } from "@/core/Layout";
+import {
+  CacheableFactory,
+  DefaultComponentFactory,
+  RefuseNodeComponentFactory,
+} from "@/core/Layout/Factory.tsx";
 import {
   DefaultResourceContext,
   DefaultResourceExplorerContext,
@@ -12,36 +34,17 @@ import {
   DefaultResourceViewerFactory,
   KindMatchResourceItemRender,
 } from "@/core/Resource/Explorer";
-import { DefaultResourceService } from "@/services/resource";
-import IconCN from "@/components/Icon";
-import TypeDefinitionProcessor from "@/Processors/TypeDefinition";
 import { Constants } from "@/core/common";
-import {
-  CacheableFactory,
-  DefaultComponentFactory,
-  RefuseNodeComponentFactory,
-} from "@/core/Layout/Factory.tsx";
-import { Button, Input, Popconfirm, Popover, Tag } from "antd";
-import TypeDefinitionMenu from "@/components/TypeDefinition/Menu";
-import ParameterMenu from "@/components/Parameter/menu";
-import ParameterEditor from "@/components/Parameter/Editor";
-import Menus from "@/components/Menus";
-import Editor from "@/components/TypeDefinition/Editor";
-import ReactJson from "react-json-view";
-import MonacoCodeEditor from "@/components/CodeEditor";
-import ResourceExplorer from "@/components/Resource/Explorer";
-import global from "@/config";
-import { AccessControlProcessor } from "@/Processors/AccessControl";
-import { ResourceProcessor } from "@/Processors/Resource";
-import { SnapshotProcessor } from "@/Processors/Snapshot";
-import { ParameterProcessor } from "@/Processors/Parameter";
-import { NodeProcess } from "@/Processors/Node";
-import { MessageProcessor } from "@/Processors/Message";
-import { HttpRequest } from "@/Processors/HttpRequest";
+import { DefaultResourceService } from "@/services/resource";
 import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Button, Input, Popconfirm, Popover, Tag } from "antd";
 import { Item } from "react-contexify";
-import React from "react";
-import { QuickerCodeEditorProcessor } from "@/Processors/QuickerCodeEditor";
+import ReactJson from "react-json-view";
+import { ExecutorProcessor } from "./Processors/Executor";
+import FunctionProcessor from "./Processors/Function";
+import { JobProcessor } from "./Processors/Job";
+import HttpTriggerProcessor from "./Processors/Trigger/HttpTrigger";
+import WikiProcessor from "./Processors/Wiki";
 
 /**
  * 单独抽出来一个文件构建应用上下文
@@ -91,6 +94,28 @@ const factory = RefuseNodeComponentFactory.of(
         return (
           <MonacoCodeEditor
             code={node.settings.tab.getConfig().data as string}
+          />
+        );
+      })
+      .nameMatch("defaultResourceViewer", (node) => {
+        if (typeof node.data === "object") {
+          return (
+            <MonacoCodeEditor
+              code={JSON.stringify(node.data)}
+            />
+          );
+        }
+        if (typeof node.data === "string") {
+          return (
+            <MonacoCodeEditor
+              code={node.data}
+            />
+          );
+        }
+
+        return (
+          <MonacoCodeEditor
+            code={"Unable to handle this resource"}
           />
         );
       })
@@ -275,7 +300,7 @@ resourceExplorerContext.setResourceMenuContext(
           );
         },
         children: [],
-        onMenuClick: (_menu, resource) => {},
+        onMenuClick: (_menu, resource) => { },
       } as unknown as Core.Menu<Core.Resource>,
     ],
   } as unknown as Core.Menu<Core.Resource>),
@@ -323,4 +348,9 @@ applicationContext.addProcessor(new AccessControlProcessor());
 // applicationContext.addProcessor(new NodeProcess());
 applicationContext.addProcessor(new HttpRequest());
 applicationContext.addProcessor(new QuickerCodeEditorProcessor());
+applicationContext.addProcessor(new HttpTriggerProcessor())
+applicationContext.addProcessor(new FunctionProcessor())
+applicationContext.addProcessor(new JobProcessor())
+applicationContext.addProcessor(new WikiProcessor())
+applicationContext.addProcessor(new ExecutorProcessor())
 export default applicationContext;

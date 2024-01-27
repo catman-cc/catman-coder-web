@@ -1,14 +1,14 @@
-import { Core, Resource } from "@/core/typings";
 import IconCN from "@/components/Icon";
-import { Constants } from "@/core/common";
-import { ItemParams } from "react-contexify";
-import { Input, InputRef, Modal, Select, Space } from "antd";
-import React, { useState } from "react";
-import { DefaultLayoutNode } from "@/core/Layout";
 import { PeekTypeIcon } from "@/components/TypeDefinition/common.tsx";
-import { languages } from "monaco-editor";
-import register = languages.register;
 import { TypeDefinitionSchemaEditor } from "@/components/TypeDefinitionEditor";
+import { DefaultLayoutNode } from "@/core/Layout";
+import { Constants } from "@/core/common";
+import { Core, Resource } from "@/core/typings";
+import { Input, InputRef, Modal, Select, Space } from "antd";
+import { languages } from "monaco-editor";
+import React from "react";
+import { ItemParams } from "react-contexify";
+import register = languages.register;
 function getMenuItem(name: string, label: string) {
   return {
     key: name,
@@ -139,9 +139,9 @@ class TypeDefinitionCreationModal extends React.Component<
 }
 
 export default class TypeDefinitionProcessor implements Core.Processor {
-  after(): void {}
+  after(): void { }
 
-  run(): void {}
+  run(): void { }
   register(context: Core.ApplicationContext) {
     context.resourceContext?.register("td", {
       resourceViewer(): Core.ResourceViewer | Core.ResourceViewerFunction {
@@ -168,11 +168,8 @@ export default class TypeDefinitionProcessor implements Core.Processor {
         };
       },
       componentCreator(
-        context: Core.ApplicationContext,
-        layout: Core.LayoutContext,
       ): Core.ComponentCreatorFunction | Core.ComponentCreator {
         return (node: Core.LayoutNode<Core.Resource>) => {
-          console.log("aasdasdadasasdsadasdas", node);
           return (
             <TypeDefinitionSchemaEditor
               schema={node.data.details}
@@ -215,7 +212,7 @@ export default class TypeDefinitionProcessor implements Core.Processor {
                 while (group.kind !== "resource") {
                   group =
                     context.resourceContext?.store?.resources[
-                      resource.parentId
+                    resource.parentId
                     ];
                 }
 
@@ -233,6 +230,7 @@ export default class TypeDefinitionProcessor implements Core.Processor {
                           config: {
                             type: info.type,
                           },
+                          previousId: resource.kind === "resource" ? null : resource.id
                         } as unknown as Core.Resource)
                         .then((res) => {
                           const resourceDetails = res.data;

@@ -1,3 +1,13 @@
+import { LabelSelector } from "@/components/LabelSelector";
+import { LabelSelectFactory } from "@/components/LabelSelector/common";
+import { EventBoard } from "@/components/Provider/Event";
+import { BodyPanel } from "@/components/Provider/http/Request/Body";
+import { HttpRequestHeader } from "@/components/Provider/http/Request/Header";
+import { HttpMethod } from "@/components/Provider/http/Request/Method";
+import { BodyDataItem } from "@/components/Provider/http/types.ts";
+import { useApplicationContext } from "@/core";
+import { TopicMessageMatcher } from "@/core/Socket";
+import { WarningFilled } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -5,27 +15,16 @@ import {
   FloatButton,
   Input,
   message,
-  notification,
   Popover,
   Switch,
   Table,
   Tabs,
-  Tooltip,
+  Tooltip
 } from "antd";
-import "./index.less";
-import { HttpMethod } from "@/components/Provider/http/Request/Method";
-import { WarningFilled } from "@ant-design/icons";
-import { HiCommandLine } from "react-icons/hi2";
-import { BodyDataItem } from "@/components/Provider/http/types.ts";
-import { useApplicationContext } from "@/core";
-import { EventBoard } from "@/components/Provider/Event";
-import { TopicMessageMatcher } from "@/core/Socket";
 import { IDockviewPanelProps } from "dockview/dist/cjs/dockview/dockview";
-import { HttpRequestHeader } from "@/components/Provider/http/Request/Header";
-import { BodyPanel } from "@/components/Provider/http/Request/Body";
-import React, { useEffect, useState } from "react";
-import { LabelSelector } from "@/components/LabelSelector";
-import { LabelSelectFactory } from "@/components/LabelSelector/common";
+import { useEffect, useState } from "react";
+import { HiCommandLine } from "react-icons/hi2";
+import "./index.less";
 
 export interface Request {
   version: string;
@@ -215,7 +214,7 @@ export const HttpValueProvider = (props: {
     const urlWithoutQuery =
       queryIndex === -1 ? url : url.substring(0, queryIndex);
     const matches = urlWithoutQuery.match(reg);
-    matches?.forEach((item) => {});
+    matches?.forEach((item) => { });
     let index = -1;
     const newPathVariables = matches?.map((item) => {
       index++;
@@ -253,8 +252,7 @@ export const HttpValueProvider = (props: {
     }
     console.log("queriesString", queriesString);
     setUrl(
-      `${oldUrl}?${queriesString}${
-        url.charAt(url.length - 1) === "&" ? "&" : ""
+      `${oldUrl}?${queriesString}${url.charAt(url.length - 1) === "&" ? "&" : ""
       }`,
     );
   }, [queries]);

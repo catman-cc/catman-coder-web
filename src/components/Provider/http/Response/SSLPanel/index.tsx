@@ -1,8 +1,8 @@
 import { SSL } from "@/components/Provider/http";
-import { useEffect, useState } from "react";
-import forge from "node-forge";
-import { Badge, Button, Card, Input, List, Popover, Tag } from "antd";
 import SvelteJSONEditor from "@/components/TypeDefinition/Json/vanilla/VanillaJSONEditor.tsx";
+import { Badge, Button, Card, List, Popover, Tag } from "antd";
+import forge from "node-forge";
+import { useEffect, useState } from "react";
 
 export const SSLPanel = (props: { ssl: SSL }) => {
   const [ssl, setSSL] = useState(props.ssl);
@@ -10,9 +10,13 @@ export const SSLPanel = (props: { ssl: SSL }) => {
   useEffect(() => {
     const certs = [];
     for (const cert of ssl.peerCertificates || []) {
-      const pemCertificateString = `-----BEGIN CERTIFICATE-----\n${cert.encoded}\n-----END CERTIFICATE-----`;
-      const certificate = forge.pki.certificateFromPem(pemCertificateString);
-      certs.push(certificate);
+      try {
+        const pemCertificateString = `-----BEGIN CERTIFICATE-----\n${cert.encoded}\n-----END CERTIFICATE-----`;
+        const certificate = forge.pki.certificateFromPem(pemCertificateString);
+        certs.push(certificate);
+      } catch (err) {
+        console.log(err);
+      }
     }
     setCerts([...certs]);
   }, [ssl, props.ssl]);

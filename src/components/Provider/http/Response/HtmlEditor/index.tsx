@@ -1,6 +1,6 @@
-import React from "react";
-import { Editor } from "@monaco-editor/react";
 import { getMonacoLanguageId } from "@/common/monaco";
+import { Editor } from "@monaco-editor/react";
+import React from "react";
 
 const HtmlEditor = (props: { code: string; contentType?: string }) => {
   const [code, setCode] = React.useState(props.code);

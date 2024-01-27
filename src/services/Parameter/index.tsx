@@ -18,3 +18,15 @@ export function countReference(key: string): Promise<API.Response<number>> {
 export function save(obj: Core.Parameter): Promise<API.Response<Core.Parameter>> {
     return post<Core.Parameter>(`/api/parameter`, obj)
 }
+
+
+export function createFromTypeDefinitionId(id: string): Promise<API.Response<Core.ParameterSchema>> {
+    return post<Core.ParameterSchema>(`/api/parameter/create-from-type-definition/${id}`, {})
+}
+
+
+export class ParameterService {
+    static createFromTypeDefinitionId(id: string): Promise<API.Response<Core.ParameterSchema>> {
+        return createFromTypeDefinitionId(id)
+    }
+}

@@ -1,22 +1,22 @@
 import {
-  DockviewDefaultTab,
-  DockviewReact,
-  DockviewReadyEvent,
-} from "dockview";
-import { useState } from "react";
-import * as React from "react";
-import "./index.less";
-import { useApplicationContext } from "@/core";
-import {
   Http,
   HttpValueProvider,
   HttpValueProviderInformation,
 } from "@/components/Provider/http";
-import { Button, Card } from "antd";
-import { TbFloatCenter } from "react-icons/tb";
-import { ResponseView } from "@/components/Provider/http/Response";
-import { DataSnapshot } from "@/components/Provider/http/Request/Body/DataSnapshot";
 import { DockViewContextRC } from "@/components/Provider/http/DockView/Context";
+import { DataSnapshot } from "@/components/Provider/http/Request/Body/DataSnapshot";
+import { ResponseView } from "@/components/Provider/http/Response";
+import { useApplicationContext } from "@/core";
+import { Button, Card } from "antd";
+import {
+  DockviewDefaultTab,
+  DockviewReact,
+  DockviewReadyEvent,
+} from "dockview";
+import * as React from "react";
+import { useState } from "react";
+import { TbFloatCenter } from "react-icons/tb";
+import "./index.less";
 
 import { FloatAbleTab } from "@/components/Provider/http/DockView/FloatAbleTab";
 
@@ -145,9 +145,9 @@ export const DockViewHttpProvider = (props: { resource: Core.Resource }) => {
                       ) as HttpValueProviderInformation
                     }
                     onSave={(data) => {
-                      props.params.resource.extra = JSON.stringify(data);
+                      const newRes = { ...props.params.resource, extra: JSON.stringify(data) }
                       context.resourceContext?.service
-                        ?.save(props.params.resource)
+                        ?.save(newRes)
                         .then((res) => {
                           if (res.data) {
                             // 处理资源

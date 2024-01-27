@@ -1,7 +1,8 @@
 import IconCN from "@/components/Icon";
+import { DefaultLayoutNode } from "@/core/Layout";
+import { ResourceState } from "@/stores/resource";
 import React, { ReactNode } from "react";
 import { Item, ItemParams, Menu, Separator, Submenu } from "react-contexify";
-import { ResourceState } from "@/stores/resource";
 import ResourceViewerFunction = Core.ResourceViewerFunction;
 
 export class KindMatchResourceItemRender implements Core.ResourceItemRender {
@@ -33,8 +34,7 @@ export class KindMatchResourceItemRender implements Core.ResourceItemRender {
 }
 
 export class DefaultResourceItemRenderFactory
-  implements Core.ResourceItemRenderFactory
-{
+  implements Core.ResourceItemRenderFactory {
   iconFactory?: Core.ResourceItemIconFactory;
   factories: Core.ResourceItemRender[];
   defaultResourceItemRender: Core.ResourceItemRender;
@@ -68,8 +68,7 @@ export class DefaultResourceItemRenderFactory
 }
 
 export class DefaultResourceItemIconRender
-  implements Core.ResourceItemIconRender
-{
+  implements Core.ResourceItemIconRender {
   render(resource: Core.Resource): React.ReactNode {
     return <IconCN type={`icon-${resource.kind}`} />;
   }
@@ -78,8 +77,7 @@ export class DefaultResourceItemIconRender
   }
 }
 export class DefaultResourceItemIconFactory
-  implements Core.ResourceItemIconFactory
-{
+  implements Core.ResourceItemIconFactory {
   defaultResourceItemRender: Core.ResourceItemIconRender;
   renders: Core.ResourceItemIconRender[];
 
@@ -125,8 +123,7 @@ function checkEmptyMenu(menu: Core.Menu<Core.Resource>): boolean {
   }
 }
 export class DefaultResourceMenuRenderFactory
-  implements ResourceMenuRenderFactory
-{
+  implements ResourceMenuRenderFactory {
   renders: ResourceMenuRender[];
   onMenuClick?: (
     menu: Core.Menu<Core.Resource>,
@@ -337,15 +334,33 @@ export class DefaultResourceViewer implements Core.ResourceViewer {
   support(): boolean {
     return true;
   }
-  render(resource: Core.Resource): void {
+  render(resource: Core.ResourceDetails<unknown>,
+    _context: Core.ApplicationContext,
+    layout: Core.LayoutContext,): void {
     console.log("require view for resource", resource);
+    const resourceDetails = resource as Core.ResourceDetails<unknown>;
+    const layoutNode = DefaultLayoutNode.ofResource(resourceDetails);
+    layoutNode.componentName = "defaultResourceViewer";
+    // 调用上下文展示资源
+    layoutNode.settings.tab = {
+      id: resourceDetails.id,
+      name: resourceDetails.name,
+      icon: `icon-${resourceDetails.kind}`,
+      component: "defaultResourceViewer",
+      enableFloat: true,
+    };
+
+    layoutNode.config = {
+      data: resourceDetails,
+    };
+
+    layout.createOrActive(layoutNode, "tab");
     return;
   }
 }
 
 export class DefaultResourceViewerFactory
-  implements Core.ResourceViewerFactory
-{
+  implements Core.ResourceViewerFactory {
   viewers: Core.ResourceViewer[];
   defaultViewer: Core.ResourceViewer;
   constructor(defaultViewer?: Core.ResourceViewer) {
@@ -371,8 +386,7 @@ export class DefaultResourceViewerFactory
   }
 }
 export class DefaultResourceExplorerContext
-  implements Core.ResourceExplorerContext
-{
+  implements Core.ResourceExplorerContext {
   itemRenderFactory?: Core.ResourceItemRenderFactory;
   menuContext?: Core.ResourceMenuContext;
   viewFactory?: Core.ResourceViewerFactory;
@@ -397,7 +411,7 @@ export class DefaultResourceExplorerContext
     return this;
   }
 
-  flush(resource: Core.Resource) {}
+  flush(resource: Core.Resource) { }
 }
 
 export class KindMatchResourceViewer implements Core.ResourceViewer {

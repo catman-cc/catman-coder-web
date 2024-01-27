@@ -1,9 +1,9 @@
-import { Core, Resource } from "@/core/typings";
-import { Constants } from "@/core/common";
-import React from "react";
-import { Input, InputRef, Modal, Space } from "antd";
-import { ItemParams } from "react-contexify";
 import IconCN from "@/components/Icon";
+import { Constants } from "@/core/common";
+import { Core, Resource } from "@/core/typings";
+import { Input, InputRef, Modal, Space } from "antd";
+import React from "react";
+import { ItemParams } from "react-contexify";
 
 interface ResourceCreationModalProps {
   context: Core.ApplicationContext;
@@ -105,7 +105,14 @@ export class ParameterProcessor implements Core.Processor {
         {
           id: "snapshot-create",
           type: "item",
-          label: "由...此创建Parameter",
+          label: (
+            <div className={"flex justify-between content-between"}>
+              <div style={{ marginRight: "5px" }}>
+                <IconCN type={"icon-canshushezhi"} />
+              </div>
+              <div>由...此创建Parameter</div>
+            </div>
+          ),
           filter: (item: Core.Resource): boolean => {
             return item.kind === Constants.Resource.kind.typeDefinition;
           },
@@ -136,7 +143,7 @@ export class ParameterProcessor implements Core.Processor {
               label: (
                 <div className={"flex justify-between content-between"}>
                   <div style={{ marginRight: "5px" }}>
-                    <IconCN type={"icon-model-training"} />
+                    <IconCN type={"icon-canshushezhi"} />
                   </div>
                   <div>新建Parameter</div>
                 </div>
@@ -150,7 +157,7 @@ export class ParameterProcessor implements Core.Processor {
                 while (group.kind !== "resource") {
                   group =
                     context.resourceContext?.store?.resources[
-                      resource.parentId
+                    resource.parentId
                     ];
                 }
 

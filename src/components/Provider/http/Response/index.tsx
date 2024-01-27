@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import { Card, Space, Table, Tabs } from "antd";
-import HtmlEditor from "@/components/Provider/http/Response/HtmlEditor";
-import { EventConsole } from "@/components/Provider/http/Response/Event";
 import { Http } from "@/components/Provider/http";
+import { EventConsole } from "@/components/Provider/http/Response/Event";
+import HtmlEditor from "@/components/Provider/http/Response/HtmlEditor";
 import { RawHttpPanel } from "@/components/Provider/http/Response/RawHttpPanel";
-import { SSLPanel } from "@/components/Provider/http/Response/SSLPanel";
 import { Render } from "@/components/Provider/http/Response/Render";
+import { SSLPanel } from "@/components/Provider/http/Response/SSLPanel";
+import { computeStrSize } from "@/core/common/utils";
+import { Card, Space, Table, Tabs } from "antd";
+import { useEffect, useState } from "react";
 
 export interface ResponseViewProps {
   http: Http;
@@ -22,6 +23,8 @@ export const ResponseView = (props: ResponseViewProps) => {
   const [timeColor, setTimeColor] = useState<"green" | "red" | "orange">(
     "green",
   );
+  const [bodySize, setBodySize] = useState<string | null>(null)
+  const [bodySizeColor, setBodySizeColor] = useState<"gray" | "green" | "red" | "orange">("green")
 
   const [logs, setLogs] = useState([]);
 
@@ -59,6 +62,23 @@ export const ResponseView = (props: ResponseViewProps) => {
         value: response?.headers[key],
       });
     }
+    if (response.body) {
+      setBodySize(computeStrSize(response.body))
+      const length = response.body.length
+      if (length < 1024) {
+        setBodySizeColor("green")
+      } else if (length / 1024 < 25) {
+        setBodySizeColor("gray")
+      } else if (length / 1024 <= 100) {
+        setBodySizeColor("orange")
+      } else {
+        setBodySizeColor("red")
+      }
+    } else {
+      setBodySize(null)
+      setBodySizeColor("green")
+    }
+
     setHeaderData([...data]);
     setResponse({ ...response });
     setHttp({ ...props.http });
@@ -84,6 +104,14 @@ export const ResponseView = (props: ResponseViewProps) => {
               <div style={{ textAlign: "center", color: timeColor }}>
                 {http.duration}ms
               </div>
+              {bodySize && (
+                <>
+                  响应体大小:
+                  <div style={{ textAlign: "center", color: bodySizeColor }}>
+                    {bodySize}
+                  </div>
+                </>
+              )}
             </Space>
           </div>
         }
@@ -147,9 +175,9 @@ export const ResponseView = (props: ResponseViewProps) => {
                   code={response?.body}
                   contentType={
                     response.headers[
-                      Object.keys(response?.headers).find(
-                        (head) => head.toLowerCase() === "content-type",
-                      ) || ""
+                    Object.keys(response?.headers).find(
+                      (head) => head.toLowerCase() === "content-type",
+                    ) || ""
                     ]?.[0]
                   }
                 />
@@ -187,9 +215,9 @@ export const ResponseView = (props: ResponseViewProps) => {
                 content={response?.body}
                 contentType={
                   response.headers[
-                    Object.keys(response?.headers).find(
-                      (head) => head.toLowerCase() === "content-type",
-                    ) || ""
+                  Object.keys(response?.headers).find(
+                    (head) => head.toLowerCase() === "content-type",
+                  ) || ""
                   ]?.[0]
                 }
                 http={http}

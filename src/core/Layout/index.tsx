@@ -1,6 +1,6 @@
+import { TabNode } from "flexlayout-react";
 import { IJsonTabNode } from "flexlayout-react/declarations/model/IJsonModel";
 import LayoutNode = Core.LayoutNode;
-import { TabNode } from "flexlayout-react";
 
 export class DefaultLayoutRenderFactory implements Core.LayoutRenderFactory {
   renders: Core.LayoutRender[];
@@ -88,9 +88,12 @@ export class DefaultLayoutNode<T> implements Core.LayoutNode<T> {
   config: { [p: string]: unknown };
   settings: { tab: unknown; float: unknown; window: unknown };
   isLayoutNode: boolean = true;
-  static of<T>(id: string, name: string, componentName: string) {
-    return new DefaultLayoutNode<T>(id, name, componentName);
+  static of<T>(id: string, name: string, componentName: string, data?: T) {
+    const defaultLayoutNode = new DefaultLayoutNode<T>(id, name, componentName)
+    defaultLayoutNode.data = data
+    return defaultLayoutNode
   }
+
   static ofResource(resource: Core.Resource) {
     // 一定要注意,如果资源直接使用extra配置,没有resourceId
     const layoutNode = DefaultLayoutNode.of<Core.Resource>(
@@ -134,7 +137,13 @@ export class DefaultLayoutNode<T> implements Core.LayoutNode<T> {
     this.componentName = componentName;
     this.config = {};
     this.settings = {
-      tab: {},
+      tab: {
+        id: id,
+        name: name,
+        // icon: `icon-${resourceDetails.kind}`,
+        component: componentName,
+        enableFloat: true,
+      },
       float: {},
       window: {},
     };

@@ -24,12 +24,9 @@ export const TreeRow = (props: {
   if (!props.tree.getTypeDefinition()) {
     return null;
   }
+
   function computeReferIndexs(tree: TypeDefinitionSchemaTree = props.tree) {
-    console.log(
-      "compute refer indexs",
-      tree.typeDefinitionId!,
-      tree.schema.circularRefs,
-    );
+
     const refers = Object.entries(tree.schema.circularRefs!)
       .map(([key, value]) => {
         if (value.includes(tree.typeDefinitionId!)) {
@@ -83,9 +80,8 @@ export const TreeRow = (props: {
               props.tree.getTypeDefinition().type,
               (t) => {
                 console.log("change type definition type", t);
-                props.tree.updateType(t);
                 // props.tree.getTypeDefinition().type = t;
-                props.onChange(props.tree.deepCopy());
+                props.onChange(props.tree.updateType(t, true).deepCopy());
               },
               props.tree.schema,
               !props.tree.canEdit(),
@@ -98,6 +94,10 @@ export const TreeRow = (props: {
               size={"small"}
               bordered={false}
               value={props.tree.getTypeDefinition().describe}
+              onChange={(e) => {
+                props.tree.getTypeDefinition().describe = e.target.value;
+                props.onChange(props.tree);
+              }}
               placeholder={"描述"}
             />
           </div>
@@ -260,7 +260,7 @@ export const TreeRow = (props: {
                     type={
                       props.tree.isPublic() ? "icon-lock_is_open1" : "icon-lock"
                     }
-                    onClick={() => {}}
+                    onClick={() => { }}
                   />
                 }
               />

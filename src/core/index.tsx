@@ -71,5 +71,5 @@ export function useEventBus() {
 }
 
 export function useLayoutContext() {
-  return useApplicationContext().layoutContext;
+  return useApplicationContext().layoutContext!;
 }

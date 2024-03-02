@@ -1,4 +1,3 @@
-
 declare namespace Core {
   import type { DataNode } from "antd/es/tree";
   import { ReactNode } from "react";
@@ -25,9 +24,9 @@ declare namespace Core {
     /**
      * 被标注资源的版本信息,根据资源的版本信息,访问者可以考虑如何处理资源的版本信息
      */
-    version?: string
+    version?: string;
   }
-  interface Config { }
+  interface Config {}
   type Scope = "PRIVATE" | "PUBlIC";
 
   interface Mock {
@@ -73,19 +72,19 @@ declare namespace Core {
    *  用于存放循环引用数据的上下文
    */
   interface LoopReferenceContext {
-    typeDefinitions: { [index: string]: TypeDefinition }
-    valueProviderDefinitions: { [index: string]: unknown }
-    parameters: { [index: string]: Parameter }
-    functionInfos: { [index: string]: unknown }
+    typeDefinitions: { [index: string]: TypeDefinition };
+    valueProviderDefinitions: { [index: string]: unknown };
+    parameters: { [index: string]: Parameter };
+    functionInfos: { [index: string]: FunctionInfo };
+    functionCallInfos: { [index: string]: FunctionCallInfo };
   }
 
   interface TypeDefinitionSchema {
     root: string;
-    context: Core.LoopReferenceContext
+    context: Core.LoopReferenceContext;
     definitions: { [index: string]: TypeDefinition };
     refs: Map<string, TypeDefinition>;
     circularRefs?: { [index: string]: string[] };
-
   }
 
   interface TypeDefinition {
@@ -101,11 +100,42 @@ declare namespace Core {
     defaultValue?: string;
     describe?: string;
     wiki?: string;
-    required?: boolean
+    required?: boolean;
   }
 
   export interface ValueDefinition extends Core.Base {
     kind: string; //值类型
+  }
+  export interface BreakPointInformation {
+    name: string;
+    describe: string;
+  }
+
+  export interface FunctionCallInfo {
+    id: string;
+    args: Parameter;
+    result: Parameter;
+    resultName: string;
+    exceptionHandlers: [];
+    finallCalls: FunctionCallInfo[];
+    callQueue: FunctionCallInfo[];
+    functionInfo: FunctionInfo;
+  }
+
+  export interface FunctionInfo extends Core.Base {
+    id?: string;
+    name: string;
+    kind: string;
+    args: {
+      [index: string]: TypeDefinition;
+    };
+    result: TypeDefinition;
+    exceptionHandler: unknown;
+  }
+
+  export interface FunctionInfoSchema {
+    root: string;
+    context: LoopReferenceContext;
   }
 
   /**
@@ -121,8 +151,8 @@ declare namespace Core {
   }
 
   export interface ParameterSchema {
-    root: string,
-    context: LoopReferenceContext
+    root: string;
+    context: LoopReferenceContext;
   }
 
   export interface JobDefinition extends Core.Base {
@@ -140,8 +170,8 @@ declare namespace Core {
     isLeaf: boolean;
     extra?: string;
     children: Resource[];
-    previousId?: string
-    nextId?: string
+    previousId?: string;
+    nextId?: string;
   }
 
   /**
@@ -346,8 +376,14 @@ declare namespace Core {
     create<T>(
       _resource: Resource,
     ): Promise<API.Response<Core.ResourceDetails<T>>>;
-    move(_id: string, _parentId?: string, _previousId?: string, _nextId?: string, index?: number): Promise<API.Response<boolean>>
-    flush(_id: string): Promise<API.Response<boolean>>
+    move(
+      _id: string,
+      _parentId?: string,
+      _previousId?: string,
+      _nextId?: string,
+      index?: number,
+    ): Promise<API.Response<boolean>>;
+    flush(_id: string): Promise<API.Response<boolean>>;
   }
 
   /**

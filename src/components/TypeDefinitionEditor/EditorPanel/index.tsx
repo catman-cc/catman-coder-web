@@ -267,10 +267,12 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     // 如果没有父节点,则说明当前节点是根节点,那就直接按照public的方式更新
     // this.schema.definitions[this.id] = td;
     this.schema.definitions[this.typeDefinitionId] = td;
+    this.schema.context.typeDefinitions[this.typeDefinitionId] = td;
     if (parent) {
       const pt = parent.getType();
       pt.privateItems[this.typeDefinitionId] = td;
     }
+
     const newTree = deepParse(td, this.schema, this.parent);
     this.leafs[this.id] = newTree;
     console.log("new-tree", newTree);

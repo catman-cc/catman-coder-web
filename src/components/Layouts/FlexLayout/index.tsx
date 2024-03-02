@@ -63,8 +63,12 @@ class FlexLayoutRender implements Core.LayoutRender {
   };
   activeTabSetId: string;
   model: Model;
-  factory: Core.ComponentFactory
-  constructor(model: Model, factory: Core.ComponentFactory, activeTabSetId?: string) {
+  factory: Core.ComponentFactory;
+  constructor(
+    model: Model,
+    factory: Core.ComponentFactory,
+    activeTabSetId?: string,
+  ) {
     this.nodes = {};
     this.model = model;
     this.factory = factory;
@@ -76,7 +80,7 @@ class FlexLayoutRender implements Core.LayoutRender {
 
   close(node: Core.LayoutNode): void {
     // 显式执行关闭时,一定要移除缓存
-    this.factory.remove(node)
+    this.factory.remove(node);
   }
 
   support(node: Core.LayoutNode): boolean {
@@ -331,6 +335,19 @@ function FlexLayout() {
               // flex layout 内部使用TabNode,但是工厂接受的是LayoutNode,所以此处需要进行一次转换工厂函数才可以处理
               // return factory.create(node)
             }}
+            titleFactory={(node) => {
+              return (
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    console.log(123);
+                  }}
+                >
+                  {node.getName()}
+                </Button>
+              );
+            }}
             iconFactory={(node) => {
               // flex layout 内部使用TabNode,但是工厂接受的是LayoutNode,所以此处需要进行一次转换工厂函数才可以处理
               return (
@@ -348,7 +365,38 @@ function FlexLayout() {
                 />
               );
             }}
+            onAuxMouseClick={(e) => {
+              console.log("aux mouse click", e);
+            }}
             onRenderTab={(node, rv) => {
+              if (node.getId() === "ExecutorJoinCodeManager") {
+                rv.leading = (
+                  <IconCN
+                    key={node.getId()}
+                    className={"TypeDefinitionMenuIcon"}
+                    style={{
+                      color: "purple",
+                      maxWidth: "25px",
+                      maxHeight: "25px",
+                    }}
+                    type={
+                      node.getIcon() ||
+                      `icon-${node.getConfig()?.componentName}`
+                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      model.doAction(Actions.selectTab(node.getId()));
+                    }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                  />
+                );
+                rv.content = "";
+                return;
+              }
               // 渲染tab页
               const nid = node.getId();
               if (
@@ -377,7 +425,7 @@ function FlexLayout() {
                   <IconCN
                     key={node.getId()}
                     type="icon-Tabs-1"
-                    onClick={() => { }}
+                    onClick={() => {}}
                     onMouseDown={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
@@ -426,7 +474,25 @@ function FlexLayout() {
               // rv.headerButtons = [<Button key={1}>1</Button>]
               if (node instanceof BorderNode) {
                 if (node.getLocation() === DockLocation.LEFT) {
+                  rv.centerContent;
                   rv.buttons = [
+                    <Tooltip
+                      title={
+                        "此处分隔一个区域单独展示按钮组,从而接管默认的tab行为,这里后面还要再优化,处理溢出2行为,不是重点,后面再考虑"
+                      }
+                    >
+                      <div
+                        style={{
+                          height: "200px",
+                          width: "100%",
+                          borderTop: "2px solid gray",
+                          fontSize: "12px",
+                          color: "gray",
+                        }}
+                      >
+                        此处分隔一个区域单独展示按钮组,从而接管默认的tab行为,这里后面还要再优化,处理溢出行为,不是重点,后面再考虑
+                      </div>
+                    </Tooltip>,
                     <Button
                       key={2}
                       icon={<IconCN type={"icon-Settings"} />}
@@ -509,6 +575,9 @@ function FlexLayout() {
 
               // 当tab发生变化时,所进行的回调操作
               switch (action.type) {
+                case Actions.SELECT_TAB:
+                  console.log("select tab", action);
+                  break;
                 case Actions.DELETE_TAB:
                   layoutContext.renderFactory.close(
                     asTabNode().getConfig() as Core.LayoutNode<unknown>,
@@ -547,7 +616,9 @@ function FlexLayout() {
               return action;
             }}
           />
-          <div className="layout-status-bar">{/* <Button>123</Button> */}</div>
+          <div className="layout-status-bar">
+            😁,系统加载完成,当前处于单机模式,enjoy it~~
+          </div>
         </div>
       );
       return res;

@@ -1,12 +1,11 @@
 import FlexLayout from "@/components/Layouts/FlexLayout/index.tsx";
-import config from "@/config";
 import { ApplicationContextRC } from "@/core";
 import "@/variables.less";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import "./index.css";
-import { store } from "./stores/index.tsx";
+import { store } from "@/stores";
 
 import applicationContext from "@/ApplicationContext.tsx";
 import BrowerTabLayout from "@/components/Layouts/BrowerTab";
@@ -27,7 +26,6 @@ interface CatMan {
 // 5. 加载外部插件
 // 6. 调用后台接口,准备数据
 // 7. 完成,结束蒙版
-window.catman = config;
 
 // 注册processor,并执行启动操作
 applicationContext.start();
@@ -52,9 +50,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <Provider store={store}>
       <DndProvider backend={HTML5Backend}>
         <ApplicationContextRC value={applicationContext}>
-          <div onContextMenu={(e) => {
-            e.preventDefault(); // 取消默认行为
-          }}>
+          <div
+            onContextMenu={(e) => {
+              e.preventDefault(); // 取消默认行为
+            }}
+          >
             <RouterProvider router={router} />
             {/*/!* 此时需要处理特点数据,比如独立窗口是不需要展示布局容器的,仅展示所渲染的资源即可*!/*/}
             {/*<FlexLayout/>*/}

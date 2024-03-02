@@ -1,6 +1,5 @@
 import IconCN from "@/components/Icon";
 import { Constants } from "@/core/common";
-import { Core, Resource } from "@/core/typings";
 import { Input, InputRef, Modal, Space } from "antd";
 import React from "react";
 import { ItemParams } from "react-contexify";
@@ -74,7 +73,7 @@ class ResourceCreationModal extends React.Component<
 
 export class ParameterProcessor implements Core.Processor {
   before(context: Core.ApplicationContext) {
-    function createModel(group: Resource) {
+    function createModel(group: Resource, typedefinitionId?: string) {
       return (
         <ResourceCreationModal
           context={context}
@@ -84,7 +83,9 @@ export class ParameterProcessor implements Core.Processor {
                 parentId: group.id,
                 kind: "parameter",
                 name: info.name,
-                config: {},
+                config: {
+                  tid: typedefinitionId
+                },
               } as unknown as Core.Resource)
               .then((res) => {
                 const resourceDetails = res.data;
@@ -117,7 +118,7 @@ export class ParameterProcessor implements Core.Processor {
             return item.kind === Constants.Resource.kind.typeDefinition;
           },
           onMenuClick: (
-            menu: Core.Menu<Resource>,
+            menu: Core.Menu<Core.Resource>,
             resource: Core.Resource,
             itemParams: ItemParams,
           ) => {
@@ -128,7 +129,7 @@ export class ParameterProcessor implements Core.Processor {
             }
             // 弹出一个交互窗口,可以从现有资源选择,也可以直接输入名称
             // 直接通过前端或者调用后端生成一个类型定义都可以,此处选择调用后端接口创建资源
-            context.resourceContext?.showModel(createModel(group));
+            context.resourceContext?.showModel(createModel(group, resource.resourceId));
           },
         } as unknown as Core.Menu<Core.Resource>,
       ] as unknown as Core.Menu<Core.Resource>[]),
@@ -149,7 +150,7 @@ export class ParameterProcessor implements Core.Processor {
                 </div>
               ),
               onMenuClick: (
-                menu: Core.Menu<Resource>,
+                menu: Core.Menu<Core.Resource>,
                 resource: Core.Resource,
                 itemParams: ItemParams,
               ) => {

@@ -132,9 +132,9 @@ export class TypeDefinitionHierarchialSchema {
         return this.schmea.context.typeDefinitions[this.idMapper.decode(id)]
     }
 
-    change(id: string, update: (td: Core.TypeDefinition) => void) {
+    change(id: string, update: (td: Core.TypeDefinition, schmea: Core.TypeDefinitionSchema) => void) {
         const td = this.get(id)
-        update(td)
+        update(td, this.schmea)
         this.flushAndNotify()
     }
 
@@ -208,16 +208,22 @@ export class TypeDefinitionHierarchialSchema {
     update(id: string, schema: Core.TypeDefinitionSchema) {
         const parsedSchema = this.doAdd(schema)
         this.registry.replace(id, parsedSchema.registry.root)
+
         this.flushAndNotify()
     }
 
-    changeType(id: string, type: Core.Type) {
+    changeType(id: string, type: Core.Type, schema: Core.TypeDefinitionSchema) {
         const td = this.get(id)
         const newTd = { ...td, type: type }
-        this.update(id, wrapperTypeDefinitionToSchema(newTd))
+        console.log("change type", newTd, wrapperTypeDefinitionToSchema(newTd, schema));
+
+        this.update(id, wrapperTypeDefinitionToSchema(newTd, schema))
     }
 
     private doAdd(schema: Core.TypeDefinitionSchema): TypeDefinitionSchemaParser {
+        // 此处需要额外将当前的定义传递过去,避免循环
+        schema.definitions = { ...this.schmea.definitions, ...schema.definitions }
+        schema.context.typeDefinitions = schema.definitions
         const parsedSchema = TypeDefinitionSchemaParser.parse(schema)
         // 合并idmapper
         this.idMapper.merge(parsedSchema.idMapper)
@@ -232,6 +238,8 @@ export class TypeDefinitionHierarchialSchema {
             // }
             this.schmea.definitions[key] = otherSchema.definitions[key]
         })
+
+        this.schmea.context.typeDefinitions = this.schmea.definitions
         return parsedSchema
     }
 
@@ -437,10 +445,11 @@ export class TypeDefinitionHierarchialSchema {
         const schema = {
             root: this.idMapper.decode(tid),
             refs: new Map(),
+            context: {},
             definitions: {}
         } as Core.TypeDefinitionSchema
         //递归解析树级结构,构建类型定义
-        const deepParse = (treeId: string, includePrivate: boolean = false) => {
+        const deepParse = (treeId: string) => {
             const tdId = this.idMapper.decode(treeId)
             if (schema.definitions[tdId]) {
                 return schema.definitions[tdId]
@@ -450,10 +459,9 @@ export class TypeDefinitionHierarchialSchema {
             const typeDefinition = {
                 ...td
             } as Core.TypeDefinition
-            if (includePrivate || td.scope === Scope.PUBLIC) {
-                if (!schema.definitions[tdId]) {
-                    schema.definitions[tdId] = typeDefinition
-                }
+
+            if (!schema.definitions[tdId]) {
+                schema.definitions[tdId] = typeDefinition
             }
 
             const type = typeDefinition.type
@@ -461,18 +469,13 @@ export class TypeDefinitionHierarchialSchema {
             type.privateItems = {}
             // 然后开始拼接私有类型定义和公开类型定义
             const children = this.getChildren(treeId)
-            console.log("children", children);
 
             if (children && children.length > 0) {
                 children.forEach(cid => {
                     const child = deepParse(cid)
                     if (child) {
-                        if (child.scope === Scope.PUBLIC) {
-                            if (!schema.definitions[child.id!]) {
-                                schema.definitions[child.id!] = child
-                            }
-                        } else {
-                            type.privateItems[child.id!] = child
+                        if (!schema.definitions[child.id!]) {
+                            schema.definitions[child.id!] = child
                         }
                         type.sortedAllItems.push({
                             name: child.name,
@@ -484,7 +487,8 @@ export class TypeDefinitionHierarchialSchema {
             }
             return typeDefinition
         }
-        deepParse(tid, true)
+        deepParse(tid)
+        schema.context.typeDefinitions = schema.definitions
         return schema
     }
 }
@@ -494,6 +498,7 @@ export class TypeDefinitionSchemaParser {
     newSchema: Core.TypeDefinitionSchema
     registry: HierarchicalRegister
     idMapper: IdMapper
+    parsed: { [index: string]: boolean }
     static parse(schme: Core.TypeDefinitionSchema) {
         return new TypeDefinitionSchemaParser(schme)
     }
@@ -501,12 +506,14 @@ export class TypeDefinitionSchemaParser {
     constructor(schema: Core.TypeDefinitionSchema) {
         this.newSchema = {
             refs: new Map(),
-            context: schema.context,
+            context: schema.context || {},
             root: schema.root,
-            definitions: { ...schema.context.typeDefinitions }
+            definitions: { ...schema.definitions, ...schema.context.typeDefinitions }
         }
+        this.newSchema.context.typeDefinitions = this.newSchema.definitions
         this.idMapper = new DefaultIdMapper()
         this.registry = new DefaultHierarchicalRegister()
+        this.parsed = {}
         this.parse(schema)
     }
 
@@ -521,6 +528,11 @@ export class TypeDefinitionSchemaParser {
     }
 
     private parseTypeDefinition(td: Core.TypeDefinition) {
+        // this.newSchema.definitions[td.id!] = td
+        if (this.parsed[td.id!]) {
+            return this.idMapper.encode(td.id!)
+        }
+        this.parsed[td.id!] = true
         this.newSchema.definitions[td.id!] = td
         const type = td.type
 
@@ -534,21 +546,41 @@ export class TypeDefinitionSchemaParser {
 
         // 构建父子关系
         const tid = this.idMapper.encode(td.id!)
-        type.sortedAllItems.forEach((i) => {
-            // 不能直接使用编码后的id做为子节点的唯一标志,
-            /// 对被引用的类型定义进行了引用操作,
-            this.registry.register(tid, this.idMapper.encode(i.itemId))
-        })
+        if (type.sortedAllItems) {
+            type.sortedAllItems.forEach((i) => {
+                // 不能直接使用编码后的id做为子节点的唯一标志,
+                /// 对被引用的类型定义进行了引用操作,
+                const itemTd = this.newSchema.definitions[i.itemId]
+                const itemId = this.parseTypeDefinition(itemTd)
+                this.registry.register(tid, itemId)
+            })
+        }
         return tid
     }
 }
 
-export const wrapperTypeDefinitionToSchema = (td: Core.TypeDefinition): Core.TypeDefinitionSchema => {
+export const wrapperTypeDefinitionToSchema = (td: Core.TypeDefinition, tdSchema: Core.TypeDefinitionSchema): Core.TypeDefinitionSchema => {
     const schema = {
         root: td.id!,
         definitions: {},
+        context: {},
         refs: new Map()
     } as Core.TypeDefinitionSchema
-    schema.definitions[td.id!] = td
+
+    const deep = (td: Core.TypeDefinition) => {
+        if (schema.definitions[td.id!]) {
+            return
+        }
+        schema.definitions[td.id!] = td
+        if (td.type.sortedAllItems) {
+            td.type.sortedAllItems.forEach(item => {
+                const i = tdSchema.context.typeDefinitions[item.itemId]
+                schema.definitions[i.id!] = i
+                deep(i)
+            })
+        }
+
+    }
+    deep(td)
     return schema
 }

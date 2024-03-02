@@ -73,8 +73,8 @@ export const EnumTypeRender = (props: BasicSelectTypePanelProps) => {
                 content={
                     <TypeSelectorPanel
                         type={new ComplexType(props.type)}
-                        completeTheSelection={(t) => {
-                            props.updateType(t);
+                        completeTheSelection={(t, schema) => {
+                            props.updateType(t, schema);
                         }}
                         filter={props.filter}
                     />

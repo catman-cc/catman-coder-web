@@ -109,8 +109,15 @@ const TypeMenu: TypeSelectorMenuItem[] = [
 ];
 
 
-function buildComplexType(name: string) {
+function buildComplexType(name: string): [ComplexType, Core.TypeDefinitionSchema?] {
   const type = new ComplexType();
+  const schema = {
+    root: "",
+    context: {},
+    definitions: {}
+  } as Core.TypeDefinitionSchema
+  schema.context.typeDefinitions = schema.definitions
+
   type.typeName = name;
   if (name === "array") {
     const itemId = ID()
@@ -122,19 +129,19 @@ function buildComplexType(name: string) {
         scope: Scope.PRIVATE
       }
     )
-    type.privateItems[itemId] = {
-      id: ID(),
+    schema.definitions[itemId] = {
+      id: itemId,
       name: "elements",
       scope: Scope.PRIVATE,
       type: ComplexType.ofType("string")
     } as unknown as Core.TypeDefinition
   }
-  return type;
+  return [type, schema];
 }
 
 type Props = {
   type: ComplexType; // 当前所使用的类型,不同的类型将对应着不同的处理逻辑
-  completeTheSelection: (_type: ComplexType) => void; // 完成类型选择后,需要将选择的类型传递给父组件
+  completeTheSelection: (_type: ComplexType, _schema?: Core.TypeDefinitionSchema) => void; // 完成类型选择后,需要将选择的类型传递给父组件
   filter?: TypeSelectorMenuItemFilter
 };
 
@@ -163,7 +170,7 @@ export default class TypeSelectorPanel extends React.Component<Props, State> {
           onSelect={({ key }) => {
             // 需要对扩展点进行特殊处理
             console.log("select", key);
-            this.props.completeTheSelection(buildComplexType(key));
+            this.props.completeTheSelection(...buildComplexType(key));
           }}
           onClick={({ key }) => {
             // if (key === "slot") {

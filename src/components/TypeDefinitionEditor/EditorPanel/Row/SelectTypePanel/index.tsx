@@ -7,7 +7,7 @@ import { EnumTypeRender } from "./EnumTypeRender";
 
 export type SelectTypePanelCreator = (
   _type: Core.Type,
-  _update: (_type: Core.Type) => void,
+  _update: (_type: Core.Type, schema?: Core.TypeDefinitionSchema) => void,
   _schema: Core.TypeDefinitionSchema,
   _factory: SelectTypePanelFactory,
   _disabled?: boolean,
@@ -262,7 +262,7 @@ export class SelectTypePanelFactory {
   }
   render(
     type: Core.Type,
-    update: (type: Core.Type) => void,
+    update: (type: Core.Type, schema?: Core.TypeDefinitionSchema) => void,
     schema: Core.TypeDefinitionSchema,
     disabled?: boolean,
     filter?: TypeSelectorMenuItemFilter
@@ -278,9 +278,9 @@ export class SelectTypePanelFactory {
           content={
             <TypeSelectorPanel
               type={new ComplexType(type)}
-              completeTheSelection={(t) => {
+              completeTheSelection={(t, schema) => {
                 type.typeName = t.typeName;
-                update(t);
+                update(t, schema);
               }}
               filter={filter}
             />
@@ -290,13 +290,13 @@ export class SelectTypePanelFactory {
         </Popover>
       );
     }
-    return <div>暂不支持的类型</div>;
+    return <div>暂不支持的类型:{type.typeName}</div>;
   }
 }
 export interface BasicSelectTypePanelProps {
   type: Core.Type;
   schema: Core.TypeDefinitionSchema;
-  updateType: (_type: Core.Type) => void;
+  updateType: (_type: Core.Type, _schema?: Core.TypeDefinitionSchema) => void;
   disabled?: boolean;
   filter?: TypeSelectorMenuItemFilter
 }

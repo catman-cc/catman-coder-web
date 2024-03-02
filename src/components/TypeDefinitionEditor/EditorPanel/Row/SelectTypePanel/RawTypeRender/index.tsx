@@ -26,9 +26,9 @@ export const RawTypeRender = (props: BasicSelectTypePanelProps) => {
       content={
         <TypeSelectorPanel
           type={new ComplexType(props.type)}
-          completeTheSelection={(t) => {
+          completeTheSelection={(t, schema) => {
             console.log("completeTheSelection", t);
-            props.updateType(t);
+            props.updateType(t, schema);
           }}
           filter={props.filter}
         />

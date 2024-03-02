@@ -48,8 +48,8 @@ export const ReferTypeRender = (props: BasicSelectTypePanelProps) => {
         content={
           <TypeSelectorPanel
             type={new ComplexType(props.type)}
-            completeTheSelection={(t) => {
-              props.updateType(t);
+            completeTheSelection={(t, schema) => {
+              props.updateType(t, schema);
             }}
             filter={props.filter}
           />
@@ -78,10 +78,10 @@ export const ReferTypeRender = (props: BasicSelectTypePanelProps) => {
                   resource.details as Core.TypeDefinitionSchema;
                 if (clickSchema.definitions) {
                   for (const definitionsKey in clickSchema.definitions) {
-                    if (props.schema.root === definitionsKey) {
-                      // 禁止修改当前正在编辑的类型定义
-                      continue;
-                    }
+                    // if (props.schema.root === definitionsKey) {
+                    //   // 禁止修改当前正在编辑的类型定义
+                    //   continue;
+                    // }
                     props.schema.definitions[definitionsKey] =
                       clickSchema.definitions[definitionsKey];
                   }
@@ -99,7 +99,7 @@ export const ReferTypeRender = (props: BasicSelectTypePanelProps) => {
                   });
                 }
                 console.warn("update type", props.type);
-                props.updateType(props.type);
+                props.updateType(props.type, clickSchema);
               }}
             />
           </div>

@@ -1,4 +1,4 @@
-import { UniversalFunctionEditor } from "@/components/Function/UniversalFunctionEditor";
+import { DockViewFunctionInfoProvider } from "@/components/Function/Layout/DockView";
 import IconCN from "@/components/Icon";
 import { DefaultLayoutNode } from "@/core/Layout";
 import { Constants } from "@/core/common";
@@ -43,7 +43,8 @@ export default class FunctionProcessor implements Core.Processor {
                 | Core.ComponentCreatorFunction
                 | Core.ComponentCreator {
                 return (node: Core.LayoutNode<Core.Resource>) => {
-                    return <UniversalFunctionEditor resource={node.data!} />;
+                    return <DockViewFunctionInfoProvider />
+                    // return <UniversalFunctionEditor resource={node.data!} />;
                 };
             },
         });

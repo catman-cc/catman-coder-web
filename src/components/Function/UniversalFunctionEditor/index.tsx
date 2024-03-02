@@ -8,6 +8,9 @@
  * - 自定义任务流
  */
 
+import { serialize } from "@/services/typeDefinitions"
+import Fury from '@furyjs/fury'
+import { useEffect } from "react"
 import { FunctionArgsPanel } from "../ArgsPanel"
 import { FunctionResultPanel } from "../ResultPanel"
 import "./index.less"
@@ -15,7 +18,16 @@ export interface UniversalFunctionEditorProps {
     editable: boolean
 }
 export const UniversalFunctionEditor = () => {
+    useEffect(() => {
+        serialize().then(res => {
+            const ser = res.data
+            const fury = new Fury();
+            const utf8Encode = new TextEncoder();
+            console.log(fury.deserialize(utf8Encode.encode(ser))
+            );
 
+        })
+    }, [])
     return (
         <div className="universal-function-editor">
             <div className="universal-function-editor-basic">

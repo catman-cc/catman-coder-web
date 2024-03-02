@@ -32,7 +32,9 @@ export class DefaultLayoutRenderFactory implements Core.LayoutRenderFactory {
     this.renders
       .filter((r) => r.support(node))
       .forEach((r) => {
-        r.close(node);
+        if (r.close) {
+          r.close(node);
+        }
       });
   }
 }

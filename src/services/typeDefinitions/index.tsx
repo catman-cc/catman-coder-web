@@ -11,6 +11,12 @@ export class TypeeDefinitionSchemaService {
 
 }
 
+export function serialize(
+): Promise<API.Response<string>> {
+  return get<string>(`/api/type-definition/serialize`);
+}
+
+
 export function findById(
   id: string,
 ): Promise<API.Response<Core.TypeDefinition>> {

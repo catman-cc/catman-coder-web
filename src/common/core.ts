@@ -79,6 +79,28 @@ export class DefaultTypeDefinition implements Core.TypeDefinition {
       : new DefaultTypeDefinition(typeDefinition);
   }
 
+  static createSchema(config: {
+    childCount?: number;
+    name?: string;
+    type?: ComplexType;
+    scope?: Core.Scope;
+  } = {
+      childCount: 0,
+      name: constants.DEFAULT_NEW_TYPE_DEFINITION_NAME,
+      type: ComplexType.ofType(constants.Types.TYPE_NAME_STRING),
+    },
+  ) {
+    const td = this.create(config)
+    const schema = {
+      root: td.id,
+      context: {},
+      definitions: {}
+    } as Core.TypeDefinitionSchema
+    schema.definitions[td.id] = td
+    schema.context.typeDefinitions = schema.definitions
+    return schema
+  }
+
   static create(
     config: {
       childCount?: number;

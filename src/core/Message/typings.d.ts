@@ -129,6 +129,8 @@ export interface MessageChannel {
     _callback: (_msg: Message<unknown>, _err?: Error | null) => void,
   ): void;
 
+  onMessage(_message: Message<unknown>): void;
+
   /**
    * 关闭当前通道
    */

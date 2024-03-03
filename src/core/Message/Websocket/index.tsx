@@ -22,9 +22,13 @@ export class WebsocketMessageConnection implements MessageConnection {
   close(): void {}
 }
 
+/**
+ * 目前的业务需求,只需要提供根据channel分发数据到对应的channel即可,所以channel需要支持onMessage,然后内部再进行数据分发
+ */
 export class WebsocketMessageBus implements MessageBus {
   ws: WebSocket;
   exchange: MessageExchange;
+  channels: { [index: string]: MessageChannel } = {};
 
   constructor(ws: WebSocket, exchange: MessageExchange) {
     this.ws = ws;
@@ -43,6 +47,11 @@ export class WebsocketMessageBus implements MessageBus {
     this.ws.onmessage = (event) => {
       // 此处需要解析通道数据
       const msg = event.data as Message<CreateChannelResponse>;
+      if (msg.channelId) {
+        const matchChannel = this.channels[msg.channelId];
+        matchChannel.onMessage(msg);
+      }
+      // 默认通道
       if (msg.payload?.success) {
         const channel = new DefaultMessageChannel(
           msg.channelId!,

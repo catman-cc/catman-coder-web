@@ -4,7 +4,6 @@ export type MessageType =
   | "UNICAST"
   | "MULTICAST"
   | "P2P";
-
 export interface Message<T> {
   /**
    * 消息的唯一标识
@@ -126,7 +125,7 @@ export interface MessageChannel {
    */
   sendAndWatch(
     _message: Message<unknown>,
-    _callback: (_msg: Message<unknown>, _err?: Error | null) => void,
+    _callback: (_msg: Message<unknown>, _err?: Error | null) => void
   ): void;
 
   onMessage(_message: Message<unknown>): void;
@@ -203,7 +202,7 @@ export interface MessageSubscriberWatcher {
   afterRemove(_subscriber: MessageSubscriber): void;
   beforeHandle(
     _message: Message<unknown>,
-    _subscriber: MessageSubscriber,
+    _subscriber: MessageSubscriber
   ): void;
   afterHandle(_message: Message<unknown>, _subscriber: MessageSubscriber): void;
 }
@@ -250,6 +249,6 @@ export interface MessageBus {
   createChannel(
     _opt: CreateChannelOptions,
     _callback: (_channel: MessageChannel) => void,
-    _err?: (_err: Error) => void,
+    _err?: (_err: Error) => void
   ): void;
 }

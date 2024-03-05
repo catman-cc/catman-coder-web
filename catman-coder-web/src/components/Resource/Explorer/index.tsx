@@ -4,7 +4,7 @@
 import IconCN from "@/components/Icon";
 import { SelectorPanel } from "@/components/LabelSelector/SelectorPanel";
 import { LabelSelectFactory } from "@/components/LabelSelector/common";
-import { useApplicationContext } from "@/core";
+import { useApplicationContext } from "catman-coder-core";
 import { useAppDispatch, useAppSelector } from "@/stores";
 import { ResourceSlice, RootResourceQuery } from "@/stores/resource";
 import { Button, Card, Popover, Tree } from "antd";
@@ -85,7 +85,7 @@ const ResourceExplorer: React.FC = () => {
     });
   };
 
-  const onExpand: DirectoryTreeProps["onExpand"] = (keys, info) => { };
+  const onExpand: DirectoryTreeProps["onExpand"] = (keys, info) => {};
 
   const menuContext = explorerContext.menuContext!;
   const { show } = useContextMenu({
@@ -138,7 +138,8 @@ const ResourceExplorer: React.FC = () => {
       onKeyDown={(e) => {
         // TODO 做一个占位,后面实现简单的搜索和快捷键等操作
         // console.log(e.key);
-      }}>
+      }}
+    >
       <Card
         title={
           <div
@@ -164,9 +165,7 @@ const ResourceExplorer: React.FC = () => {
                       onChange={(v) => {
                         setSelector(v);
                       }}
-                      onApply={(search) => {
-
-                      }}
+                      onApply={(search) => {}}
                       keyAutoOptions={ResourceNames}
                     />
                   </div>
@@ -190,29 +189,35 @@ const ResourceExplorer: React.FC = () => {
             if (dropNode.resource.leaf) {
               console.log("drop pos", dropPosition);
 
-              return dropPosition !== 0
+              return dropPosition !== 0;
             }
-            return true
+            return true;
           }}
           onDrop={(info) => {
             // over内部
             // over 内部,表示第一个
-            const cid = info.node.resource.id
+            const cid = info.node.resource.id;
             if (info.node.dragOver) {
               // 调用接口
-              resourceContext.service?.move(info.dragNode.resource.id, info.node.resource.id).then(res => {
-                dispatch(RootResourceQuery())
-              })
+              resourceContext.service
+                ?.move(info.dragNode.resource.id, info.node.resource.id)
+                .then((res) => {
+                  dispatch(RootResourceQuery());
+                });
             } else {
               if (info.node.dragOverGapTop) {
                 // 在某一个资源上面,则需要寻找到该资源的前一个资源,表示插入到二者中间
-                resourceContext.service?.move(info.dragNode.resource.id, "", "", cid,).then(res => {
-                  dispatch(RootResourceQuery())
-                })
+                resourceContext.service
+                  ?.move(info.dragNode.resource.id, "", "", cid)
+                  .then((res) => {
+                    dispatch(RootResourceQuery());
+                  });
               } else {
-                resourceContext.service?.move(info.dragNode.resource.id, "", cid).then(res => {
-                  dispatch(RootResourceQuery())
-                })
+                resourceContext.service
+                  ?.move(info.dragNode.resource.id, "", cid)
+                  .then((res) => {
+                    dispatch(RootResourceQuery());
+                  });
               }
             }
           }}

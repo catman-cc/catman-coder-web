@@ -1,4 +1,10 @@
 import { QuickerCodeEditor } from "@/components/QuickerCodeEditor";
+import {
+  ComponentCreator,
+  ComponentCreatorFunction,
+  Processor,
+  IApplicationContext as ApplicationContext,
+} from "catman-coder-core";
 
 export class QuickerCodeEditorProcessor implements Processor {
   before(context: ApplicationContext) {

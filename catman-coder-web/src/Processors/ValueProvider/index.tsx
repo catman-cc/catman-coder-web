@@ -1,4 +1,7 @@
-import { Core } from "@/core/typings";
+import {
+  Processor,
+  IApplicationContext as ApplicationContext,
+} from "catman-coder-core";
 
 /**
  * 值提取器
@@ -11,5 +14,5 @@ import { Core } from "@/core/typings";
  * - 注册值提取器资源的渲染器
  */
 export class ValueProviderProcessor implements Processor {
-  before(context: ApplicationContext) {}
+  before(_context: ApplicationContext) {}
 }

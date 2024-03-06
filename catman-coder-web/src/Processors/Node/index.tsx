@@ -1,10 +1,7 @@
-import { DockViewHttpProvider } from "@/components/Provider/http/DockView";
-import { Card } from "antd";
 import {
-  TypeDefinitionEditor,
-  TypeDefinitionEditorProps,
-} from "@/components/TypeDefinitionEditor/EditorPanel";
-import DEMO from "@/components/TypeDefinitionEditor/EditorPanel/demo.tsx";
+  Processor,
+  IApplicationContext as ApplicationContext,
+} from "catman-coder-core";
 import { useState } from "react";
 import { TypeDefinitionSchemaEditor } from "@/components/TypeDefinitionEditor";
 

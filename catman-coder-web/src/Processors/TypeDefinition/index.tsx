@@ -160,7 +160,8 @@ export default class TypeDefinitionProcessor implements Processor {
           _: ApplicationContext,
           layout: LayoutContext,
         ) => {
-          const resourceDetails = resource as ResourceDetails;
+          const resourceDetails =
+            resource as unknown as ResourceDetails<unknown>;
           const layoutNode = DefaultLayoutNode.ofResource(resourceDetails);
           layoutNode.componentName = "td";
           layoutNode.icon = "icon-moxing";

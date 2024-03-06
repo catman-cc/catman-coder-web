@@ -15,7 +15,7 @@ import { ResourceSlice, RootResourceQuery } from "@/stores/resource";
 import { Button, Card, Popover, Tree } from "antd";
 import type { DataNode, DirectoryTreeProps } from "antd/es/tree";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
-import { useContextMenu } from "react-contexify";
+import { Menu, Item, Separator, useContextMenu } from "react-contexify";
 import "react-contexify/dist/ReactContexify.css";
 import "./index.css";
 import "./index.less";
@@ -61,7 +61,15 @@ const ResourceExplorer: React.FC = () => {
         resourceId: null,
         isLeaf: false,
         children: [],
-        resource: {},
+        resource: {
+          id: "__root_1",
+          name: "root",
+          kind: "resource",
+          isLeaf: false,
+          resourceId: "__root_1",
+          parentId: "",
+          children: [],
+        } as Resource,
       };
     }
     return resourceConvert(root);
@@ -99,13 +107,16 @@ const ResourceExplorer: React.FC = () => {
 
   const [node, setNode] = useState(resourceTree);
   function displayMenu(e, node: ResourceDataNode) {
-    console.log(menuContext!.menus().id!);
-    debugger;
+    console.log("node", e, node, menuContext!.menus());
     setNode(node);
     show({
       event: e,
-      id: menuContext!.menus().id!,
+      id: "new-type-definition",
     });
+    // show({
+    //   event: e,
+    //   id: menuContext!.menus().id!,
+    // });
   }
   // publish({
   //     id:"resource-show-model",
@@ -242,6 +253,13 @@ const ResourceExplorer: React.FC = () => {
           treeData={[resourceTree!]}
         />
         {menuContext.render(node.resource)}
+        {/*{*/}
+        {/*  <Menu id={"new-type-definition"}>*/}
+        {/*    {menuContext.render(node.resource)}*/}
+        {/*    /!*<Item>Item 1</Item>*!/*/}
+        {/*    /!*<Separator />*!/*/}
+        {/*  </Menu>*/}
+        {/*}*/}
       </Card>
       {model}
     </div>

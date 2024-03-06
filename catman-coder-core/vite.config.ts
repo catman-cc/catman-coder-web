@@ -11,7 +11,13 @@ export default defineConfig({
       formats: ["es", "cjs"],
     },
     rollupOptions: {
-      external: ["react", "react/jsx-runtime", "react-dom", "@ant-design"],
+      external: [
+        "react",
+        "react/jsx-runtime",
+        "react-dom",
+        "react-contexify",
+        "@ant-design",
+      ],
       // external: [
       //   ...Object.keys(pkg.dependencies), // don't bundle dependencies
       //   /^node:.*/, // don't bundle built-in Node.js modules (use protocol imports!)
@@ -21,6 +27,12 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      react: path.resolve(__dirname, "./node_modules/react"),
+      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      "react-contexify": path.resolve(
+        __dirname,
+        "./node_modules/react-contexify"
+      ),
     },
   },
   plugins: [dts()],

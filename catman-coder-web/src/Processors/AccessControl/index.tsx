@@ -1,7 +1,12 @@
 /**
  * 访问控制模块,提供快捷配置访问权限的能力
  */
-import { Core, Resource } from "@/core/typings";
+import {
+  Processor,
+  Resource,
+  IApplicationContext as ApplicationContext,
+  Menu,
+} from "catman-coder-core";
 import IconCN from "@/components/Icon";
 import { ItemParams } from "react-contexify";
 
@@ -24,19 +29,19 @@ export class AccessControlProcessor implements Processor {
             </div>
           ),
           onMenuClick: (
-            menu: Menu<Resource>,
-            resource: Resource,
-            itemParams: ItemParams
+            _menu: Menu<Resource>,
+            _resource: Resource,
+            _itemParams: ItemParams,
           ) => {
             // 展示一个权限控制面板
             alert("展示一个权限控制面板");
           },
         },
-      ] as unknown as Menu<Resource>[])
+      ] as unknown as Menu<Resource>[]),
     );
   }
 
-  after(context: ApplicationContext): void {}
+  after(_context: ApplicationContext): void {}
 
-  run(context: ApplicationContext): void {}
+  run(_context: ApplicationContext): void {}
 }

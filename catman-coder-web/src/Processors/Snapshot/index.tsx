@@ -1,7 +1,12 @@
-import { Core, Resource } from "@/core/typings";
+import {
+  Core,
+  Processor,
+  Resource,
+  IApplicationContext as ApplicationContext,
+  Menu,
+} from "catman-coder-core";
 import IconCN from "@/components/Icon";
 import { ItemParams } from "react-contexify";
-import { Constants } from "@/core/common";
 
 export class SnapshotProcessor implements Processor {
   before(context: ApplicationContext): void {
@@ -39,13 +44,13 @@ export class SnapshotProcessor implements Processor {
           onMenuClick: (
             menu: Menu<Resource>,
             resource: Resource,
-            itemParams: ItemParams
+            itemParams: ItemParams,
           ) => {
             // 展示一个权限控制面板
             alert("展示一个权限控制面板");
           },
         },
-      ] as unknown as Menu<Resource>[])
+      ] as unknown as Menu<Resource>[]),
     );
   }
 }

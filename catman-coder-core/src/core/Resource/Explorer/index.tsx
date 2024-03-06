@@ -1,12 +1,11 @@
 import React, { ReactNode } from "react";
-import { Item, ItemParams, Separator, Submenu } from "react-contexify";
-import { Menu as RcMenu } from "react-contexify";
+import { Item, ItemParams, Separator, Submenu, Menu } from "react-contexify";
 import IconCN from "@/core/component/Icon";
 import { DefaultLayoutNode } from "@/core";
 import {
   IApplicationContext,
   LayoutContext,
-  Menu,
+  Menu as RcMenu,
   Resource,
   ResourceContext,
   ResourceDataNode,
@@ -42,6 +41,7 @@ export class KindMatchResourceItemIconRender implements ResourceItemIconRender {
   }
 
   render(resource: Resource): React.ReactNode {
+    debugger;
     return this.renderFunction(resource);
   }
 
@@ -70,6 +70,7 @@ export class KindMatchResourceItemRender implements ResourceItemRender {
   }
 
   support(resource: Resource): boolean {
+    debugger;
     return this.matchKind === resource.kind;
   }
 
@@ -143,15 +144,16 @@ export class DefaultResourceItemIconFactory implements ResourceItemIconFactory {
 }
 
 export interface ResourceMenuRender {
-  support(menu: Menu<Resource>): boolean;
-  render(resource: Resource, menu: Menu<Resource>): ReactNode;
+  name?: string;
+  support(menu: RcMenu<Resource>): boolean;
+  render(resource: Resource, menu: RcMenu<Resource>): ReactNode;
 }
 
 export interface ResourceMenuRenderFactory {
   registry(render: ResourceMenuRender): ResourceMenuRenderFactory;
-  render(resource: Resource, menu: Menu<Resource>): ReactNode;
+  render(resource: Resource, menu: RcMenu<Resource>): ReactNode;
 }
-function checkEmptyMenu(menu: Menu<Resource>): boolean {
+function checkEmptyMenu(menu: RcMenu<Resource>): boolean {
   switch (menu.type) {
     case "submenu" || "menu":
       if (!menu.children) {
@@ -171,21 +173,21 @@ export class DefaultResourceMenuRenderFactory
 {
   renders: ResourceMenuRender[];
   onMenuClick?: (
-    menu: Menu<Resource>,
+    menu: RcMenu<Resource>,
     resource: Resource,
     itemParams: ItemParams
   ) => void;
   constructor() {
     const other = this;
     this.onMenuClick = (
-      _menu: Menu<Resource>,
+      _menu: RcMenu<Resource>,
       _resource: Resource,
       _itemParams: ItemParams
     ) => {
       // 推送事件
     };
     const onMenuClickWrapper = (
-      menu: Menu<Resource>,
+      menu: RcMenu<Resource>,
       resource: Resource,
       itemParams: ItemParams
     ) => {
@@ -198,28 +200,39 @@ export class DefaultResourceMenuRenderFactory
 
     this.renders = [
       {
-        support(menu: Menu<Resource>): boolean {
+        name: "menu-render",
+        support(menu: RcMenu<Resource>): boolean {
+          console.log(
+            "try to support menu with type",
+            menu,
+            "want type",
+            "menu"
+          );
           return menu.type == "menu";
         },
-        render(resource: Resource, menu: Menu<Resource>): ReactNode {
+        render(resource: Resource, menu: RcMenu<Resource>): ReactNode {
+          console.log("will render [menu]:", menu, resource);
           if (menu.filter!(resource)) {
             if (checkEmptyMenu(menu)) {
+              console.log("the menu is empty", menu, resource);
               return;
             }
             return (
-              <RcMenu key={menu.id} id={menu.id!}>
+              <Menu key={menu.id} id={menu.id!}>
                 {menu.children?.map((c) => other.render(resource, c))}
-              </RcMenu>
+              </Menu>
             );
           }
         },
       },
       {
-        support(menu: Menu<Resource>): boolean {
+        name: "item-render",
+        support(menu: RcMenu<Resource>): boolean {
           return menu.type === "item";
         },
-        render(resource: Resource, menu: Menu<Resource>): ReactNode {
+        render(resource: Resource, menu: RcMenu<Resource>): ReactNode {
           if (menu.filter!(resource)) {
+            console.log("menu2", menu);
             return (
               <>
                 {menu.renderMenuItem &&
@@ -259,22 +272,26 @@ export class DefaultResourceMenuRenderFactory
         },
       },
       {
-        support(menu: Menu<Resource>): boolean {
+        name: "separator-render",
+        support(menu: RcMenu<Resource>): boolean {
           return menu.type === "separator";
         },
         render(): ReactNode {
+          console.log("menu3");
           return <Separator />;
         },
       },
       {
-        support(menu: Menu<Resource>): boolean {
+        name: "submenu-render",
+        support(menu: RcMenu<Resource>): boolean {
           return menu.type === "submenu";
         },
-        render(resource: Resource, menu: Menu<Resource>): ReactNode {
+        render(resource: Resource, menu: RcMenu<Resource>): ReactNode {
           if (checkEmptyMenu(menu)) {
             return;
           }
           if (menu.filter!(resource)) {
+            console.log("menu4");
             return (
               <Submenu
                 key={menu.id}
@@ -295,11 +312,20 @@ export class DefaultResourceMenuRenderFactory
       },
     ];
   }
-  render(resource: Resource, menu: Menu<Resource>): React.ReactNode {
+  render(resource: Resource, menu: RcMenu<Resource>): React.ReactNode {
+    console.log(
+      "try to render resource context menus",
+      menu,
+      "want resources",
+      resource
+    );
     if (!menu.filter) {
+      console.log("menu filter is not set");
       menu.filter = () => true;
     }
-    return this.renders.find((r) => r.support(menu))?.render(resource, menu);
+    const matchRender = this.renders.find((r) => r.support(menu));
+    console.log("match render", matchRender);
+    return matchRender?.render(resource, menu);
   }
 
   registry(render: ResourceMenuRender): ResourceMenuRenderFactory {
@@ -309,16 +335,16 @@ export class DefaultResourceMenuRenderFactory
 }
 
 export class DefaultResourceMenuContext implements ResourceMenuContext {
-  resourceMenus: Menu<Resource>;
+  resourceMenus: RcMenu<Resource>;
   resourceMenuRenderFactory: ResourceMenuRenderFactory;
 
-  constructor(resourceMenus: Menu<Resource>) {
+  constructor(resourceMenus: RcMenu<Resource>) {
     this.resourceMenus = resourceMenus;
     this.resourceMenuRenderFactory = new DefaultResourceMenuRenderFactory();
   }
   recursion(
-    menu: Menu<Resource>,
-    handler: (menu: Menu<Resource>, parent?: Menu<Resource>) => boolean
+    menu: RcMenu<Resource>,
+    handler: (menu: RcMenu<Resource>, parent?: RcMenu<Resource>) => boolean
   ): boolean {
     const next = handler(menu, undefined);
     if (next) {
@@ -332,7 +358,9 @@ export class DefaultResourceMenuContext implements ResourceMenuContext {
     return false;
   }
 
-  deep(handler: (menu: Menu<Resource>, parent?: Menu<Resource>) => boolean) {
+  deep(
+    handler: (menu: RcMenu<Resource>, parent?: RcMenu<Resource>) => boolean
+  ) {
     const m = this.menus();
     this.recursion(m, handler);
   }
@@ -341,7 +369,7 @@ export class DefaultResourceMenuContext implements ResourceMenuContext {
     return this.resourceMenuRenderFactory.render(resource, this.resourceMenus);
   }
 
-  menus(): Menu<Resource> {
+  menus(): RcMenu<Resource> {
     return this.resourceMenus;
   }
 
@@ -350,11 +378,14 @@ export class DefaultResourceMenuContext implements ResourceMenuContext {
   }
 
   render(resource: Resource): React.ReactNode {
-    const render = this.resourceMenuRenderFactory.render(
+    console.log(
+      "render resource menus",
       resource,
+      "with menus",
       this.resourceMenus
     );
-    return render;
+
+    return this.resourceMenuRenderFactory.render(resource, this.resourceMenus);
   }
 }
 export class DefaultResourceViewer implements ResourceViewer {

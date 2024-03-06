@@ -1,5 +1,6 @@
 import { get, put } from "@/core/api";
 import { ExecutorJoinCode } from "./typeings";
+import { API } from "@/core/api/typings";
 export enum ExecutorJoinCodeStatus {
   WAIT_ACTIVE = "WAIT_ACTIVE",
   VALID = "VALID",

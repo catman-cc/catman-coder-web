@@ -1,11 +1,9 @@
 import { QuickerCodeEditor } from "@/components/QuickerCodeEditor";
 
-export class QuickerCodeEditorProcessor implements Core.Processor {
-  before(context: Core.ApplicationContext) {
+export class QuickerCodeEditorProcessor implements Processor {
+  before(context: ApplicationContext) {
     context.resourceContext?.register("QuickerCodeEditor", {
-      componentCreator():
-        | Core.ComponentCreatorFunction
-        | Core.ComponentCreator {
+      componentCreator(): ComponentCreatorFunction | ComponentCreator {
         return () => {
           return <QuickerCodeEditor />;
         };

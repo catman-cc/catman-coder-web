@@ -1,4 +1,5 @@
 import { get, post } from "@/core/api";
+import { API } from "@/core/api/typings";
 
 export function findByName(
   name: string

@@ -3,8 +3,7 @@
  *  提供完整的数据编辑服务
  */
 
-import { DefaultTypeDefinition } from "@/common/core";
-import EventBus, { Events } from "@/common/events";
+import { DefaultTypeDefinition, Events, EventBus } from "catman-coder-core";
 import FlowExample from "@/components/TypeDefinition/Flow";
 import { convert } from "@/components/TypeDefinition/Flow/TypeDefinition/TypeDefinionHandler";
 import { useAppDispatch } from "@/stores";
@@ -61,7 +60,7 @@ const tips = [
 const Editor = (props: Props) => {
   const dispatch = useAppDispatch();
   const [tree, setTree] = useState(
-    TypeDefinitionTree.of(DefaultTypeDefinition.ensure(props.td)),
+    TypeDefinitionTree.of(DefaultTypeDefinition.ensure(props.td))
   );
   const [tipIndex, setTipIndex] = useState(0);
 
@@ -357,7 +356,7 @@ const Editor = (props: Props) => {
                   helpText: "通过源码审视你的数据结构是否合理",
                   config: {
                     data: JSON.stringify(
-                      convert(tree.toObject(jsonView.itemId)),
+                      convert(tree.toObject(jsonView.itemId))
                     ),
                   },
                   enableClose: true,

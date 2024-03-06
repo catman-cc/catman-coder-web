@@ -1,5 +1,11 @@
 import { Button, Popover, Tree } from "antd";
-import { useApplicationContext } from "@/core";
+import {
+  LabelSelector,
+  Resource,
+  ResourceDetails,
+  TypeDefinitionSchema,
+  useApplicationContext,
+} from "catman-coder-core";
 import { useEffect, useState } from "react";
 import { SelectorPanel } from "@/components/LabelSelector/SelectorPanel";
 import { LabelSelectFactory } from "@/components/LabelSelector/common";
@@ -8,9 +14,7 @@ import { ResourceNames } from "@/components/Resource/Explorer";
 
 export interface SimpleViewProps {
   selector?: string;
-  onSelectResource?(
-    resources: Core.ResourceDetails<Core.TypeDefinitionSchema>,
-  ): void;
+  onSelectResource?(resources: ResourceDetails<TypeDefinitionSchema>): void;
 }
 
 export const SimpleResourceView = (props: SimpleViewProps) => {
@@ -18,7 +22,7 @@ export const SimpleResourceView = (props: SimpleViewProps) => {
   const resourceContext = context!.resourceContext!;
   const service = resourceContext.service;
   const factory = resourceContext.explorer!.itemRenderFactory!;
-  const [selector, setSelector] = useState<Core.LabelSelector<unknown>>(
+  const [selector, setSelector] = useState<LabelSelector<unknown>>(
     props.selector
       ? JSON.parse(props.selector)
       : {
@@ -28,7 +32,7 @@ export const SimpleResourceView = (props: SimpleViewProps) => {
         },
   );
 
-  const resourceConvert = (res: Core.Resource) => {
+  const resourceConvert = (res: Resource) => {
     const renderResource = factory.render(res);
     if (renderResource) {
       renderResource.resource = res;
@@ -154,7 +158,7 @@ export const SimpleResourceView = (props: SimpleViewProps) => {
             if (res.success) {
               props.onSelectResource &&
                 props.onSelectResource(
-                  res.data as Core.ResourceDetails<Core.TypeDefinitionSchema>,
+                  res.data as ResourceDetails<TypeDefinitionSchema>,
                 );
             }
           });

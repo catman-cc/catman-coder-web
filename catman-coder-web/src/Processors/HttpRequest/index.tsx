@@ -1,13 +1,25 @@
 import IconCN from "@/components/Icon";
 import { DockViewHttpProvider } from "@/components/Provider/http/DockView";
-import { DefaultLayoutNode } from "@/core/Layout";
-import { Constants } from "@/core/common";
-import { CreationModal } from "@/core/component/CreationModel";
-import { Resource } from "@/core/typings";
+import {
+  Constants,
+  ResourceDetails,
+  DefaultLayoutNode,
+  CreationModal,
+  Resource,
+  Processor,
+  IApplicationContext as ApplicationContext,
+  ResourceViewer,
+  ResourceViewerFunction,
+  LayoutContext,
+  ComponentCreatorFunction,
+  ComponentCreator,
+  LayoutNode,
+  Menu,
+} from "catman-coder-core";
 import { ItemParams } from "react-contexify";
 
-export class HttpRequest implements Core.Processor {
-  before(context: Core.ApplicationContext) {
+export class HttpRequest implements Processor {
+  before(context: ApplicationContext) {
     // 添加一个新的右键菜单
     this.addMenu(context);
     // 添加duplicate的右键菜单
@@ -16,15 +28,15 @@ export class HttpRequest implements Core.Processor {
     this.register(context);
     this.addResourceIconRender(context);
   }
-  register(context: Core.ApplicationContext) {
+  register(context: ApplicationContext) {
     context.resourceContext?.register("HttpValueProviderQuicker", {
-      resourceViewer(): Core.ResourceViewer | Core.ResourceViewerFunction {
+      resourceViewer(): ResourceViewer | ResourceViewerFunction {
         return (
-          resource: Core.Resource,
-          _: Core.ApplicationContext,
-          layout: Core.LayoutContext,
+          resource: Resource,
+          _: ApplicationContext,
+          layout: LayoutContext,
         ) => {
-          const resourceDetails = resource as Core.ResourceDetails<unknown>;
+          const resourceDetails = resource as ResourceDetails<unknown>;
           const layoutNode = DefaultLayoutNode.ofResource(resourceDetails);
           layoutNode.componentName = "HttpValueProviderQuicker";
           // 调用上下文展示资源
@@ -42,16 +54,14 @@ export class HttpRequest implements Core.Processor {
           layout.createOrActive(layoutNode, "tab");
         };
       },
-      componentCreator():
-        | Core.ComponentCreatorFunction
-        | Core.ComponentCreator {
-        return (node: Core.LayoutNode<Core.Resource>) => {
+      componentCreator(): ComponentCreatorFunction | ComponentCreator {
+        return (node: LayoutNode<Resource>) => {
           return <DockViewHttpProvider resource={node.data!} />;
         };
       },
     });
   }
-  addMenu(context: Core.ApplicationContext) {
+  addMenu(context: ApplicationContext) {
     const layoutContext = context.layoutContext!;
     const menuContext = context.resourceContext?.explorer?.menuContext;
     menuContext!.deep((m) => {
@@ -70,15 +80,15 @@ export class HttpRequest implements Core.Processor {
                 </div>
               ),
               onMenuClick: (
-                menu: Core.Menu<Core.Resource>,
-                resource: Core.Resource,
+                menu: Menu<Resource>,
+                resource: Resource,
                 itemParams: ItemParams,
               ) => {
                 let group = resource;
                 while (group.kind !== "resource") {
                   group =
                     context.resourceContext?.store?.resources[
-                    resource.parentId
+                      resource.parentId
                     ];
                 }
 
@@ -94,8 +104,9 @@ export class HttpRequest implements Core.Processor {
                           kind: "HttpValueProviderQuicker",
                           name: info.name,
                           config: {},
-                          previousId: resource.kind === "resource" ? null : resource.id
-                        } as unknown as Core.Resource)
+                          previousId:
+                            resource.kind === "resource" ? null : resource.id,
+                        } as unknown as Resource)
                         .then((res) => {
                           const resourceDetails = res.data;
                           // 处理资源
@@ -113,7 +124,7 @@ export class HttpRequest implements Core.Processor {
                 );
               },
             },
-          ] as unknown as Core.Menu<Core.Resource>[]),
+          ] as unknown as Menu<Resource>[]),
         );
         return false;
       }
@@ -121,14 +132,14 @@ export class HttpRequest implements Core.Processor {
     });
   }
 
-  addResourceIconRender(context: Core.ApplicationContext) {
+  addResourceIconRender(context: ApplicationContext) {
     const iconFactory =
       context.resourceContext?.explorer?.itemRenderFactory?.iconFactory;
     iconFactory?.registry({
-      support(resource: Core.Resource): boolean {
+      support(resource: Resource): boolean {
         return resource.kind === "HttpValueProviderQuicker";
       },
-      render(resource: Core.Resource): React.ReactNode {
+      render(resource: Resource): React.ReactNode {
         // 读取resource的类型定义
         try {
           const parse = JSON.parse(resource.extra || "{}");
@@ -198,7 +209,7 @@ export class HttpRequest implements Core.Processor {
     });
   }
 
-  private addDuplicateMenu(context: Core.ApplicationContext) {
+  private addDuplicateMenu(context: ApplicationContext) {
     const layoutContext = context.layoutContext!;
     const menuContext = context.resourceContext?.explorer?.menuContext;
     menuContext!.menus().children!.push(
@@ -214,14 +225,14 @@ export class HttpRequest implements Core.Processor {
               <div>创建副本</div>
             </div>
           ),
-          filter: (item: Core.Resource): boolean => {
+          filter: (item: Resource): boolean => {
             return (
               item.kind === Constants.Resource.kind.httpValueProviderQuicker
             );
           },
           onMenuClick: (
-            menu: Core.Menu<Resource>,
-            resource: Core.Resource,
+            menu: Menu<Resource>,
+            resource: Resource,
             itemParams: ItemParams,
           ) => {
             context.resourceContext?.service
@@ -229,8 +240,8 @@ export class HttpRequest implements Core.Processor {
                 ...resource,
                 name: `副本-${resource.name}`,
                 id: undefined,
-                previousId: resource.kind === "resource" ? null : resource.id
-              } as unknown as Core.Resource)
+                previousId: resource.kind === "resource" ? null : resource.id,
+              } as unknown as Resource)
               .then((res) => {
                 const resourceDetails = res.data;
                 // 处理资源
@@ -244,8 +255,8 @@ export class HttpRequest implements Core.Processor {
                 );
               });
           },
-        } as unknown as Core.Menu<Core.Resource>,
-      ] as unknown as Core.Menu<Core.Resource>[]),
+        } as unknown as Menu<Resource>,
+      ] as unknown as Menu<Resource>[]),
     );
   }
 }

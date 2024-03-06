@@ -1,55 +1,52 @@
-declare namespace API {
-    // 通用模糊查询字段
-    interface FuzzyQuery {
-        key?: string // 模糊查询字段
-        fields: string[] // 进行模糊查询时, 需要查询的字段列表
-    }
+export namespace API {
+  // 通用模糊查询字段
+  export interface FuzzyQuery {
+    key?: string; // 模糊查询字段
+    fields: string[]; // 进行模糊查询时, 需要查询的字段列表
+  }
 
-    // 响应数据类型
-    interface Response<T> {
-        success: boolean; // 是否成功
-        code: number; // 状态码
-        data: T; // 数据
-        message: string; // 消息
-        timestamp: number; // 时间戳
-        error: Error | null; // 错误
-    }
+  // 响应数据类型
+  export interface Response<T> {
+    success: boolean; // 是否成功
+    code: number; // 状态码
+    data: T; // 数据
+    message: string; // 消息
+    timestamp: number; // 时间戳
+    error: Error | null; // 错误
+  }
 
-    interface Sort {
-        [index: string]: "ASC" | "DESC"
-    }
+  export interface Sort {
+    [index: string]: "ASC" | "DESC";
+  }
 
-    interface Page {
-        [index: string]: unknown
-        pageSize: number
-        current?: number
-        startId?: string
-        type?: "GENERAL" | "SCROLL" | "AUTO"
-        sorts?: Sort
-    }
+  export interface Page {
+    [index: string]: unknown;
+    pageSize: number;
+    current?: number;
+    startId?: string;
+    type?: "GENERAL" | "SCROLL" | "AUTO";
+    sorts?: Sort;
+  }
 
+  export interface VPage<T> {
+    size?: number;
 
+    pages?: number;
 
-    export interface VPage<T> {
-        size?: number
+    current?: number;
 
-        pages?: number
+    total?: number;
 
-        current?: number
+    isFirst?: boolean;
 
-        total?: number
+    isLast?: boolean;
 
-        isFirst?: boolean
+    hasPre?: boolean;
 
-        isLast?: boolean
+    hasNext?: boolean;
 
-        hasPre?: boolean
+    records?: T[];
 
-        hasNext?: boolean
-
-        records?: T[]
-
-        ex?: unknown
-    }
-
+    ex?: unknown;
+  }
 }

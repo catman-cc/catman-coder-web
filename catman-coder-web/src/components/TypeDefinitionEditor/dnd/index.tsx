@@ -1,4 +1,4 @@
-import { ComplexType, DefaultTypeDefinition } from "@/common/core";
+import { ComplexType, DefaultTypeDefinition } from "catman-coder-core";
 import { TypeDefinitionHierarchialSchema } from "@/components/HierarchicalSchema/TypeDefinitionSchemaParse";
 import IconCN from "@/components/Icon";
 import { PeekTypeColor } from "@/components/TypeDefinition/common";

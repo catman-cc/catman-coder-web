@@ -1,4 +1,4 @@
-import { ComplexType, DefaultTypeDefinition } from "@/common/core.ts";
+import { ComplexType, DefaultTypeDefinition } from "catman-coder-core";
 import IconCN from "@/components/Icon";
 import constants from "@/config/constants";
 import { QuestionOutlined, RetweetOutlined } from "@ant-design/icons";
@@ -29,7 +29,7 @@ export const PeekTypeColor = (type: string): string => {
       return "#ff5a15";
     }
     case "file": {
-      return "#3903eb"
+      return "#3903eb";
     }
     case "map": {
       return "#ff5a15";
@@ -80,10 +80,17 @@ export const PeekTypeIcon = (type: string) => {
       return <MdExtension style={{ color: PeekTypeColor(type) }} />;
     }
     case "file": {
-      return <IconCN type="icon-file-word-fill" style={{ color: PeekTypeColor(type) }} />;
+      return (
+        <IconCN
+          type="icon-file-word-fill"
+          style={{ color: PeekTypeColor(type) }}
+        />
+      );
     }
     case "struct": {
-      return <IconCN type="icon-java1" style={{ color: PeekTypeColor(type) }} />;
+      return (
+        <IconCN type="icon-java1" style={{ color: PeekTypeColor(type) }} />
+      );
     }
     case "map": {
       return <MdDataObject style={{ color: PeekTypeColor(type) }} />;
@@ -186,7 +193,7 @@ export const analyzeJson = (obj: unknown): ComplexType | undefined => {
       DefaultTypeDefinition.create({
         name: constants.ARRAY_ITEM_NAME,
         type: analyzeJson(obj.length > 0 ? obj[0] : undefined),
-      }),
+      })
     );
     return c;
   }
@@ -200,7 +207,7 @@ export const analyzeJson = (obj: unknown): ComplexType | undefined => {
         DefaultTypeDefinition.create({
           name: key,
           type: analyzeJson(value),
-        }),
+        })
       );
     });
     return c;

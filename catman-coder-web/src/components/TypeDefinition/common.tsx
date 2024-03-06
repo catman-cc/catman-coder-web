@@ -1,4 +1,4 @@
-import { ComplexType, DefaultTypeDefinition } from "@/common/core.ts";
+import { ComplexType, DefaultTypeDefinition } from "catman-coder-core";
 import constants from "@/config/constants";
 import { QuestionOutlined, RetweetOutlined } from "@ant-design/icons";
 import { BsQuestion, BsTranslate } from "react-icons/bs";
@@ -176,7 +176,7 @@ export const analyzeJson = (obj: unknown): ComplexType | undefined => {
       DefaultTypeDefinition.create({
         name: constants.ARRAY_ITEM_NAME,
         type: analyzeJson(obj.length > 0 ? obj[0] : undefined),
-      }),
+      })
     );
     return c;
   }
@@ -190,7 +190,7 @@ export const analyzeJson = (obj: unknown): ComplexType | undefined => {
         DefaultTypeDefinition.create({
           name: key,
           type: analyzeJson(value),
-        }),
+        })
       );
     });
     return c;

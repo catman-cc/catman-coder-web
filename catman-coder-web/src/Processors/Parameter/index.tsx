@@ -1,11 +1,17 @@
 import IconCN from "@/components/Icon";
-import { Constants } from "@/core/common";
+import {
+  Constants,
+  IApplicationContext as ApplicationContext,
+  Menu,
+  Processor,
+  Resource,
+} from "catman-coder-core";
 import { Input, InputRef, Modal, Space } from "antd";
 import React from "react";
 import { ItemParams } from "react-contexify";
 
 interface ResourceCreationModalProps {
-  context: Core.ApplicationContext;
+  context: ApplicationContext;
   onOk: (info: { name: string }) => void;
 }
 
@@ -18,9 +24,7 @@ class ResourceCreationModal extends React.Component<
   ResourceCreationModalState
 > {
   nameInput: InputRef | undefined;
-  constructor(
-    props: Readonly<ResourceCreationModalProps> | ResourceCreationModalState,
-  ) {
+  constructor(props: Readonly<ResourceCreationModalProps>) {
     super(props);
     this.state = {
       open: true,
@@ -54,14 +58,14 @@ class ResourceCreationModal extends React.Component<
         <Space>
           <Input
             ref={(input) => {
-              this.nameInput = input;
+              this.nameInput = input!;
             }}
             defaultChecked
             autoFocus
             onPressEnter={(e) => {
               this.setState({ open: false });
               this.props.onOk({
-                name: e.target.value,
+                name: e.currentTarget.value,
               });
             }}
           ></Input>
@@ -71,8 +75,8 @@ class ResourceCreationModal extends React.Component<
   }
 }
 
-export class ParameterProcessor implements Core.Processor {
-  before(context: Core.ApplicationContext) {
+export class ParameterProcessor implements Processor {
+  before(context: ApplicationContext) {
     function createModel(group: Resource, typedefinitionId?: string) {
       return (
         <ResourceCreationModal
@@ -84,9 +88,9 @@ export class ParameterProcessor implements Core.Processor {
                 kind: "parameter",
                 name: info.name,
                 config: {
-                  tid: typedefinitionId
+                  tid: typedefinitionId,
                 },
-              } as unknown as Core.Resource)
+              } as unknown as Resource)
               .then((res) => {
                 const resourceDetails = res.data;
                 // 处理资源
@@ -114,12 +118,12 @@ export class ParameterProcessor implements Core.Processor {
               <div>由...此创建Parameter</div>
             </div>
           ),
-          filter: (item: Core.Resource): boolean => {
+          filter: (item: Resource): boolean => {
             return item.kind === Constants.Resource.kind.typeDefinition;
           },
           onMenuClick: (
-            menu: Core.Menu<Core.Resource>,
-            resource: Core.Resource,
+            menu: Menu<Resource>,
+            resource: Resource,
             itemParams: ItemParams,
           ) => {
             let group = resource;
@@ -129,10 +133,12 @@ export class ParameterProcessor implements Core.Processor {
             }
             // 弹出一个交互窗口,可以从现有资源选择,也可以直接输入名称
             // 直接通过前端或者调用后端生成一个类型定义都可以,此处选择调用后端接口创建资源
-            context.resourceContext?.showModel(createModel(group, resource.resourceId));
+            context.resourceContext?.showModel(
+              createModel(group, resource.resourceId),
+            );
           },
-        } as unknown as Core.Menu<Core.Resource>,
-      ] as unknown as Core.Menu<Core.Resource>[]),
+        } as unknown as Menu<Resource>,
+      ] as unknown as Menu<Resource>[]),
     );
     menuContext?.deep((m) => {
       if (m.id === Constants.Resource.explorer.menu.ids.create) {
@@ -150,15 +156,15 @@ export class ParameterProcessor implements Core.Processor {
                 </div>
               ),
               onMenuClick: (
-                menu: Core.Menu<Core.Resource>,
-                resource: Core.Resource,
+                menu: Menu<Resource>,
+                resource: Resource,
                 itemParams: ItemParams,
               ) => {
                 let group = resource;
                 while (group.kind !== "resource") {
                   group =
                     context.resourceContext?.store?.resources[
-                    resource.parentId
+                      resource.parentId
                     ];
                 }
 
@@ -166,7 +172,7 @@ export class ParameterProcessor implements Core.Processor {
                 // 直接通过前端或者调用后端生成一个类型定义都可以,此处选择调用后端接口创建资源
               },
             },
-          ] as unknown as Core.Menu<Core.Resource>[]),
+          ] as unknown as Menu<Resource>[]),
         );
         return false;
       }

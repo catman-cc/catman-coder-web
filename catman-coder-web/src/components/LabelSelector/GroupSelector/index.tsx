@@ -16,7 +16,7 @@ export const GroupSelector = (props: GroupLabelSelectorProps) => {
       props.selector,
       props.onChange,
       props.keyAutoOptions,
-      props.valueAutoOptions,
+      props.valueAutoOptions
     );
   }
   return (
@@ -96,7 +96,7 @@ export const GroupSelector = (props: GroupLabelSelectorProps) => {
                 <a
                   onClick={() => {
                     props.onChange({
-                      ...(props.selector as Core.LabelSelector<string>),
+                      ...(props.selector as LabelSelector<string>),
                       rules: [
                         {
                           kind: "Equals",

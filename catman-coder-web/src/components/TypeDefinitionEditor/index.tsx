@@ -6,17 +6,19 @@ import { TypeDefinitionHierarchialSchema } from "../HierarchicalSchema/TypeDefin
 import { HierarchicalDnd } from "./dnd";
 import "./index.less";
 export interface TypeDefinitionSchemaEditorProps {
-  schema?: Core.TypeDefinitionSchema;
-  updateSchema?: (schema: Core.TypeDefinitionSchema) => void;
+  schema?: TypeDefinitionSchema;
+  updateSchema?: (schema: TypeDefinitionSchema) => void;
 }
 export const TypeDefinitionSchemaEditor = (
-  props: TypeDefinitionSchemaEditorProps,
+  props: TypeDefinitionSchemaEditorProps
 ) => {
-  const [schema, setSchema] = useState(TypeDefinitionHierarchialSchema.of(props.schema!));
+  const [schema, setSchema] = useState(
+    TypeDefinitionHierarchialSchema.of(props.schema!)
+  );
   schema.addWatcher((n) => {
-    setSchema(n)
-  })
-  const [saveLoading, setSaveLoading] = useState(false)
+    setSchema(n);
+  });
+  const [saveLoading, setSaveLoading] = useState(false);
 
   return (
     <div className={"type-definition-schema-editor"}>
@@ -24,12 +26,18 @@ export const TypeDefinitionSchemaEditor = (
         <Button
           loading={saveLoading}
           onClick={() => {
-            setSaveLoading(true)
+            setSaveLoading(true);
             saveSchema(schema.toTypeDefinitionSchema()!).then((res) => {
-              setSaveLoading(false)
-              message.info(<span>
-                类型定义:<Tag color="blue">{schema.get(schema.registry.root).name}</Tag>保存成功
-              </span>)
+              setSaveLoading(false);
+              message.info(
+                <span>
+                  类型定义:
+                  <Tag color="blue">
+                    {schema.get(schema.registry.root).name}
+                  </Tag>
+                  保存成功
+                </span>
+              );
             });
           }}
         >
@@ -39,7 +47,9 @@ export const TypeDefinitionSchemaEditor = (
       <div>
         <Divider />
         <div>
-          <HierarchicalDnd treeId={schema.registry.root} schema={schema}
+          <HierarchicalDnd
+            treeId={schema.registry.root}
+            schema={schema}
             renderChildrenIfPublic
           />
         </div>
@@ -52,6 +62,6 @@ export const TypeDefinitionSchemaEditor = (
           }}
         />
       </div> */}
-    </div >
+    </div>
   );
 };

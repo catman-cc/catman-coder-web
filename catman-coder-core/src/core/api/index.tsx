@@ -1,6 +1,7 @@
 import { message } from "antd";
 import axios from "axios";
 import Qs from "qs";
+import { API } from "@/core/api/typings";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:5173/",

@@ -12,7 +12,7 @@
  *   - 如果可以的话,展示任务的执行时间
  */
 import { DockViewContextRC } from "@/components/Provider/http/DockView/Context";
-import { useApplicationContext } from "@/core";
+import { Resource, useApplicationContext } from "catman-coder-core";
 import { Button } from "antd";
 import {
   DockviewDefaultTab,
@@ -35,9 +35,7 @@ import { FunctionFlowEditor } from "@/components/Function/FunctionEditor";
  * @param props
  * @constructor
  */
-export const DockViewFunctionInfoProvider = (props: {
-  resource: Core.Resource;
-}) => {
+export const DockViewFunctionInfoProvider = (props: { resource: Resource }) => {
   const [event, setEvent] = useState<DockviewReadyEvent>();
   const [ready, setReady] = useState(false);
 
@@ -204,7 +202,7 @@ export const DockViewFunctionInfoProvider = (props: {
                 <Button
                   onClick={() => {
                     if (event?.api.hasMaximizedGroup()) {
-                      event.api.exitMaxmizedGroup();
+                      event?.api.exitMaximizedGroup();
                     } else {
                       event?.api.maximizeGroup(props.activePanel!);
                     }

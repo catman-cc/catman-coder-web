@@ -3,8 +3,8 @@ import "./index.less";
 import { SettingOutlined } from "@ant-design/icons";
 import { LabelSelectFactory } from "@/components/LabelSelector/common";
 export interface BaseLabelSelectorProps {
-  selector: Core.LabelSelector<unknown>;
-  onChange(selector: Core.LabelSelector<unknown>): void;
+  selector: LabelSelector<unknown>;
+  onChange(selector: LabelSelector<unknown>): void;
   factory: LabelSelectFactory;
   keyAutoOptions?: { key: string; value: string }[];
   valueAutoOptions?: { key: string; value: string }[];
@@ -27,7 +27,7 @@ export const LabelSelector = (props: BaseLabelSelectorProps) => {
           props.onChange(v);
         },
         props.keyAutoOptions,
-        props.valueAutoOptions,
+        props.valueAutoOptions
       )}
     </div>
   );

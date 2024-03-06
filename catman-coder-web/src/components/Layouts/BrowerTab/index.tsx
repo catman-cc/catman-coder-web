@@ -1,23 +1,26 @@
-import {Core} from "@/core/typings";
-import {useApplicationContext} from "@/core";
-import {useCallback, useEffect, useState} from "react";
-import {DefaultLayoutNode} from "@/core/Layout";
-import {useSearchParams} from "react-router-dom";
+import {
+  useApplicationContext,
+  DefaultLayoutNode,
+  LayoutRender,
+  LayoutNode,
+  ResourceDetails,
+} from "catman-coder-core";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
-class BrowerTabLayoutRender implements Core.LayoutRender{
+class BrowerTabLayoutRender implements LayoutRender {
+  id: string = "brower-tab-layout-render";
+  nodes: { [p: string]: LayoutNode<unknown> } = {};
+  render(_node: LayoutNode<unknown>): void {
+    // 开始执行渲染操作
+    // 获取组件渲染器执行渲染操作
+  }
 
-    id: string="brower-tab-layout-render";
-    nodes: { [p: string]: Core.LayoutNode }={};
-    render(node: Core.LayoutNode): void {
-        // 开始执行渲染操作
+  support(node: LayoutNode<unknown>): boolean {
+    return node.layoutType === "window";
+  }
 
-        // 获取组件渲染器执行渲染操作
-
-    }
-
-    support(node: Core.LayoutNode): boolean {
-        return node.layoutType==="window";
-    }
+  close(_node: LayoutNode<unknown>): void {}
 }
 
 /**
@@ -29,61 +32,75 @@ class BrowerTabLayoutRender implements Core.LayoutRender{
  *
  * 目前还是只支持resource资源的独立渲染吧,两个值: url?popoutType=resource&id=
  */
-export const BrowerTabLayout=()=>{
+export const BrowerTabLayout = () => {
+  const [params] = useSearchParams();
+  const popoutType = params.get("popoutType");
+  const id = params.get("id");
+  if (!popoutType || "resource" != popoutType || !id) {
+    // 必传值,如果不存在,渲染错误页面
+    return (
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "white",
+          color: "red",
+        }}
+      >
+        缺少关键数据
+      </div>
+    );
+  }
 
-    const [params]=useSearchParams()
-    const popoutType = params.get("popoutType")
-    const id=params.get("id")
-    if (!popoutType || "resource"!=popoutType||!id){
-        // 必传值,如果不存在,渲染错误页面
-        return (
-            <div style={{
-                width:"100vw",
-                height:"100vh",
-                backgroundColor:"white",
-                color:"red",
-            }}>
-                缺少关键数据
-            </div>
-        )
-    }
+  // 根据popoutType的值获取对应的解析器,解析对象,并将解析到的对象传递给上下文中的渲染器,渲染器负责完成渲染操作
+  const [resourceDetails, setResourceDetails] =
+    useState<ResourceDetails<unknown>>();
 
+  const applicationContext = useApplicationContext()!;
+  // 注册渲染器
+  applicationContext.layoutContext?.renderFactory.replace(
+    "brower-tab-layout-render",
+    new BrowerTabLayoutRender(),
+  );
+  // 调用service获取数据
+  const resourceContext = applicationContext.resourceContext!;
 
-    // 根据popoutType的值获取对应的解析器,解析对象,并将解析到的对象传递给上下文中的渲染器,渲染器负责完成渲染操作
-    const [resourceDetails,setResourceDetails]=useState<Core.ResourceDetails<unknown>>()
+  useEffect(() => {
+    resourceContext.service?.findById(id).then((response) => {
+      resourceContext.service?.loadDetails(response.data).then((res) => {
+        setResourceDetails(res.data as ResourceDetails<unknown>);
+      });
+    });
+  }, []);
 
-    const applicationContext = useApplicationContext()!;
-    // 注册渲染器
-    applicationContext.layoutContext?.renderFactory.replace("brower-tab-layout-render",new BrowerTabLayoutRender())
-    // 调用service获取数据
-    const resourceContext = applicationContext.resourceContext!;
+  const child = useCallback(() => {
+    const layoutNode = DefaultLayoutNode.of(
+      resourceDetails?.resourceId!,
+      resourceDetails?.name!,
+      resourceDetails?.kind!,
+    );
+    layoutNode.data = resourceDetails;
+    applicationContext.layoutContext?.createOrActive(layoutNode, "window");
+    return applicationContext.layoutContext?.componentRenderFactory.create(
+      layoutNode,
+    );
+  }, [resourceDetails]);
+  // 获取到资源数据后,需要将其转换为树状资源
 
-    useEffect(() => {
-        resourceContext.service?.findById(id).then(response=>{
-            resourceContext.service?.loadDetails(response.data).then(res=>{
-                setResourceDetails(res.data as Core.ResourceDetails<unknown>)
-            })
-        })
-    }, []);
+  // resourceContext.service?.loadDetails()
+  // 渲染一个新的html页签,修改title
 
-    const child=useCallback(()=>{
-        const layoutNode = DefaultLayoutNode.of(resourceDetails?.resourceId,resourceDetails?.name,resourceDetails?.kind);
-        layoutNode.data=resourceDetails
-        applicationContext.layoutContext?.createOrActive(layoutNode,"window")
-        return applicationContext.layoutContext?.componentRenderFactory.create(layoutNode)
-    },[resourceDetails])
-    // 获取到资源数据后,需要将其转换为树状资源
-
-    // resourceContext.service?.loadDetails()
-    // 渲染一个新的html页签,修改title
-
-    return <div style={{
-        width:"100vw",
-        height:"100vh",
-        backgroundColor:"white"
-    }}>
-        {child()}
+  return (
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        backgroundColor: "white",
+      }}
+    >
+      {child()}
     </div>
-}
+  );
+};
 
-export default BrowerTabLayout
+export default BrowerTabLayout;

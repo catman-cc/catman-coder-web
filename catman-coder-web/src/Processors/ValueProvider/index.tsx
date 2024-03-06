@@ -10,6 +10,6 @@ import { Core } from "@/core/typings";
  * - 为值提取器资源添加专属的右键菜单
  * - 注册值提取器资源的渲染器
  */
-export class ValueProviderProcessor implements Core.Processor {
-  before(context: Core.ApplicationContext) {}
+export class ValueProviderProcessor implements Processor {
+  before(context: ApplicationContext) {}
 }

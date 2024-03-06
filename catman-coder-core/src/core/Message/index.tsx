@@ -15,6 +15,7 @@ import {
 } from "@/core/Message/typings";
 import { MessageChannelTopic } from "@/core/Message/Constants.tsx";
 import { ID } from "@/core/id";
+import { Labels } from "@/core/entity/Common";
 
 export class DefaultMessage<T> implements Message<T> {
   /**
@@ -28,7 +29,7 @@ export class DefaultMessage<T> implements Message<T> {
   /**
    * 消息的标签数据
    */
-  labels?: Core.Labels;
+  labels?: Labels;
   /**
    * 消息的类型
    */

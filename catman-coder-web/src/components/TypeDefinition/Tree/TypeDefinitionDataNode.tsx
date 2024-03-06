@@ -1,7 +1,11 @@
 // 用于将TypeDefinition对象做最简单的解析生成一个树
-import { DefaultTypeDefinition } from "@/common/core";
-import { ID } from "@/common/id";
-import constants from "@/config/constants";
+import {
+  DefaultTypeDefinition,
+  ID,
+  Constants as constants,
+  Type,
+  TypeDefinition,
+} from "catman-coder-core";
 import { DataNode } from "antd/es/tree";
 // 因为存在refer类型定义,所以在这里有可能会出现重复的key值,想要避免该问题,就必须想办法对key值进行可逆的变化,比如,最简单的方式就是抛弃原有的key值,重新创建一个key值的映射表
 // 每一个数据的key值都是随机生成的,在转换为实际对象时,再根据对照表还原key值
@@ -94,7 +98,9 @@ export class TypeDefinitionData {
     }
     return false;
   }
-  isSelfReference(): boolean {}
+  isSelfReference(): boolean {
+    return false;
+  }
   /**
    * 用于判断一个元素是否可以添加新的子元素,像list是不可以直接添加子元素的
    */
@@ -413,7 +419,7 @@ export class TypeDefinitionTree {
 
     const td = otd as unknown as {
       [index: string]: unknown;
-      type: Core.Type;
+      type: Type;
     };
 
     const tdType = td.type as unknown as {
@@ -425,7 +431,7 @@ export class TypeDefinitionTree {
       refer: unknown;
       slot: unknown;
       array: unknown;
-      type: Core.Type;
+      type: Type;
       items: unknown[];
     };
 
@@ -459,7 +465,7 @@ export class TypeDefinitionTree {
         }
       }
     }
-    td.type = tdType as unknown as Core.Type;
+    td.type = tdType as unknown as Type;
     return td;
   }
 
@@ -488,7 +494,7 @@ export const buildTypeDefinitionDataNode = (
     key: td.id,
     data: new TypeDefinitionData(td, belong),
   };
-  data.children = td.type.items.map((ctd: Core.TypeDefinition) => {
+  data.children = td.type.items.map((ctd: TypeDefinition) => {
     return buildTypeDefinitionDataNode(
       DefaultTypeDefinition.ensure(ctd),
       data.data,

@@ -1,5 +1,11 @@
-export { get, post, put, del, default } from "@/core/api";
+export { get, post, put, del, default, FuzzyQuery } from "@/core/api";
+export type { API } from "@/core/api/typings";
 export type { WindowKind, LayoutElement } from "@/core/component/Layout";
+export { CreationModal } from "@/core/component/CreationModel";
+export type {
+  CreationModalProps,
+  ResourceCreationModalState,
+} from "@/core/component/CreationModel";
 export {
   DefaultFactory,
   CacheableComponentFactory,
@@ -27,10 +33,79 @@ export {
   DefaultResourceItemIconRender,
   KindMatchResourceViewer,
 } from "@/core/Resource";
-export { Events, DefaultEventBusContext } from "@/core/events";
+export { Events, EventBus, DefaultEventBusContext } from "@/core/events";
 export { uuid, ID, IDDecode } from "@/core/id";
 export { getMonacoLanguageId } from "@/core/monaco";
 export { DefaultTypeDefinition, ComplexType, Scope } from "@/core/entity";
+export type {
+  Base,
+  BreakPointInformation,
+  MessageBus,
+  LayoutNode,
+  LayoutRenderFactory,
+  LayoutContext,
+  ComponentFactory,
+  ResourceViewerFactory,
+  ResourceMenuContext,
+  ResourceContext,
+  ResourceItemRenderFactory,
+  ResourceItemIconFactory,
+  ResourceExplorerContext,
+  ResourceViewer,
+  ResourceItemRender,
+  ResourceItemIconRender,
+  IApplicationContext,
+  Parameter,
+  Tag,
+  EventBusContext,
+  Label,
+  FunctionInfoSchema,
+  MessageSubscriber,
+  MessageHandler,
+  Message,
+  LayoutType,
+  LayoutRender,
+  TypeDefinitionSchema,
+  ComponentCreator,
+  ComponentCreatorFunction,
+  Channel,
+  FunctionCallInfo,
+  MessageMatcher,
+  MessageType,
+  GlobalConfig,
+  Labels,
+  LabelSelector,
+  LayoutElementConfig,
+  ParameterSchema,
+  Placeholder,
+  ResourceDataNode,
+  ResourceDetails,
+  ResourceState,
+  ValueDefinition,
+  JobDefinition,
+  Config,
+  TypeDefinition,
+  FunctionInfo,
+  IconRenderFunction,
+  ItemRenderFunction,
+  MenuItemRenderFunction,
+  ResourceViewerFunction,
+  ResourceRegistry,
+  MenuRenderFunction,
+  Resource,
+  IScope,
+  Processor,
+  Mock,
+  LoopReferenceContext,
+  ResourceService,
+  Event,
+  EventListener,
+  MenuShowFilter,
+  Group,
+  TypeItem,
+  Menu,
+  Type,
+} from "@/core/entity/Common";
 export { DefaultLoopReferenceContext } from "@/core/LoopReferenceContext";
 export { Constants } from "@/core/Constants";
 export {
@@ -60,3 +135,13 @@ export {
   useEventBus,
   useLayoutContext,
 } from "@/core/Context";
+export type { IPAddressType } from "@/core/common/IpHelper";
+
+export {
+  computeStrSize,
+  levenshteinDistance,
+  validateIP,
+  isNumeric,
+  getIPAddressType,
+  convertIPAddressType,
+} from "@/core/common/IpHelper";

@@ -7,7 +7,7 @@ import IconCN from "@/components/Icon";
 import { Editor } from "@monaco-editor/react";
 import { useState } from "react";
 export interface SelectorPanelProps extends BaseLabelSelectorProps {
-  onApply?(selector: Core.LabelSelector<unknown>): void;
+  onApply?(selector: LabelSelector<unknown>): void;
 }
 export const SelectorPanel = (props: SelectorPanelProps) => {
   const [editorError, setEditorError] = useState<string>("");
@@ -65,7 +65,7 @@ export const SelectorPanel = (props: SelectorPanelProps) => {
                       if (v.length > 0) {
                         const marker = v[0];
                         setCheckError(
-                          `${marker.message} at line ${marker.endLineNumber} column ${marker.endColumn}`,
+                          `${marker.message} at line ${marker.endLineNumber} column ${marker.endColumn}`
                         );
                       } else {
                         setCheckError("");
@@ -73,28 +73,28 @@ export const SelectorPanel = (props: SelectorPanelProps) => {
                     }}
                     onMount={(editor, monaco) => {
                       const uri = monaco.Uri.parse(
-                        "http://myserver/foo-schema.json",
+                        "http://myserver/foo-schema.json"
                       );
                       let m = monaco.editor.getModel(uri);
                       if (m === null) {
                         m = monaco.editor.createModel(
                           JSON.stringify(props.selector, null, 2),
                           "json",
-                          uri,
+                          uri
                         );
                       }
                       editor.setModel(m);
                     }}
                     beforeMount={(monaco) => {
                       const uri = monaco.Uri.parse(
-                        "http://myserver/foo-schema.json",
+                        "http://myserver/foo-schema.json"
                       );
                       let m = monaco.editor.getModel(uri);
                       if (m === null) {
                         m = monaco.editor.createModel(
                           JSON.stringify(props.selector, null, 2),
                           "json",
-                          uri,
+                          uri
                         );
                       }
                       monaco.languages.json.jsonDefaults.setDiagnosticsOptions({

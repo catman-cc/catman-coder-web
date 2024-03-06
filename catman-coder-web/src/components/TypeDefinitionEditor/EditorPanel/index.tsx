@@ -1,4 +1,4 @@
-import { ComplexType, DefaultTypeDefinition } from "@/common/core.ts";
+import { ComplexType, DefaultTypeDefinition } from "catman-coder-core";
 import { TreeRow } from "@/components/TypeDefinitionEditor/EditorPanel/Row";
 import { useDebounceFn } from "ahooks";
 import { Badge, InputRef, Tooltip, Tree } from "antd";
@@ -9,11 +9,11 @@ export interface TypeDefinitionEditorProps {
   /**
    * 传入的类型定义
    */
-  defaultSchema: Core.TypeDefinitionSchema;
+  defaultSchema: TypeDefinitionSchema;
   /**
    * 保存类型定义的回调
    */
-  onChange?: (schema: Core.TypeDefinitionSchema) => void;
+  onChange?: (schema: TypeDefinitionSchema) => void;
 }
 
 export const TypeDefinitionEditor = (props: TypeDefinitionEditorProps) => {
@@ -38,7 +38,7 @@ export const TypeDefinitionEditor = (props: TypeDefinitionEditorProps) => {
         props.onChange(tree.toSchema());
       }
     },
-    { wait: 200, leading: true, trailing: true },
+    { wait: 200, leading: true, trailing: true }
   );
   useEffect(() => {
     console.log("tree was changed", tree[0]);
@@ -93,7 +93,7 @@ export const TypeDefinitionEditor = (props: TypeDefinitionEditorProps) => {
                   title={"当前类型被循环引用,此处展示一个唯一标记📌,便于查看"}
                 >
                   {Object.keys(node.schema.circularRefs).indexOf(
-                    node.typeDefinitionId,
+                    node.typeDefinitionId
                   ) + 1}
                 </Tooltip>
               }
@@ -138,10 +138,10 @@ export interface TypeDefinitionTree extends DataNode {
   id: string;
   parent?: string;
   children?: TypeDefinitionTree[];
-  schema: Core.TypeDefinitionSchema;
+  schema: TypeDefinitionSchema;
 }
 
-export function simpleParse(schema: Core.TypeDefinitionSchema) {
+export function simpleParse(schema: TypeDefinitionSchema) {
   // 构建树
   const root = schema.definitions[schema.root];
   return deepSimpleParse(root!, schema);
@@ -155,9 +155,9 @@ export function simpleParse(schema: Core.TypeDefinitionSchema) {
  * @returns  被解析后的一个树节点
  */
 function deepSimpleParse(
-  typeDefinition: Core.TypeDefinition,
-  schema: Core.TypeDefinitionSchema,
-  parent?: string,
+  typeDefinition: TypeDefinition,
+  schema: TypeDefinitionSchema,
+  parent?: string
 ): TypeDefinitionTree {
   // 初始化树节点的基本定义
   const tree: TypeDefinitionTree = {
@@ -173,7 +173,7 @@ function deepSimpleParse(
    * 解析当前类型定义的子元素定义
    */
   const children = type.sortedAllItems.map((item) => {
-    let itemTypeDefinition: Core.TypeDefinition | undefined = undefined;
+    let itemTypeDefinition: TypeDefinition | undefined = undefined;
     if (item.scope === "PRIVATE") {
       itemTypeDefinition = type.privateItems[item.itemId];
     }
@@ -200,7 +200,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
   typeDefinitionId: string; // 对应的类型定义
   children: TypeDefinitionSchemaTree[]; // 当前组件的子组件
   refs?: TypeDefinitionSchemaTree[];
-  schema: Core.TypeDefinitionSchema;
+  schema: TypeDefinitionSchema;
   leafs: { [index: string]: TypeDefinitionSchemaTree } = {};
   circular: string[] = [];
   parent?: TypeDefinitionSchemaTree;
@@ -210,9 +210,9 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     key: string,
     typeDefinitionId: string,
     children: TypeDefinitionSchemaTree[],
-    schema: Core.TypeDefinitionSchema,
+    schema: TypeDefinitionSchema,
     leafs: { [index: string]: TypeDefinitionSchemaTree } = {},
-    parent?: TypeDefinitionSchemaTree,
+    parent?: TypeDefinitionSchemaTree
   ) {
     this.id = id;
     this.key = key;
@@ -242,7 +242,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     return `${this.parent.generatorFullKey()}.${this.key}`;
   }
 
-  updateType(type: Core.Type, allowChangeRoot?: boolean) {
+  updateType(type: Type, allowChangeRoot?: boolean) {
     // 更新当前节点的类型,主要需要调整当前节点的children,包括新增和删除
     const definition = this.getTypeDefinition();
     if (this.schema.root === definition.id && !allowChangeRoot) {
@@ -260,7 +260,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
    * 2. 更新当前节点的类型定义
    * @param td
    */
-  update(td: Core.TypeDefinition) {
+  update(td: TypeDefinition) {
     // 该操作用于更新当前节点的类型定义
     // 首先需要查找到当前节点的父节点,然后将当前节点替换为新的节点
     const parent = this.getParent();
@@ -319,7 +319,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     }
   }
 
-  createChild(td: Core.TypeDefinition) {
+  createChild(td: TypeDefinition) {
     // 简单校验,不能重复创建同名的节点
     const exist = this.children.find((c) => {
       return c.getTypeDefinition().name === td.name;
@@ -359,7 +359,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     return this.createBrotherFromType(
       ComplexType.ofType(typeName),
       name,
-      before,
+      before
     );
   }
 
@@ -370,7 +370,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     return this.createBrother(td, before);
   }
 
-  createBrother(td: Core.TypeDefinition, before?: boolean) {
+  createBrother(td: TypeDefinition, before?: boolean) {
     // 创建一个兄弟节点
     const parent = this.getParent();
     if (!parent) {
@@ -498,7 +498,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
   addLeafBefore(
     leaf: TypeDefinitionSchemaTree,
     targetId: string,
-    before?: boolean,
+    before?: boolean
   ) {
     const index = this.children.findIndex((c) => c.id === targetId);
     if (index === -1) {
@@ -555,7 +555,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     );
   }
 
-  getChildDefinition(id: string): Core.TypeDefinition {
+  getChildDefinition(id: string): TypeDefinition {
     const td = this.schema.definitions[id];
     if (td) {
       return td;
@@ -609,7 +609,6 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     return parent.isReferFieldButNotRoot();
   }
 
-
   canEdit(): boolean {
     // 被引入的类型,不允许编辑
     if (this.schema.root !== this.typeDefinitionId && this.isPublic()) {
@@ -641,7 +640,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     return parent.getAllBelongPublic();
   }
   deepfilter(
-    filter: (leaf: TypeDefinitionSchemaTree) => boolean,
+    filter: (leaf: TypeDefinitionSchemaTree) => boolean
   ): TypeDefinitionSchemaTree[] {
     const children = this.children.filter(filter);
     const deepChildren = this.children.map((c) => c.deepfilter(filter)).flat();
@@ -697,7 +696,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     return this;
   }
 
-  getTypeDefinition(): Core.TypeDefinition {
+  getTypeDefinition(): TypeDefinition {
     let td = this.schema.definitions[this.typeDefinitionId]!;
     if (td) {
       return td;
@@ -737,7 +736,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     };
   }
 
-  getParentTypeDefinition(): Core.TypeDefinition | undefined {
+  getParentTypeDefinition(): TypeDefinition | undefined {
     // 一个类型定义,可能存在于两个地方,一个是根节点,一个是其他节点的子节点
     const p = this.getParent();
     if (p) {
@@ -761,16 +760,16 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
       this.children.map((c) => c.copy()),
       this.schema,
       this.leafs,
-      this.parent,
+      this.parent
     );
   }
 
-  toSchema(): Core.TypeDefinitionSchema {
+  toSchema(): TypeDefinitionSchema {
     const newSchema = {
       root: this.schema.root,
       definitions: {},
       refs: {},
-    } as Core.TypeDefinitionSchema;
+    } as TypeDefinitionSchema;
     const root = this.root().toTypeDefinition(newSchema, true);
     newSchema.definitions[root.id!] = root;
     return newSchema;
@@ -781,9 +780,9 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
    * @param schema 新的schema主要用于子元素填充引用的public类型的定义
    */
   toTypeDefinition(
-    schema: Core.TypeDefinitionSchema,
-    mustDeep: boolean,
-  ): Core.TypeDefinition {
+    schema: TypeDefinitionSchema,
+    mustDeep: boolean
+  ): TypeDefinition {
     const current = this.schema.definitions[this.typeDefinitionId];
     if (current.scope.toString() === "PUBLIC") {
       schema.definitions[this.typeDefinitionId] = current;
@@ -793,7 +792,7 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
     }
     // 接下来将children转换成typeDefinition
     const type = current.type;
-    const newType: Core.Type = {
+    const newType: Type = {
       typeName: type.typeName,
       items: [],
       privateItems: {},
@@ -824,11 +823,11 @@ export class TypeDefinitionSchemaTree implements TypeDefinitionTree {
       name: current.name,
       scope: current.scope,
       type: newType,
-    } as Core.TypeDefinition;
+    } as TypeDefinition;
   }
 }
 
-function schemaParse(schema: Core.TypeDefinitionSchema) {
+function schemaParse(schema: TypeDefinitionSchema) {
   // 构建树
   const root = schema.definitions[schema.root];
   return deepParse(root!, schema);
@@ -851,9 +850,9 @@ function schemaParse(schema: Core.TypeDefinitionSchema) {
  * @param parent 父节点
  */
 function deepParse(
-  typeDefinition: Core.TypeDefinition,
-  schema: Core.TypeDefinitionSchema,
-  parent?: TypeDefinitionSchemaTree,
+  typeDefinition: TypeDefinition,
+  schema: TypeDefinitionSchema,
+  parent?: TypeDefinitionSchemaTree
 ): TypeDefinitionSchemaTree {
   const type = typeDefinition.type;
   const leafs = parent?.leafs || {};
@@ -863,8 +862,8 @@ function deepParse(
     typeDefinition.scope.toString() === "PUBLIC"
       ? typeDefinition.id!
       : parent
-        ? parent.generatorFullKey() + "." + typeDefinition.id!
-        : typeDefinition.id!;
+      ? parent.generatorFullKey() + "." + typeDefinition.id!
+      : typeDefinition.id!;
 
   if (typeDefinition.scope.toString() === "PUBLIC") {
     // ① 优先读取缓存,如果缓存中不存在,则需要重新解析
@@ -883,7 +882,7 @@ function deepParse(
     [],
     schema,
     leafs,
-    parent,
+    parent
   );
   // 这里直接修改leafs数据,不会影响到已渲染节点中的child字段,所以此处在tree发生了变化之后,需要手动修改所有引用了该节点的节点引用
   leafs[id] = tree;
@@ -931,8 +930,12 @@ function deepParse(
     // 获取子节点的类型定义
     const itemTypeDefinition = schema.definitions[item.itemId];
     if (!itemTypeDefinition) {
-      console.log("无法找到类型定义", itemTypeDefinition, "from", typeDefinition);
-
+      console.log(
+        "无法找到类型定义",
+        itemTypeDefinition,
+        "from",
+        typeDefinition
+      );
     }
     /// 递归解析子元素,在递归解析时,如果遇到一个一个public类型的记录,优先使用缓存,如果缓存中没有,则需要重新解析 ①
     const itemTree = deepParse(itemTypeDefinition, schema, tree);
@@ -952,11 +955,11 @@ function deepParse(
 
         if (
           !schema.circularRefs[itemTree.typeDefinitionId].find(
-            (c) => c === typeDefinition.id,
+            (c) => c === typeDefinition.id
           )
         ) {
           !schema.circularRefs[itemTree.typeDefinitionId].push(
-            typeDefinition.id!,
+            typeDefinition.id!
           );
         }
         circularReference = true;

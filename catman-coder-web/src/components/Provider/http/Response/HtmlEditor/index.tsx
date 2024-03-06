@@ -1,4 +1,4 @@
-import { getMonacoLanguageId } from "@/common/monaco";
+import { getMonacoLanguageId } from "catman-coder-core";
 import { Editor } from "@monaco-editor/react";
 import React from "react";
 

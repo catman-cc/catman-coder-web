@@ -1,14 +1,24 @@
 import IconCN from "@/components/Icon";
 import { PeekTypeIcon } from "@/components/TypeDefinition/common.tsx";
 import { TypeDefinitionSchemaEditor } from "@/components/TypeDefinitionEditor";
-import { DefaultLayoutNode } from "@/core/Layout";
-import { Constants } from "@/core/common";
-import { Core, Resource } from "@/core/typings";
+import {
+  DefaultLayoutNode,
+  Constants,
+  Resource,
+  IApplicationContext as ApplicationContext,
+  Processor,
+  ResourceViewer,
+  ResourceViewerFunction,
+  LayoutContext,
+  ResourceDetails,
+  ComponentCreatorFunction,
+  ComponentCreator,
+  LayoutNode,
+  Menu,
+} from "catman-coder-core";
 import { Input, InputRef, Modal, Select, Space } from "antd";
-import { languages } from "monaco-editor";
 import React from "react";
 import { ItemParams } from "react-contexify";
-import register = languages.register;
 function getMenuItem(name: string, label: string) {
   return {
     key: name,
@@ -19,7 +29,7 @@ function getMenuItem(name: string, label: string) {
   };
 }
 interface TypeDefinitionCreationModalProps {
-  context: Core.ApplicationContext;
+  context: ApplicationContext;
   onOk: (info: { name: string; type: string }) => void;
 }
 
@@ -138,19 +148,19 @@ class TypeDefinitionCreationModal extends React.Component<
   }
 }
 
-export default class TypeDefinitionProcessor implements Core.Processor {
-  after(): void { }
+export default class TypeDefinitionProcessor implements Processor {
+  after(): void {}
 
-  run(): void { }
-  register(context: Core.ApplicationContext) {
+  run(): void {}
+  register(context: ApplicationContext) {
     context.resourceContext?.register("td", {
-      resourceViewer(): Core.ResourceViewer | Core.ResourceViewerFunction {
+      resourceViewer(): ResourceViewer | ResourceViewerFunction {
         return (
-          resource: Core.Resource,
-          _: Core.ApplicationContext,
-          layout: Core.LayoutContext,
+          resource: Resource,
+          _: ApplicationContext,
+          layout: LayoutContext,
         ) => {
-          const resourceDetails = resource as Core.ResourceDetails;
+          const resourceDetails = resource as ResourceDetails;
           const layoutNode = DefaultLayoutNode.ofResource(resourceDetails);
           layoutNode.componentName = "td";
           layoutNode.icon = "icon-moxing";
@@ -167,9 +177,8 @@ export default class TypeDefinitionProcessor implements Core.Processor {
           layout.createOrActive(layoutNode, "tab");
         };
       },
-      componentCreator(
-      ): Core.ComponentCreatorFunction | Core.ComponentCreator {
-        return (node: Core.LayoutNode<Core.Resource>) => {
+      componentCreator(): ComponentCreatorFunction | ComponentCreator {
+        return (node: LayoutNode<Resource>) => {
           return (
             <TypeDefinitionSchemaEditor
               schema={node.data.details}
@@ -184,7 +193,7 @@ export default class TypeDefinitionProcessor implements Core.Processor {
       },
     });
   }
-  before(context: Core.ApplicationContext) {
+  before(context: ApplicationContext) {
     const layoutContext = context.layoutContext!;
     const menuContext = context.resourceContext?.explorer?.menuContext;
     this.register(context);
@@ -204,15 +213,15 @@ export default class TypeDefinitionProcessor implements Core.Processor {
                 </div>
               ),
               onMenuClick: (
-                menu: Core.Menu<Resource>,
-                resource: Core.Resource,
+                menu: Menu<Resource>,
+                resource: Resource,
                 itemParams: ItemParams,
               ) => {
                 let group = resource;
                 while (group.kind !== "resource") {
                   group =
                     context.resourceContext?.store?.resources[
-                    resource.parentId
+                      resource.parentId
                     ];
                 }
 
@@ -230,8 +239,9 @@ export default class TypeDefinitionProcessor implements Core.Processor {
                           config: {
                             type: info.type,
                           },
-                          previousId: resource.kind === "resource" ? null : resource.id
-                        } as unknown as Core.Resource)
+                          previousId:
+                            resource.kind === "resource" ? null : resource.id,
+                        } as unknown as Resource)
                         .then((res) => {
                           const resourceDetails = res.data;
                           // 处理资源
@@ -249,7 +259,7 @@ export default class TypeDefinitionProcessor implements Core.Processor {
                 );
               },
             },
-          ] as unknown as Core.Menu<Core.Resource>[]),
+          ] as unknown as Menu<Resource>[]),
         );
         return false;
       }

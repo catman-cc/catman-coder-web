@@ -1,6 +1,7 @@
 import events from "events";
+import { EventBusContext, Event, EventListener } from "@/core/entity/Common";
 
-const EventBus = new events.EventEmitter();
+export const EventBus = new events.EventEmitter();
 
 export const Events = {
   Layout: {
@@ -10,7 +11,6 @@ export const Events = {
 };
 
 EventBus.on(Events.Layout.ADD_TAB, (_args) => {});
-
 export default EventBus;
 
 /**
@@ -18,17 +18,17 @@ export default EventBus;
  */
 
 const DEFAULT_GROUP = "default_group";
-export class DefaultEventBusContext implements Core.EventBusContext {
+export class DefaultEventBusContext implements EventBusContext {
   /**
    * 以group作为第一级筛选的事件处理器
    */
   groupListeners: {
-    [index: string]: Core.EventListener[];
+    [index: string]: EventListener[];
   };
   constructor() {
     this.groupListeners = {};
   }
-  publish(event: Core.Event<unknown>) {
+  publish(event: Event<unknown>) {
     const group = event.group || DEFAULT_GROUP;
     let listeners = this.groupListeners[group];
     if (!listeners) {
@@ -44,7 +44,7 @@ export class DefaultEventBusContext implements Core.EventBusContext {
       });
     return this;
   }
-  addListener(listener: Core.EventListener) {
+  addListener(listener: EventListener) {
     const group = listener.watchGroup || DEFAULT_GROUP;
     let listeners = this.groupListeners[group];
     if (!listeners) {
@@ -55,34 +55,25 @@ export class DefaultEventBusContext implements Core.EventBusContext {
   }
 
   subscribe(
-    filter: (event: Core.Event<unknown>) => boolean,
-    handler: (
-      event: Core.Event<unknown>,
-      eventBus: Core.EventBusContext
-    ) => void
+    filter: (event: Event<unknown>) => boolean,
+    handler: (event: Event<unknown>, eventBus: EventBusContext) => void
   ) {
     this.subscribeGroup(DEFAULT_GROUP, filter, handler);
   }
 
   subscribeGroup(
     group: string,
-    filter: (event: Core.Event<unknown>) => boolean,
-    handler: (
-      event: Core.Event<unknown>,
-      eventBus: Core.EventBusContext
-    ) => void
+    filter: (event: Event<unknown>) => boolean,
+    handler: (event: Event<unknown>, eventBus: EventBusContext) => void
   ) {
     const randomStr = new Date().toDateString();
     this.addListener({
       id: randomStr,
       name: randomStr,
-      filterEvent(event: Core.Event<unknown>): boolean {
+      filterEvent(event: Event<unknown>): boolean {
         return filter(event);
       },
-      process(
-        event: Core.Event<unknown>,
-        eventBus: Core.EventBusContext
-      ): void {
+      process(event: Event<unknown>, eventBus: EventBusContext): void {
         handler(event, eventBus);
       },
       watchGroup: group,
@@ -90,11 +81,8 @@ export class DefaultEventBusContext implements Core.EventBusContext {
   }
   watchByName(
     name: string,
-    handler: (
-      event: Core.Event<unknown>,
-      eventBus: Core.EventBusContext
-    ) => void
-  ): Core.EventBusContext {
+    handler: (event: Event<unknown>, eventBus: EventBusContext) => void
+  ): EventBusContext {
     this.subscribe((event) => {
       return event.name === name;
     }, handler);
@@ -104,10 +92,7 @@ export class DefaultEventBusContext implements Core.EventBusContext {
   watchByIdAndGroup(
     id: string,
     group: string,
-    handler: (
-      event: Core.Event<unknown>,
-      eventBus: Core.EventBusContext
-    ) => void
+    handler: (event: Event<unknown>, eventBus: EventBusContext) => void
   ) {
     this.subscribeGroup(
       group,

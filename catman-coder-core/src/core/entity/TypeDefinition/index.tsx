@@ -1,6 +1,6 @@
 import { ID } from "@/core/id";
 import constants from "@/core/Constants";
-import type { Scope } from "@/core/entity/Common";
+import type { IScope } from "@/core/entity/Common";
 import {
   TypeDefinition,
   Type,
@@ -13,15 +13,15 @@ import {
   TypeDefinitionSchema,
 } from "@/core/entity/Common";
 
-const Scope = {
-  PRIVATE: "PRIVATE" as Scope,
-  PUBLIC: "PUBLIC" as Scope,
+export const Scope = {
+  PRIVATE: "PRIVATE" as IScope,
+  PUBLIC: "PUBLIC" as IScope,
 };
 
 export class DefaultTypeDefinition implements TypeDefinition {
   id!: string;
   name!: string;
-  scope!: Scope;
+  scope!: IScope;
   tag: Tag[] = [];
   alias: string[] = [];
   labels!: Labels;
@@ -96,7 +96,7 @@ export class DefaultTypeDefinition implements TypeDefinition {
       childCount?: number;
       name?: string;
       type?: ComplexType;
-      scope?: Scope;
+      scope?: IScope;
     } = {
       childCount: 0,
       name: constants.DEFAULT_NEW_TYPE_DEFINITION_NAME,
@@ -119,7 +119,7 @@ export class DefaultTypeDefinition implements TypeDefinition {
       childCount?: number;
       name?: string;
       type?: ComplexType;
-      scope?: Scope;
+      scope?: IScope;
     } = {
       childCount: 0,
       name: constants.DEFAULT_NEW_TYPE_DEFINITION_NAME,

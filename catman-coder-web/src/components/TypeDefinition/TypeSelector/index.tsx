@@ -1,4 +1,4 @@
-import { ComplexType } from "@/common/core.ts";
+import { ComplexType } from "catman-coder-core";
 import { SettingOutlined } from "@ant-design/icons";
 import { Menu, Space } from "antd";
 import * as React from "react";

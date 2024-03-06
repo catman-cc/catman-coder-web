@@ -10,7 +10,7 @@ export const TypeDefinitionSelect = ({
   onSelect?: (value: string) => void;
 }) => {
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<Core.TypeDefinition[]>([]);
+  const [data, setData] = useState<TypeDefinition[]>([]);
 
   useEffect(() => {
     findAllSimples().then((res) => {

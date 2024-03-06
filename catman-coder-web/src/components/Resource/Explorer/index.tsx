@@ -4,7 +4,12 @@
 import IconCN from "@/components/Icon";
 import { SelectorPanel } from "@/components/LabelSelector/SelectorPanel";
 import { LabelSelectFactory } from "@/components/LabelSelector/common";
-import { useApplicationContext } from "catman-coder-core";
+import {
+  LabelSelector,
+  Resource,
+  ResourceDataNode,
+  useApplicationContext,
+} from "catman-coder-core";
 import { useAppDispatch, useAppSelector } from "@/stores";
 import { ResourceSlice, RootResourceQuery } from "@/stores/resource";
 import { Button, Card, Popover, Tree } from "antd";
@@ -29,7 +34,7 @@ const ResourceExplorer: React.FC = () => {
 
   const explorerContext = resourceContext.explorer!;
   const factory = explorerContext.itemRenderFactory!;
-  const resourceConvert = (res: Core.Resource) => {
+  const resourceConvert = (res: Resource) => {
     const renderResource = factory.render(res);
     if (renderResource) {
       renderResource.resource = res;
@@ -68,7 +73,7 @@ const ResourceExplorer: React.FC = () => {
   }, [resourceState]);
 
   const onSelect: DirectoryTreeProps["onSelect"] = (keys, info) => {
-    const node = info.node as unknown as Core.ResourceDataNode;
+    const node = info.node as unknown as ResourceDataNode;
     const resource = node.resource;
     if (resource.kind === "resource") {
       // 资源类型无需特殊处理
@@ -76,7 +81,7 @@ const ResourceExplorer: React.FC = () => {
     }
     // 加载具体的资源
     resourceContext.service?.loadDetails(resource).then((response) => {
-      const resource = response.data as Core.Resource;
+      const resource = response.data as Resource;
       // 处理资源
       const layoutContext = applicationContext.layoutContext;
       const viewFactory =
@@ -93,7 +98,9 @@ const ResourceExplorer: React.FC = () => {
   });
 
   const [node, setNode] = useState(resourceTree);
-  function displayMenu(e, node: Core.ResourceDataNode) {
+  function displayMenu(e, node: ResourceDataNode) {
+    console.log(menuContext!.menus().id!);
+    debugger;
     setNode(node);
     show({
       event: e,
@@ -125,7 +132,7 @@ const ResourceExplorer: React.FC = () => {
         setModel(undefined);
       });
   }, []);
-  const [selector, setSelector] = useState<Core.LabelSelector<unknown>>({
+  const [selector, setSelector] = useState<LabelSelector<unknown>>({
     kind: "Equals",
     match: "",
     value: "",
@@ -230,7 +237,7 @@ const ResourceExplorer: React.FC = () => {
           onSelect={onSelect}
           onExpand={onExpand}
           onRightClick={(info: { event: React.MouseEvent; node: DataNode }) => {
-            displayMenu(info.event, info.node as Core.ResourceDataNode);
+            displayMenu(info.event, info.node as ResourceDataNode);
           }}
           treeData={[resourceTree!]}
         />

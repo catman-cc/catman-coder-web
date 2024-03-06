@@ -12,7 +12,7 @@ import Dockview from "@/components/Layouts/Dockview";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { DefaultApplicationContext } from "catman-coder-core";
+import { ApplicationContextRC } from "catman-coder-core";
 
 // 注册processor,并执行启动操作
 applicationContext.start();
@@ -49,5 +49,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </ApplicationContextRC>
       </DndProvider>
     </Provider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

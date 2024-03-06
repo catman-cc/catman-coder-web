@@ -3,7 +3,7 @@ import type { TreeProps } from "antd/es/tree";
 
 import { ReactNode, useCallback, useEffect, useState } from "react";
 
-import { ComplexType, DefaultTypeDefinition } from "@/common/core.ts";
+import { ComplexType, DefaultTypeDefinition } from "catman-coder-core";
 import constants from "@/config/constants";
 import { ID } from "../common";
 import TreeLine from "./Line/TreeLine";

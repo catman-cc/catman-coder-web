@@ -1,7 +1,7 @@
-import "./index.less"
+import "./index.less";
 
 export interface ParameterGeneraEditorProps {
-    schema: Core.ParameterSchema
+  schema: ParameterSchema;
 }
 
 /**
@@ -17,23 +17,17 @@ export interface ParameterGeneraEditorProps {
  *  - 默认值函数
  *  - 描述
  *  渲染子数据部分
- * @returns 参数编辑器 
+ * @returns 参数编辑器
  */
 export const ParameterGeneraEditor = (props: ParameterGeneraEditorProps) => {
-    return <div className="parameter-genera-editor">
-        <div className="parameter-genera-editor-main">
-            <div>
-                name,不可编辑
-            </div>
-            <div>
-                类型
-            </div>
-            <div>
-                value
-            </div>
-            <div>
-                default-value
-            </div>
-        </div>
+  return (
+    <div className="parameter-genera-editor">
+      <div className="parameter-genera-editor-main">
+        <div>name,不可编辑</div>
+        <div>类型</div>
+        <div>value</div>
+        <div>default-value</div>
+      </div>
     </div>
-}
+  );
+};

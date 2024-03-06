@@ -30,7 +30,7 @@ export {
 export { Events, DefaultEventBusContext } from "@/core/events";
 export { uuid, ID, IDDecode } from "@/core/id";
 export { getMonacoLanguageId } from "@/core/monaco";
-export { DefaultTypeDefinition, ComplexType, Scope } from "@/core/entity";
+export { DefaultTypeDefinition, ComplexType } from "@/core/entity";
 export { DefaultLoopReferenceContext } from "@/core/LoopReferenceContext";
 export { Constants } from "@/core/Constants";
 export {

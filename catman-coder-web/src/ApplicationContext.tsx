@@ -27,6 +27,12 @@ import { JobProcessor } from "./Processors/Job";
 import HttpTriggerProcessor from "./Processors/Trigger/HttpTrigger";
 import WikiProcessor from "./Processors/Wiki";
 
+import type {
+  IApplicationContext,
+  Menu,
+  Parameter,
+  Resource,
+} from "catman-coder-core";
 import {
   Constants,
   DefaultResourceContext,
@@ -69,9 +75,7 @@ const factory = RefuseNodeComponentFactory.of(
         return <ParameterMenu />;
       })
       .nameMatch("ParameterEditor", (node) => {
-        return (
-          <ParameterEditor params={node.getConfig().data as Core.Parameter} />
-        );
+        return <ParameterEditor params={node.config.data as Parameter} />;
       })
       .nameMatch("menus", () => {
         return <Menus />;
@@ -188,12 +192,12 @@ resourceExplorerContext.setResourceMenuContext(
         type: "submenu",
         label: "新建",
         children: [],
-      } as unknown as Core.Menu<Core.Resource>,
+      } as unknown as Menu<Resource>,
       {
         id: Constants.Resource.explorer.menu.ids.rename,
         type: "item",
         label: "重命名",
-        renderMenuItem: (menu: Core.Menu<unknown>, resource: Core.Resource) => {
+        renderMenuItem: (menu: Menu<unknown>, resource: Resource) => {
           return (
             <Popover
               trigger={"click"}
@@ -243,12 +247,12 @@ resourceExplorerContext.setResourceMenuContext(
           );
         },
         children: [],
-      } as unknown as Core.Menu<Core.Resource>,
+      } as unknown as Menu<Resource>,
       {
         id: Constants.Resource.explorer.menu.ids.delete,
         type: "item",
         label: "删除",
-        renderMenuItem: (menu: Core.Menu<unknown>, resource: Core.Resource) => {
+        renderMenuItem: (menu: Menu<unknown>, resource: Resource) => {
           return (
             <Popconfirm
               title={
@@ -287,16 +291,16 @@ resourceExplorerContext.setResourceMenuContext(
         },
         children: [],
         onMenuClick: (_menu, resource) => {},
-      } as unknown as Core.Menu<Core.Resource>,
+      } as unknown as Menu<Resource>,
     ],
-  } as unknown as Core.Menu<Core.Resource>)
+  } as unknown as Menu<Resource>)
 );
 
 resourceContext.setResourceExplorerContext(resourceExplorerContext);
 applicationContext.setResourceContext(resourceContext);
 
 applicationContext.addProcessor({
-  run(context: Core.ApplicationContext) {
+  run(context: IApplicationContext) {
     context.events!.watchByName("new-type-definition", (event, eventBus) => {
       // 调用后端服务,新建一个类型定义
       eventBus.publish({

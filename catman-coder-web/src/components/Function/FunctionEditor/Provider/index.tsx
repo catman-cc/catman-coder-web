@@ -10,7 +10,7 @@ export interface FunctionContextProps {
   /**
    * 循环引用资源的上下文,可以理解为是一个内存表,用于存储循环引用的资源
    */
-  loopContext: Core.LoopReferenceContext;
+  loopContext: LoopReferenceContext;
   drawer?: DrawerProps;
   update: (_ctx: FunctionContextProps) => void;
 }
@@ -21,7 +21,7 @@ export function FunctionRC(
   props: PropsWithChildren<{
     value: FunctionContextProps;
     setValue: React.Dispatch<React.SetStateAction<FunctionContextProps>>;
-  }>,
+  }>
 ) {
   const { value, children } = props;
   value.update = props.setValue;
@@ -42,7 +42,7 @@ export const useFunctionContext = () => {
 };
 
 export const updateFunctionContext = (
-  updater: (_ctx: FunctionContextProps) => void,
+  updater: (_ctx: FunctionContextProps) => void
 ) => {
   const ctx = useContext(FunctionContext);
 };

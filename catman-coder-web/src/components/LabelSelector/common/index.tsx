@@ -6,10 +6,10 @@ import { TwoStagesSelector } from "@/components/LabelSelector/TwoStagesSelector"
 import { TwoStageKeyValueListSelector } from "@/components/LabelSelector/TowStageKeyValueListSelector";
 
 export type LabelSelectorCreator = (
-  selector: Core.LabelSelector<unknown>,
-  onChange: (selector: Core.LabelSelector<unknown>) => void,
+  selector: LabelSelector<unknown>,
+  onChange: (selector: LabelSelector<unknown>) => void,
   keyAutoOptions?: { key: string; value: string }[],
-  valueAutoOptions?: { key: string; value: string }[],
+  valueAutoOptions?: { key: string; value: string }[]
 ) => React.ReactNode;
 export class LabelSelectFactory {
   creators: {
@@ -526,17 +526,17 @@ export class LabelSelectFactory {
     };
   }
   render(
-    selector: Core.LabelSelector<unknown>,
-    onChange: (selector: Core.LabelSelector<unknown>) => void,
+    selector: LabelSelector<unknown>,
+    onChange: (selector: LabelSelector<unknown>) => void,
     keyAutoOptions?: { key: string; value: string }[],
-    valueAutoOptions?: { key: string; value: string }[],
+    valueAutoOptions?: { key: string; value: string }[]
   ): React.ReactNode {
     if (this.creators[selector.kind]) {
       return this.creators[selector.kind](
         selector,
         onChange,
         keyAutoOptions,
-        valueAutoOptions,
+        valueAutoOptions
       );
     }
     // 此处单纯就是为了避免死循环

@@ -19,7 +19,7 @@ export const FunctionArgsPanel = () => {
    * 参数集合
    */
   const [schema, setSchema] = useState(
-    TypeDefinitionHierarchialSchema.of(mockSchema()),
+    TypeDefinitionHierarchialSchema.of(mockSchema())
   );
   const [schemas, setSchemas] = useState<TypeDefinitionHierarchialSchema[]>([
     TypeDefinitionHierarchialSchema.of(mockSchema()),
@@ -175,7 +175,7 @@ const mockSchema = () => {
     refs: {
       "02861d4e-71d8-487e-add7-46d30a94fe97": ["KNuuLwLU62KwItoC8igJB"],
     },
-  } as unknown as Core.TypeDefinitionSchema;
+  } as unknown as TypeDefinitionSchema;
   schema.context = {
     typeDefinitions: schema.definitions,
     parameters: {},

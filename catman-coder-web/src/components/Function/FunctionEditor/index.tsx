@@ -145,13 +145,13 @@ const CustomEdge = ({ id, sourceX, sourceY, targetX, targetY }) => {
 };
 
 export interface FunctionFlowEditorProps {
-  schema: Core.FunctionInfoSchema;
+  schema: FunctionInfoSchema;
 }
 
 /**
  * 基于ReactFlow实现的函数流程编辑器,用于实现函数流程的可视化编辑
  * 为了实现动态注册函数节点的能力,其nodeTypes属性应提升至ApplicationContext中.
- * 同时使用Core.Processor在应用加载时完成函数节点的注册工作
+ * 同时使用Processor在应用加载时完成函数节点的注册工作
  *
  * @constructor
  */
@@ -166,14 +166,14 @@ export const FunctionFlowEditor = () => {
       peekFunctionNode: PeekFunctionNode,
       switchFunctionNode: SwitchFunctionNode,
     }),
-    [],
+    []
   );
 
   const edgeTypes = useMemo(
     () => ({
       customEdge: CustomEdge,
     }),
-    [],
+    []
   );
 
   // const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -207,7 +207,7 @@ export const FunctionFlowEditor = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
-    [],
+    []
   );
 
   const onEdgeUpdateStart = useCallback((e, h, c, d) => {
@@ -228,7 +228,7 @@ export const FunctionFlowEditor = () => {
 
   const [loopContext, setLoopContext] = useState({
     root: "1",
-    loopContext: {} as Core.LoopReferenceContext,
+    loopContext: {} as LoopReferenceContext,
   });
   return (
     <div style={{ height: "100%", width: "100%" }}>

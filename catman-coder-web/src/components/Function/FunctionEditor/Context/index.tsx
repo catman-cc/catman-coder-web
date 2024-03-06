@@ -1,15 +1,15 @@
 export interface FunctionEditorContext {
   root: string;
-  loopContext: Core.LoopReferenceContext;
+  loopContext: LoopReferenceContext;
 }
 
 export class DefaultFunctionEditorContext implements FunctionEditorContext {
   root: string = "";
-  loopContext: Core.LoopReferenceContext = {};
+  loopContext: LoopReferenceContext = {};
 
   /**
    * 添加一个函数信息,
    * @param info
    */
-  addFunctionCallInfo(info: Core.FunctionCallInfo) {}
+  addFunctionCallInfo(info: FunctionCallInfo) {}
 }

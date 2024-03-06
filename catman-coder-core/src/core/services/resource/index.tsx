@@ -1,33 +1,37 @@
 import { del, get, put } from "@/core/api";
+import {
+  Resource,
+  ResourceDetails,
+  ResourceService,
+} from "@/core/entity/Common";
+import { API } from "@/core/api/typings";
 
-export class DefaultResourceService implements Core.ResourceService {
-  root(selector?: string): Promise<API.Response<Core.Resource>> {
+export class DefaultResourceService implements ResourceService {
+  root(selector?: string): Promise<API.Response<Resource>> {
     return get(`/api/resource/root?selector=${selector || ""}`);
   }
 
-  findById(id: string): Promise<API.Response<Core.Resource>> {
+  findById(id: string): Promise<API.Response<Resource>> {
     return get(`/api/resource/${id}`);
   }
 
-  save(resource: Core.Resource): Promise<API.Response<Core.Resource>> {
+  save(resource: Resource): Promise<API.Response<Resource>> {
     return put(`/api/resource`, resource);
   }
 
-  rename(id: string, name: string): Promise<API.Response<Core.Resource>> {
+  rename(id: string, name: string): Promise<API.Response<Resource>> {
     return put(`/api/resource/rename/${id}/${name}`, {});
   }
 
-  delete(resource: Core.Resource): Promise<API.Response<Core.Resource>> {
-    return del<Core.Resource>(`/api/resource/${resource.id}`);
+  delete(resource: Resource): Promise<API.Response<Resource>> {
+    return del<Resource>(`/api/resource/${resource.id}`);
   }
 
-  loadDetails<T>(resource: Core.Resource): Promise<API.Response<T>> {
+  loadDetails<T>(resource: Resource): Promise<API.Response<T>> {
     return get(`/api/resource/details/${resource.id}`);
   }
 
-  create<T>(
-    resource: Core.Resource
-  ): Promise<API.Response<Core.ResourceDetails<T>>> {
+  create<T>(resource: Resource): Promise<API.Response<ResourceDetails<T>>> {
     return put("/api/resource/create", resource);
   }
   move(

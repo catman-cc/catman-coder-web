@@ -1,11 +1,10 @@
 import MonacoCodeEditor from "@/components/CodeEditor";
-import IconCN from "@/components/Icon";
 import {
   CacheableFactory,
   DefaultComponentFactory,
-  Factory,
+  Parameter,
   RefuseNodeComponentFactory,
-} from "@/core/Layout/Factory.tsx";
+} from "catman-coder-core";
 import Menus from "@/components/Menus";
 import ParameterEditor from "@/components/Parameter/Editor";
 import ParameterMenu from "@/components/Parameter/menu";
@@ -22,7 +21,6 @@ interface CatMan {
   componentFactory: object; // 组件工厂
   layout: {
     model: IJsonModel;
-    layoutFactory: Factory; // 布局工厂
     ref: RefObject<Layout> | undefined;
   };
 }
@@ -152,7 +150,7 @@ const factory = RefuseNodeComponentFactory.of(
   CacheableFactory.of(
     DefaultComponentFactory.create()
       .nameMatch("button", (node) => {
-        return <Button>{node.getName()}</Button>;
+        return <Button>{node.name}</Button>;
       })
       .nameMatch("TypeDefinitionMenu", (node: TabNode) => {
         return (
@@ -163,9 +161,7 @@ const factory = RefuseNodeComponentFactory.of(
         return <ParameterMenu />;
       })
       .nameMatch("ParameterEditor", (node) => {
-        return (
-          <ParameterEditor params={node.getConfig().data as Core.Parameter} />
-        );
+        return <ParameterEditor params={node.getConfig().data as Parameter} />;
       })
       .nameMatch("menus", (node) => {
         return <Menus />;
@@ -184,8 +180,8 @@ const factory = RefuseNodeComponentFactory.of(
       })
       .nameMatch("ResourceExplorer", (node: TabNode) => {
         return <ResourceExplorer />;
-      }),
-  ),
+      })
+  )
 );
 
 const global = {
@@ -193,7 +189,6 @@ const global = {
   componentFactory: {},
   layout: {
     model: DefaultLayout,
-    layoutFactory: factory,
     ref: undefined,
   },
   resource: {

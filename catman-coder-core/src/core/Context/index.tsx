@@ -1,12 +1,22 @@
 import { createContext, PropsWithChildren, useContext } from "react";
 
-export class DefaultApplicationContext implements Core.ApplicationContext {
-  events?: Core.EventBusContext;
-  messageBus?: Core.MessageBus;
-  layoutContext?: Core.LayoutContext;
-  resourceContext?: Core.ResourceContext;
-  processors: Core.Processor[];
-  config: Core.GlobalConfig = {
+import {
+  EventBusContext,
+  GlobalConfig,
+  LayoutContext,
+  MessageBus,
+  Processor,
+  ResourceContext,
+  IApplicationContext,
+} from "@/core/entity/Common";
+
+export class DefaultApplicationContext implements IApplicationContext {
+  events?: EventBusContext;
+  messageBus?: MessageBus;
+  layoutContext?: LayoutContext;
+  resourceContext?: ResourceContext;
+  processors: Processor[];
+  config: GlobalConfig = {
     backendUrl: "http://127.0.0.1:8080",
   };
   started: boolean = false;
@@ -14,7 +24,7 @@ export class DefaultApplicationContext implements Core.ApplicationContext {
     this.processors = [];
   }
 
-  addProcessor(processor: Core.Processor) {
+  addProcessor(processor: Processor) {
     this.processors.push(processor);
     if (this.started) {
       processor.run && processor.run(this);
@@ -28,33 +38,31 @@ export class DefaultApplicationContext implements Core.ApplicationContext {
     this.processors.forEach((p) => p.after && p.after!(this));
   }
 
-  setEventBusContext(events: Core.EventBusContext): Core.ApplicationContext {
+  setEventBusContext(events: EventBusContext): IApplicationContext {
     this.events = events;
     return this;
   }
-  setMessageBus(messageBus: Core.MessageBus): Core.ApplicationContext {
+  setMessageBus(messageBus: MessageBus): IApplicationContext {
     this.messageBus = messageBus;
     return this;
   }
 
-  setLayoutContext(layoutContext: Core.LayoutContext): Core.ApplicationContext {
+  setLayoutContext(layoutContext: LayoutContext): IApplicationContext {
     this.layoutContext = layoutContext;
     return this;
   }
 
-  setResourceContext(
-    resourceContext: Core.ResourceContext
-  ): Core.ApplicationContext {
+  setResourceContext(resourceContext: ResourceContext): IApplicationContext {
     this.resourceContext = resourceContext;
     return this;
   }
 }
-export const ApplicationContext = createContext<Core.ApplicationContext | null>(
+export const ApplicationContext = createContext<IApplicationContext | null>(
   null
 );
 
 export function ApplicationContextRC(
-  props: PropsWithChildren<{ value: Core.ApplicationContext }>
+  props: PropsWithChildren<{ value: IApplicationContext }>
 ) {
   const { value, children } = props;
   return (

@@ -4,7 +4,7 @@ import HtmlEditor from "@/components/Provider/http/Response/HtmlEditor";
 import { RawHttpPanel } from "@/components/Provider/http/Response/RawHttpPanel";
 import { Render } from "@/components/Provider/http/Response/Render";
 import { SSLPanel } from "@/components/Provider/http/Response/SSLPanel";
-import { computeStrSize } from "@/core/common/utils";
+import { computeStrSize } from "catman-coder-core";
 import { Card, Space, Table, Tabs } from "antd";
 import { useEffect, useState } from "react";
 
@@ -23,8 +23,10 @@ export const ResponseView = (props: ResponseViewProps) => {
   const [timeColor, setTimeColor] = useState<"green" | "red" | "orange">(
     "green",
   );
-  const [bodySize, setBodySize] = useState<string | null>(null)
-  const [bodySizeColor, setBodySizeColor] = useState<"gray" | "green" | "red" | "orange">("green")
+  const [bodySize, setBodySize] = useState<string | null>(null);
+  const [bodySizeColor, setBodySizeColor] = useState<
+    "gray" | "green" | "red" | "orange"
+  >("green");
 
   const [logs, setLogs] = useState([]);
 
@@ -63,20 +65,20 @@ export const ResponseView = (props: ResponseViewProps) => {
       });
     }
     if (response.body) {
-      setBodySize(computeStrSize(response.body))
-      const length = response.body.length
+      setBodySize(computeStrSize(response.body));
+      const length = response.body.length;
       if (length < 1024) {
-        setBodySizeColor("green")
+        setBodySizeColor("green");
       } else if (length / 1024 < 25) {
-        setBodySizeColor("gray")
+        setBodySizeColor("gray");
       } else if (length / 1024 <= 100) {
-        setBodySizeColor("orange")
+        setBodySizeColor("orange");
       } else {
-        setBodySizeColor("red")
+        setBodySizeColor("red");
       }
     } else {
-      setBodySize(null)
-      setBodySizeColor("green")
+      setBodySize(null);
+      setBodySizeColor("green");
     }
 
     setHeaderData([...data]);
@@ -175,9 +177,9 @@ export const ResponseView = (props: ResponseViewProps) => {
                   code={response?.body}
                   contentType={
                     response.headers[
-                    Object.keys(response?.headers).find(
-                      (head) => head.toLowerCase() === "content-type",
-                    ) || ""
+                      Object.keys(response?.headers).find(
+                        (head) => head.toLowerCase() === "content-type",
+                      ) || ""
                     ]?.[0]
                   }
                 />
@@ -215,9 +217,9 @@ export const ResponseView = (props: ResponseViewProps) => {
                 content={response?.body}
                 contentType={
                   response.headers[
-                  Object.keys(response?.headers).find(
-                    (head) => head.toLowerCase() === "content-type",
-                  ) || ""
+                    Object.keys(response?.headers).find(
+                      (head) => head.toLowerCase() === "content-type",
+                    ) || ""
                   ]?.[0]
                 }
                 http={http}

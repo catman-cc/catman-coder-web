@@ -5,8 +5,11 @@ import { BodyPanel } from "@/components/Provider/http/Request/Body";
 import { HttpRequestHeader } from "@/components/Provider/http/Request/Header";
 import { HttpMethod } from "@/components/Provider/http/Request/Method";
 import { BodyDataItem } from "@/components/Provider/http/types.ts";
-import { useApplicationContext } from "@/core";
-import { TopicMessageMatcher } from "@/core/Socket";
+import {
+  useApplicationContext,
+  TopicMessageMatcher,
+  Channel,
+} from "catman-coder-core";
 import { WarningFilled } from "@ant-design/icons";
 import {
   Button,
@@ -19,7 +22,7 @@ import {
   Switch,
   Table,
   Tabs,
-  Tooltip
+  Tooltip,
 } from "antd";
 import { IDockviewPanelProps } from "dockview/dist/cjs/dockview/dockview";
 import { useEffect, useState } from "react";
@@ -159,7 +162,7 @@ export const HttpValueProvider = (props: {
 
   const [sending, setSending] = useState(false);
 
-  const [channel, setChannel] = useState<Core.Channel>();
+  const [channel, setChannel] = useState<Channel>();
   useEffect(() => {
     if (!channel) {
       setChannel(
@@ -214,7 +217,7 @@ export const HttpValueProvider = (props: {
     const urlWithoutQuery =
       queryIndex === -1 ? url : url.substring(0, queryIndex);
     const matches = urlWithoutQuery.match(reg);
-    matches?.forEach((item) => { });
+    matches?.forEach((item) => {});
     let index = -1;
     const newPathVariables = matches?.map((item) => {
       index++;
@@ -252,12 +255,13 @@ export const HttpValueProvider = (props: {
     }
     console.log("queriesString", queriesString);
     setUrl(
-      `${oldUrl}?${queriesString}${url.charAt(url.length - 1) === "&" ? "&" : ""
+      `${oldUrl}?${queriesString}${
+        url.charAt(url.length - 1) === "&" ? "&" : ""
       }`,
     );
   }, [queries]);
 
-  const [selector, setSelector] = useState<Core.LabelSelector<unknown>>({
+  const [selector, setSelector] = useState<LabelSelector<unknown>>({
     kind: "All",
     match: "",
     value: "",

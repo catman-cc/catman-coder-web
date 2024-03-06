@@ -1,10 +1,10 @@
 import { createContext, PropsWithChildren, useContext } from "react";
-export const ApplicationContext = createContext<Core.ApplicationContext | null>(
+export const ApplicationContext = createContext<ApplicationContext | null>(
   null
 );
 
 export function ApplicationContextRC(
-  props: PropsWithChildren<{ value: Core.ApplicationContext }>
+  props: PropsWithChildren<{ value: ApplicationContext }>
 ) {
   const { value, children } = props;
   return (

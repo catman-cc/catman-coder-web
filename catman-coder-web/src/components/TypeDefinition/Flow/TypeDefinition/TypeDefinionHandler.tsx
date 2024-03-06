@@ -1,15 +1,15 @@
 // 处理类型,复合类型的TD,默认为一组,type: 'group',
 // 普通类型的渲染为普通节点
-import { Edge, Node } from 'reactflow';
+import { Edge, Node } from "reactflow";
 
-import { DefaultTypeDefinition } from "@/common/core";
+import { DefaultTypeDefinition, TypeDefinition } from "catman-coder-core";
 
 /**
  * 存放流程信息
  */
 export interface FlowInfo {
-    nodes: Node[],
-    edges: Edge[]
+  nodes: Node[];
+  edges: Edge[];
 }
 
 /**
@@ -17,103 +17,99 @@ export interface FlowInfo {
  * @param td 类型定义
  * @returns  节点集合
  */
-export const convert = (td: Core.TypeDefinition): FlowInfo => {
+export const convert = (td: TypeDefinition): FlowInfo => {
+  const dtd = DefaultTypeDefinition.ensure(td);
+  const flowInfo: FlowInfo = {
+    nodes: [],
+    edges: [],
+  };
 
-    const dtd = DefaultTypeDefinition.ensure(td)
-    const flowInfo: FlowInfo = {
-        nodes: [],
-        edges: []
-    }
+  flowInfo.nodes.push({
+    id: dtd.id,
+    // type: dtd.type.isComplex() ? 'group' : "input",
+    type: "input",
+    data: { label: dtd.name },
+    position: { x: 0, y: 0 },
+    // style: {
+    //     width: 40,
+    //     height: 60,
+    // },
+  });
 
+  dtd.recursionChildWithCallback((c, p) => {
     flowInfo.nodes.push({
-        id: dtd.id,
-        // type: dtd.type.isComplex() ? 'group' : "input",
-        type: "input",
-        data: { label: dtd.name },
-        position: { x: 0, y: 0 },
-        // style: {
-        //     width: 40,
-        //     height: 60,
-        // },
-    })
+      id: c.id,
+      // type: c.type.isComplex() ? 'group' : "input",
+      // type: "input",
+      data: { label: c.name },
+      position: { x: 0, y: 0 },
+      // style: {
+      //     width: 40,
+      //     height: 60,
+      // },
+      // parentNode: p.id,
+      // ...(p.type.isComplex() ? { extent: "parent" } : {})
+    });
 
-    dtd.recursionChildWithCallback((c, p) => {
+    flowInfo.edges.push({
+      id: `${p.id}@${c.id}`,
+      source: p.id,
+      target: c.id,
+      type: "edgeType",
+      animated: true,
+    });
+  });
 
-        flowInfo.nodes.push({
-            id: c.id,
-            // type: c.type.isComplex() ? 'group' : "input",
-            // type: "input",
-            data: { label: c.name },
-            position: { x: 0, y: 0 },
-            // style: {
-            //     width: 40,
-            //     height: 60,
-            // },
-            // parentNode: p.id,
-            // ...(p.type.isComplex() ? { extent: "parent" } : {})
-        },)
+  return flowInfo;
+};
 
-        flowInfo.edges.push({
-            id: `${p.id}@${c.id}`,
-            source: p.id,
-            target: c.id,
-            type: 'edgeType',
-            animated: true
-        })
-    })
+export const anotherConvert = (td: TypeDefinition): FlowInfo => {
+  const dtd = DefaultTypeDefinition.ensure(td);
+  const flowInfo: FlowInfo = {
+    nodes: [],
+    edges: [],
+  };
 
-    return flowInfo
-}
+  flowInfo.nodes.push({
+    id: dtd.id,
 
-export const anotherConvert = (td: Core.TypeDefinition): FlowInfo => {
+    // type: dtd.type.isComplex() ? 'group' : "input",
+    type: "td",
+    data: { td: dtd, root: true },
+    position: { x: 0, y: 0 },
+    // style: {
+    //     width: 40,
+    //     height: 60,
+    // },
+  });
 
-    const dtd = DefaultTypeDefinition.ensure(td)
-    const flowInfo: FlowInfo = {
-        nodes: [],
-        edges: []
-    }
-
-    flowInfo.nodes.push({
-        id: dtd.id,
-
-        // type: dtd.type.isComplex() ? 'group' : "input",
+  dtd.recursionChildWithCallback((c, p) => {
+    if (c.type.isComplex()) {
+      flowInfo.nodes.push({
+        id: c.id,
+        // type: c.type.isComplex() ? 'group' : "input",
         type: "td",
-        data: { td: dtd, root: true, },
+        data: { td: c, root: false },
         position: { x: 0, y: 0 },
         // style: {
         //     width: 40,
         //     height: 60,
         // },
-    })
+        // parentNode: p.id,
+        // ...(p.type.isComplex() ? { extent: "parent" } : {})
+      });
 
-    dtd.recursionChildWithCallback((c, p) => {
+      flowInfo.edges.push({
+        id: `${p.id}@${c.id}`,
+        source: p.id,
+        target: c.id,
+        type: "edgeType",
+        animated: true,
+        sourceHandle: c.id,
+        // targetHandle: c.id
+      });
+    }
+  });
 
-        if (c.type.isComplex()) {
-            flowInfo.nodes.push({
-                id: c.id,
-                // type: c.type.isComplex() ? 'group' : "input",
-                type: "td",
-                data: { td: c, root: false, },
-                position: { x: 0, y: 0 },
-                // style: {
-                //     width: 40,
-                //     height: 60,
-                // },
-                // parentNode: p.id,
-                // ...(p.type.isComplex() ? { extent: "parent" } : {})
-            },)
-
-            flowInfo.edges.push({
-                id: `${p.id}@${c.id}`,
-                source: p.id,
-                target: c.id,
-                type: 'edgeType',
-                animated: true,
-                sourceHandle: c.id,
-                // targetHandle: c.id
-            })
-        }
-    })
-
-    return flowInfo
-}
+  return flowInfo;
+};

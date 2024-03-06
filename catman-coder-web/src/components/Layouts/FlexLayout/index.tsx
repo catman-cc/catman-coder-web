@@ -1,9 +1,16 @@
 import applicationContext from "@/ApplicationContext.tsx";
-import EventBus, { Events } from "@/common/events/index.tsx";
+import {
+  EventBus,
+  Events,
+  useLayoutContext,
+  DefaultLayoutNode,
+  LayoutRender,
+  LayoutNode,
+  ComponentFactory,
+  Resource,
+} from "catman-coder-core";
 import IconCN from "@/components/Icon";
 import global from "@/config/index.tsx";
-import { useLayoutContext } from "@/core";
-import { DefaultLayoutNode } from "@/core/Layout";
 import { useAppDispatch, useAppSelector } from "@/stores";
 import { RootResourceQuery } from "@/stores/resource";
 import { Button, List, Modal, Popover, Tooltip } from "antd";
@@ -56,18 +63,18 @@ const postProcessModel = (model: Model) => {
 /**
  * flex布局渲染器
  */
-class FlexLayoutRender implements Core.LayoutRender {
+class FlexLayoutRender implements LayoutRender {
   id: string = "flex-layout-render";
   nodes: {
-    [index: string]: Core.LayoutNode<unknown>;
+    [index: string]: LayoutNode<unknown>;
   };
   activeTabSetId: string;
   model: Model;
-  factory: Core.ComponentFactory;
+  factory: ComponentFactory;
   constructor(
     model: Model,
-    factory: Core.ComponentFactory,
-    activeTabSetId?: string,
+    factory: ComponentFactory,
+    activeTabSetId?: string
   ) {
     this.nodes = {};
     this.model = model;
@@ -78,15 +85,15 @@ class FlexLayoutRender implements Core.LayoutRender {
       "#688e372a-3c7b-4bdd-977d-bfa6a3736f9f";
   }
 
-  close(node: Core.LayoutNode): void {
+  close(node: LayoutNode<unknown>): void {
     // 显式执行关闭时,一定要移除缓存
     this.factory.remove(node);
   }
 
-  support(node: Core.LayoutNode): boolean {
+  support(node: LayoutNode<unknown>): boolean {
     return node.layoutType === "tab";
   }
-  render(node: Core.LayoutNode): void {
+  render(node: LayoutNode<unknown>): void {
     const tab = node.toFlexLayout();
     // 进行渲染操作
     const oldTab = this.model.getNodeById(tab.id!);
@@ -100,8 +107,8 @@ class FlexLayoutRender implements Core.LayoutRender {
           this.model.getActiveTabset()!.getId(),
           DockLocation.CENTER,
           -1,
-          true,
-        ),
+          true
+        )
       );
       this.model.doAction(Actions.selectTab(tab.id!));
     }
@@ -126,18 +133,18 @@ interface FloatLayoutNodeInfo {
   w?: number | string;
   h?: number | string;
   oldPosition?: Position;
-  data: Core.LayoutNode<unknown>;
+  data: LayoutNode<unknown>;
 }
 
 /**
  * float布局渲染器
  */
-class FloatLayoutRender implements Core.LayoutRender {
+class FloatLayoutRender implements LayoutRender {
   id: string = "float-layout-render";
   nodes: {
-    [index: string]: Core.LayoutNode<unknown>;
+    [index: string]: LayoutNode<unknown>;
   };
-  factory: Core.ComponentFactory;
+  factory: ComponentFactory;
   windows: {
     [index: string]: FloatLayoutNodeInfo;
   };
@@ -146,13 +153,13 @@ class FloatLayoutRender implements Core.LayoutRender {
   >;
 
   constructor(
-    factory: Core.ComponentFactory,
+    factory: ComponentFactory,
     windows: {
       [p: string]: FloatLayoutNodeInfo;
     },
     setWindows: React.Dispatch<
       React.SetStateAction<{ [p: string]: FloatLayoutNodeInfo }>
-    >,
+    >
   ) {
     this.factory = factory;
     this.windows = windows;
@@ -160,11 +167,11 @@ class FloatLayoutRender implements Core.LayoutRender {
     this.nodes = {};
   }
 
-  support(node: Core.LayoutNode): boolean {
+  support(node: LayoutNode<unknown>): boolean {
     return node.layoutType === "float";
   }
 
-  render(node: Core.LayoutNode): void {
+  render(node: LayoutNode<unknown>): void {
     // 获取对应的float配置数据
     let float = node.settings.float as FloatLayoutNodeInfo;
     if (!float.id) {
@@ -187,6 +194,8 @@ class FloatLayoutRender implements Core.LayoutRender {
     this.windows[node.id] = float;
     this.setWindows({ ...this.windows });
   }
+
+  close(_node: LayoutNode<unknown>): void {}
 }
 
 function FlexLayout() {
@@ -194,8 +203,8 @@ function FlexLayout() {
   // 加载所有的resource资源
   dispatch(RootResourceQuery());
 
-  const [model, setModel] = useState<Model>(
-    Model.fromJson(global.layout.model),
+  const [model, _setModel] = useState<Model>(
+    Model.fromJson(global.layout.model)
   );
 
   const layoutContext = useLayoutContext()!;
@@ -238,7 +247,7 @@ function FlexLayout() {
     const floatLayoutRender = new FloatLayoutRender(
       factory,
       floatWindows,
-      setFloatWindows,
+      setFloatWindows
     );
     renderFactory.replace("float-layout-render", floatLayoutRender);
   }, [floatWindows]);
@@ -280,8 +289,12 @@ function FlexLayout() {
     // 监听新增TAB事件,并根据需要执行选择或者创建操作
     EventBus.on(Events.Layout.ADD_TAB, (tab: IJsonTabNode) => {
       const node = model.getNodeById(tab.id!);
-      flexLayoutRender.render();
-      const layoutNode = DefaultLayoutNode.of(tab.id, tab.name, tab.component);
+      flexLayoutRender.render(node as unknown as LayoutNode<unknown>);
+      const layoutNode = DefaultLayoutNode.of(
+        tab.id!,
+        tab.name!,
+        tab.component!
+      );
 
       layoutNode.settings.tab = tab;
       layoutNode.data = tab.config;
@@ -323,7 +336,7 @@ function FlexLayout() {
               const layoutNode = DefaultLayoutNode.of(
                 node.getId(),
                 node.getName(),
-                node.getComponent()!,
+                node.getComponent()!
               );
               layoutNode.settings.tab = node;
               return factory.create(layoutNode);
@@ -433,7 +446,7 @@ function FlexLayout() {
 
                       layoutContext.createOrActive(
                         DefaultLayoutNode.wrapper(node),
-                        "float",
+                        "float"
                       );
                       // floatLayoutRender.render(DefaultLayoutNode.wrapper(node))
                       // const fw = {
@@ -569,7 +582,7 @@ function FlexLayout() {
             onAction={(action) => {
               const asTabNode = (): TabNode => {
                 return model.getNodeById(
-                  action.data.node,
+                  action.data.node
                 ) as unknown as TabNode;
               };
 
@@ -580,7 +593,7 @@ function FlexLayout() {
                   break;
                 case Actions.DELETE_TAB:
                   layoutContext.renderFactory.close(
-                    asTabNode().getConfig() as Core.LayoutNode<unknown>,
+                    asTabNode().getConfig() as LayoutNode<unknown>
                   );
                   break;
                 case Actions.ADD_NODE:
@@ -593,23 +606,19 @@ function FlexLayout() {
                   // 直接为不支持修改名称的组件设置 enableRename: false
                   // 然后通过一个类型断言,来调用resource的修改接口
                   // 如果后面有需要,再来实现这个功能
-                  const resource = asTabNode().getConfig()
-                    .data as Core.Resource;
+                  const resource = asTabNode().getConfig().data as Resource;
                   if (action.data.text) {
-                    (
-                      applicationContext.resourceContext?.service?.rename(
-                        resource.id,
-                        action.data.text,
-                      ) as unknown as Core.Resource
-                    ).then((res) => {
-                      const resourceDetails = res.data;
-                      // 处理资源
-                      applicationContext.events?.publish({
-                        id: "resource-flush",
-                        name: "resource-flush",
-                        data: resourceDetails,
+                    applicationContext.resourceContext?.service
+                      ?.rename(resource.id, action.data.text)
+                      .then((res) => {
+                        const resourceDetails = res.data;
+                        // 处理资源
+                        applicationContext.events?.publish({
+                          id: "resource-flush",
+                          name: "resource-flush",
+                          data: resourceDetails,
+                        });
                       });
-                    });
                   }
                   break;
               }

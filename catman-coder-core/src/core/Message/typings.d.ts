@@ -16,7 +16,7 @@ export interface Message<T> {
   /**
    * 消息的标签数据
    */
-  labels?: Core.Labels;
+  labels?: Labels;
   /**
    * 消息的类型
    */
@@ -157,7 +157,7 @@ export interface CreateChannelOptions {
   /**
    * 通道的标签
    */
-  labels?: Core.Labels;
+  labels?: Labels;
 
   /**
    * 如果通道已经存在,是否覆盖

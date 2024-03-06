@@ -1,4 +1,4 @@
-import { DefaultTypeDefinition } from "@/common/core.ts";
+import { DefaultTypeDefinition } from "catman-coder-core";
 import MetadataEditor from "@/components/Base";
 import IconCN from "@/components/Icon";
 import PopoverTab from "@/components/PopoverTab";
@@ -50,7 +50,7 @@ class LineProps {
     createChild: (key: string | number) => void,
     removeItem: (key: string | number) => void,
     toObject: (key?: string | number) => DefaultTypeDefinition,
-    showJsonView: (key?: string | number) => void,
+    showJsonView: (key?: string | number) => void
   ) {
     this.blur = blur;
     this.dataNode = dataNode;
@@ -74,7 +74,7 @@ class LineState {
   constructor(
     blur: boolean,
     td: DefaultTypeDefinition,
-    item: TypeDefinitionDataNode,
+    item: TypeDefinitionDataNode
   ) {
     this.blur = blur;
     this.td = td;
@@ -113,7 +113,7 @@ export default class Line extends React.Component<LineProps, LineState> {
   updateTypeDefinition(itemId: string, v: object) {
     this.props.updateTypeData(
       itemId,
-      DefaultTypeDefinition.ensure({ ...this.state.td, ...v }),
+      DefaultTypeDefinition.ensure({ ...this.state.td, ...v })
     );
   }
 
@@ -134,7 +134,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                       !this.state.dataNode.data.isBuiltIn()
                         ? {
                             color: PeekTypeColor(
-                              this.state.dataNode.data.data.type.typeName,
+                              this.state.dataNode.data.data.type.typeName
                             ),
                             fontSize: "13px",
                           }
@@ -162,7 +162,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                         // 回调父组件,传回去新的值
                         this.updateTypeDefinition(
                           this.state.dataNode.key as string,
-                          { name: value },
+                          { name: value }
                         );
                         // this.props.updateTypeData(item.id,{...this.state.td,name:value})
                       }, 200);
@@ -201,7 +201,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                   DefaultTypeDefinition.ensure({
                                     ...this.state.td,
                                     type: type,
-                                  }),
+                                  })
                                 );
                               }}
                             />
@@ -214,14 +214,14 @@ export default class Line extends React.Component<LineProps, LineState> {
                             style={{
                               // backgroundColor: PeekTypeColor(item.data.td.type.typeName),
                               color: PeekTypeColor(
-                                this.state.dataNode.data.data.type.typeName,
+                                this.state.dataNode.data.data.type.typeName
                               ),
                               fontSize: 14,
                             }}
                             icon={
                               <span style={{ filter: "revert" }}>
                                 {PeekTypeIcon(
-                                  this.state.dataNode.data.data.type.typeName,
+                                  this.state.dataNode.data.data.type.typeName
                                 )}
                               </span>
                             }
@@ -262,7 +262,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 DefaultTypeDefinition.ensure({
                                   ...this.state.td,
                                   describe: value,
-                                }),
+                                })
                               );
                             }, 200);
                           }}
@@ -293,7 +293,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                         size={"small"}
                         onClick={() => {
                           this.props.createBrother(
-                            this.props.dataNode.data.data.id,
+                            this.props.dataNode.data.data.id
                           );
                         }}
                       >
@@ -312,7 +312,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                           size={"small"}
                           onClick={() => {
                             this.props.createChild(
-                              this.props.dataNode.data.data.id,
+                              this.props.dataNode.data.data.id
                             );
                           }}
                         >
@@ -327,7 +327,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                         danger
                         onClick={() => {
                           this.props.showJsonView(
-                            String(this.state.dataNode.key),
+                            String(this.state.dataNode.key)
                           );
                         }}
                         icon={<IconCN type={"icon-json-xml"} />}
@@ -350,7 +350,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                                 DefaultTypeDefinition.ensure({
                                   ...this.state.td,
                                   ...metadata,
-                                }),
+                                })
                               );
                             }}
                           />
@@ -445,7 +445,7 @@ export default class Line extends React.Component<LineProps, LineState> {
                         description="是否删除本项及其子项?"
                         onConfirm={() => {
                           this.props.removeItem(
-                            String(this.state.dataNode.key),
+                            String(this.state.dataNode.key)
                           );
                         }}
                         // onCancel={cancel}

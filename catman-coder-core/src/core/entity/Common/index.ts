@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { IJsonTabNode } from "flexlayout-react/declarations/model/IJsonModel";
 import { ItemParams } from "react-contexify";
 import { IJsonModel } from "flexlayout-react";
+import { API } from "@/core/api/typings";
 export interface ResourceState {}
 export interface LabelSelector<T> {
   match: string;
@@ -13,7 +14,7 @@ export interface LabelSelector<T> {
 
 export interface Base {
   id: string;
-  scope?: Scope;
+  scope?: IScope;
   labels?: Labels;
   alias?: string[];
   type: Type;
@@ -26,7 +27,7 @@ export interface Base {
 }
 export interface Config {}
 
-export type Scope = "PRIVATE" | "PUBlIC";
+export type IScope = "PRIVATE" | "PUBlIC";
 
 export interface Mock {
   kind: string;
@@ -58,7 +59,7 @@ export interface Labels {
 export interface TypeItem {
   itemId: string;
   name?: string;
-  scope: Scope;
+  scope: IScope;
 }
 export interface Type {
   typeName: string;
@@ -89,7 +90,7 @@ export interface TypeDefinitionSchema {
 export interface TypeDefinition {
   id?: string;
   name: string;
-  scope: Scope;
+  scope: IScope;
   labels?: Labels;
   type: Type;
   tag?: Tag[];
@@ -143,7 +144,8 @@ export interface FunctionInfoSchema {
 export interface Parameter extends Base {
   id: string;
   name: string;
-  type: TypeDefinition;
+  // type: TypeDefinition;
+  td: TypeDefinition;
   items: Parameter[];
   value: ValueDefinition;
   defaultValue: ValueDefinition;
@@ -448,7 +450,7 @@ export interface ResourceDetails<T> extends Resource {
 }
 export type ResourceViewerFunction = (
   _resource: ResourceDetails<unknown>,
-  _context: ApplicationContext,
+  _context: IApplicationContext,
   _layoutContext: LayoutContext
 ) => void;
 /**
@@ -458,16 +460,16 @@ export interface ResourceViewer {
   support(_resource: ResourceDetails<unknown>): boolean;
   render(
     _resource: ResourceDetails<unknown>,
-    _context: ApplicationContext,
+    _context: IApplicationContext,
     _layoutContext: LayoutContext
   ): void;
 }
 
 export interface ResourceViewerFactory {
-  registry(_render: ResourceDetails<unknown>): ResourceViewerFactory;
+  registry(_render: ResourceViewer): ResourceViewerFactory;
   view(
     _resource: ResourceDetails<unknown>,
-    _context: ApplicationContext,
+    _context: IApplicationContext,
     _layoutContext: LayoutContext
   ): void;
 }
@@ -508,52 +510,52 @@ export interface ResourceExplorerContext {
  */
 export interface ResourceRegistry {
   itemRender?(
-    context: ApplicationContext,
+    context: IApplicationContext,
     factory: ResourceItemRenderFactory
   ): ResourceItemRender | ItemRenderFunction;
 
   registerItemRender?(
-    context: ApplicationContext,
+    context: IApplicationContext,
     factory: ResourceItemRenderFactory
   ): void;
 
   iconRender?(
-    context: ApplicationContext,
+    context: IApplicationContext,
     factory: ResourceItemIconFactory
   ): ResourceItemIconRender | IconRenderFunction;
   registerIconRender?(
-    context: ApplicationContext,
+    context: IApplicationContext,
     factory: ResourceItemIconFactory
   ): void;
 
   registerResourceContextMenu?(
-    context: ApplicationContext,
+    context: IApplicationContext,
     menuContex?: ResourceMenuContext
   ): void;
   componentCreator?(
-    context: ApplicationContext,
+    context: IApplicationContext,
     layout: LayoutContext
   ): ComponentCreatorFunction | ComponentCreator;
 
   registerComponentCreator?(
-    context: ApplicationContext,
+    context: IApplicationContext,
     layout: LayoutContext
   ): void;
 
   resourceViewer?(
-    context: ApplicationContext,
+    context: IApplicationContext,
     viewerFactory?: ResourceViewerFactory
   ): ResourceViewer | ResourceViewerFunction;
   registerResourceViewer?(
-    context: ApplicationContext,
+    context: IApplicationContext,
     viewerFactory?: ResourceViewerFactory
   ): void;
 }
 
 export interface ResourceContext {
-  applicationContext?: ApplicationContext;
+  applicationContext?: IApplicationContext;
   setApplicationContext(
-    applicationContext: ApplicationContext
+    applicationContext: IApplicationContext
   ): ResourceContext;
   /**
    * 资源面板上下文
@@ -571,9 +573,9 @@ export interface ResourceContext {
   register(kind: string, register: ResourceRegistry): void;
 }
 export interface Processor {
-  before?(context: ApplicationContext): void;
-  run?(context: ApplicationContext): void;
-  after?(context: ApplicationContext): void;
+  before?(context: IApplicationContext): void;
+  run?(context: IApplicationContext): void;
+  after?(context: IApplicationContext): void;
 }
 export interface GlobalConfig {
   /**
@@ -709,15 +711,15 @@ export interface MessageSubscriber<T> {
  * 2. 可以访问到布局容器
  * 3. 可以访问到事件总线
  */
-export interface ApplicationContext {
+export interface IApplicationContext {
   layoutContext?: LayoutContext;
-  setLayoutContext(layoutContext: LayoutContext): ApplicationContext;
+  setLayoutContext(layoutContext: LayoutContext): IApplicationContext;
   events?: EventBusContext;
   messageBus?: MessageBus;
-  setMessageBus(messageBus: MessageBus): ApplicationContext;
-  setEventBusContext(events: EventBusContext): ApplicationContext;
+  setMessageBus(messageBus: MessageBus): IApplicationContext;
+  setEventBusContext(events: EventBusContext): IApplicationContext;
   resourceContext?: ResourceContext;
-  setResourceContext(resourceContext: ResourceContext): ApplicationContext;
+  setResourceContext(resourceContext: ResourceContext): IApplicationContext;
   processors?: Processor[];
   config: GlobalConfig;
   /**

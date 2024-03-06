@@ -14,8 +14,8 @@ import { TypeDefinitionSchemaEditor } from "@/components/TypeDefinitionEditor";
  *   值得注意的是,节点服务注册在左侧面板中,不属于Resource的一部分
  *   其默认创建一个用于展示所有节点的操作面板
  */
-export class NodeProcess implements Core.Processor {
-  before(context: Core.ApplicationContext) {
+export class NodeProcess implements Processor {
+  before(context: ApplicationContext) {
     // const model = context.layoutContext?.model!;
     const modelConfig = context.layoutContext?.modelConfig!;
     // model.getBorderSet().getBorders().filter(b=>b.getLocation()==="left").forEach(b=>{

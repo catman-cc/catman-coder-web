@@ -1,4 +1,4 @@
-import { getMonacoLanguageId } from "@/common/monaco";
+import { getMonacoLanguageId } from "catman-coder-core";
 import { HtmlRenderer } from "@/components/Provider/http/Response/Render/HtmlRenderer";
 import { Http } from "@/components/Provider/http";
 import ReactJson from "react-json-view";

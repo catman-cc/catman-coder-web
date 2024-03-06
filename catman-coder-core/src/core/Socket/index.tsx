@@ -1,8 +1,17 @@
 import { minimatch } from "minimatch";
+import {
+  MessageMatcher,
+  Message,
+  MessageBus,
+  MessageHandler,
+  MessageSubscriber,
+  Channel,
+  Label,
+} from "@/core/entity/Common";
 
 // 一个消息总线,用于处理消息的发布和订阅,和EventBus不同的是,EventBus主要用在前端内部交互,而MessageBus主要用于前后端交互
 
-export class RegexMessageMatcher implements Core.MessageMatcher {
+export class RegexMessageMatcher implements MessageMatcher {
   pattern: string;
   static of(pattern: string): RegexMessageMatcher {
     return new RegexMessageMatcher(pattern);
@@ -10,19 +19,19 @@ export class RegexMessageMatcher implements Core.MessageMatcher {
   constructor(pattern: string) {
     this.pattern = pattern;
   }
-  match(message: Core.Message<unknown>): boolean {
+  match(message: Message<unknown>): boolean {
     return new RegExp(this.pattern).test(message.topic);
   }
 }
-export class AllMatcher implements Core.MessageMatcher {
+export class AllMatcher implements MessageMatcher {
   static of(): AllMatcher {
     return new AllMatcher();
   }
-  match(_message: Core.Message<unknown>): boolean {
+  match(_message: Message<unknown>): boolean {
     return true;
   }
 }
-export class ReplyToMessageMatcher implements Core.MessageMatcher {
+export class ReplyToMessageMatcher implements MessageMatcher {
   pattern: string;
   static of(pattern: string): ReplyToMessageMatcher {
     return new ReplyToMessageMatcher(pattern);
@@ -30,13 +39,13 @@ export class ReplyToMessageMatcher implements Core.MessageMatcher {
   constructor(pattern: string) {
     this.pattern = pattern;
   }
-  match(message: Core.Message<unknown>): boolean {
+  match(message: Message<unknown>): boolean {
     console.log("message.replyTo", message.replyTo, this.pattern);
     return message.replyTo === this.pattern;
   }
 }
 
-export class TopicMessageMatcher implements Core.MessageMatcher {
+export class TopicMessageMatcher implements MessageMatcher {
   pattern: string;
   static of(pattern: string): TopicMessageMatcher {
     return new TopicMessageMatcher(pattern);
@@ -44,11 +53,11 @@ export class TopicMessageMatcher implements Core.MessageMatcher {
   constructor(pattern: string) {
     this.pattern = pattern;
   }
-  match(message: Core.Message<unknown>): boolean {
+  match(message: Message<unknown>): boolean {
     return message.topic === this.pattern;
   }
 }
-export class AntMessageMatch implements Core.MessageMatcher {
+export class AntMessageMatch implements MessageMatcher {
   pattern: string;
   static of(pattern: string): AntMessageMatch {
     return new AntMessageMatch(pattern);
@@ -56,19 +65,19 @@ export class AntMessageMatch implements Core.MessageMatcher {
   constructor(pattern: string) {
     this.pattern = pattern;
   }
-  match(message: Core.Message<unknown>): boolean {
+  match(message: Message<unknown>): boolean {
     return minimatch(message.topic, this.pattern);
   }
 }
 export class MessageBuilder<T> {
-  message: Core.Message<T>;
-  static of<T>(message: Core.Message<T>): MessageBuilder<T> {
+  message: Message<T>;
+  static of<T>(message: Message<T>): MessageBuilder<T> {
     return new MessageBuilder<T>(message);
   }
-  constructor(message: Core.Message<T>) {
+  constructor(message: Message<T>) {
     this.message = message;
   }
-  build(): Core.Message<T> {
+  build(): Message<T> {
     if (this.message.id === undefined) {
       this.message.id = Math.random().toString(36);
     }
@@ -77,11 +86,11 @@ export class MessageBuilder<T> {
     }
     if (this.message.labels === undefined) {
       this.message.labels = {
-        items: new Map<string, Core.Label>(),
+        items: new Map<string, Label>(),
       };
     }
     if (this.message.labels.items === undefined) {
-      this.message.labels.items = new Map<string, Core.Label>();
+      this.message.labels.items = new Map<string, Label>();
     }
     if (!this.message.labels.items.has("reply-to")) {
       this.message.labels.items.set("reply-to", {
@@ -92,18 +101,18 @@ export class MessageBuilder<T> {
     return this.message;
   }
 }
-export class WebSocketChannel implements Core.Channel {
+export class WebSocketChannel implements Channel {
   id: string;
   kind: string;
 
-  messageBus: Core.MessageBus;
+  messageBus: MessageBus;
   name: string;
   description: string;
 
   createTime: number;
   creator: string;
 
-  static of(messageBus: Core.MessageBus, id?: string, kind?: string) {
+  static of(messageBus: MessageBus, id?: string, kind?: string) {
     return new WebSocketChannel(
       id || Math.random().toString(16).slice(2),
       kind || "default",
@@ -117,7 +126,7 @@ export class WebSocketChannel implements Core.Channel {
     kind: string,
     name: string,
     description: string,
-    messageBus: Core.MessageBus
+    messageBus: MessageBus
   ) {
     this.id = id;
     this.kind = kind;
@@ -132,12 +141,12 @@ export class WebSocketChannel implements Core.Channel {
 
   destroy(): void {}
 
-  publish<T>(message: Core.Message<T>): Core.Channel {
+  publish<T>(message: Message<T>): Channel {
     this.messageBus.publish(this.wrap(message));
     return this;
   }
 
-  wrap<T>(message: Core.Message<T>): Core.Message<T> {
+  wrap<T>(message: Message<T>): Message<T> {
     if (message.channelId === undefined) {
       message.channelId = this.id;
     }
@@ -147,10 +156,10 @@ export class WebSocketChannel implements Core.Channel {
     return message;
   }
   publishAndWait<T>(
-    message: Core.Message<T>,
-    handler: Core.MessageHandler<unknown>,
-    matcher?: Core.MessageMatcher
-  ): Core.Channel {
+    message: Message<T>,
+    handler: MessageHandler<unknown>,
+    matcher?: MessageMatcher
+  ): Channel {
     this.messageBus.publishAndWait(
       this.wrap(message),
       (message) => {
@@ -165,9 +174,9 @@ export class WebSocketChannel implements Core.Channel {
   }
 
   subscribe(
-    matcher: Core.MessageMatcher,
-    handler: Core.MessageHandler<unknown>
-  ): Core.Channel {
+    matcher: MessageMatcher,
+    handler: MessageHandler<unknown>
+  ): Channel {
     this.messageBus.subscribe(matcher, (message) => {
       if (message.channelId === this.id) {
         handler(message);
@@ -176,31 +185,31 @@ export class WebSocketChannel implements Core.Channel {
     return this;
   }
 
-  unsubscribe(handler: Core.MessageHandler<unknown>): Core.Channel {
+  unsubscribe(handler: MessageHandler<unknown>): Channel {
     this.messageBus.unsubscribe(handler);
     return this;
   }
 }
 
-export class WebSocketMessageBus implements Core.MessageBus {
+export class WebSocketMessageBus implements MessageBus {
   webSocket: WebSocket;
-  subscribers: Core.MessageSubscriber<unknown>[];
+  subscribers: MessageSubscriber<unknown>[];
   constructor(webSocket: WebSocket) {
     this.subscribers = [];
     this.webSocket = webSocket;
     this.updateWebSocket(webSocket);
   }
 
-  getNewChannel(): Core.Channel {
+  getNewChannel(): Channel {
     return WebSocketChannel.of(this);
   }
-  getOrCreateChannel(kind?: string, channelId?: string): Core.Channel {
+  getOrCreateChannel(kind?: string, channelId?: string): Channel {
     return WebSocketChannel.of(this, channelId, kind);
   }
   updateWebSocket(webSocket: WebSocket) {
     this.webSocket = webSocket;
     this.webSocket.onmessage = (event) => {
-      const message = JSON.parse(event.data) as Core.Message<unknown>;
+      const message = JSON.parse(event.data) as Message<unknown>;
       console.log("message bus receive", message);
       this.subscribers
         .filter((s) => s.matcher.match(message))
@@ -217,10 +226,10 @@ export class WebSocketMessageBus implements Core.MessageBus {
     };
   }
   publishAndWait<T>(
-    message: Core.Message<T>,
-    handler: Core.MessageHandler<unknown>,
-    matcher?: Core.MessageMatcher
-  ): Core.MessageBus {
+    message: Message<T>,
+    handler: MessageHandler<unknown>,
+    matcher?: MessageMatcher
+  ): MessageBus {
     const msg = MessageBuilder.of(message).build();
     this.addSubscriber({
       listeningTimes: 1,
@@ -231,22 +240,22 @@ export class WebSocketMessageBus implements Core.MessageBus {
     return this;
   }
 
-  publish<T>(message: Core.Message<T>): Core.MessageBus {
+  publish<T>(message: Message<T>): MessageBus {
     this.webSocket.send(JSON.stringify(message));
     return this;
   }
   subscribe(
-    matcher: Core.MessageMatcher,
-    handler: Core.MessageHandler<unknown>
-  ): Core.MessageBus {
+    matcher: MessageMatcher,
+    handler: MessageHandler<unknown>
+  ): MessageBus {
     this.subscribers.push({ listeningTimes: -1, matcher, handler });
     return this;
   }
-  addSubscriber(subscriber: Core.MessageSubscriber<unknown>) {
+  addSubscriber(subscriber: MessageSubscriber<unknown>) {
     this.subscribers.push(subscriber);
     return this;
   }
-  unsubscribe(handler: Core.MessageHandler<unknown>): Core.MessageBus {
+  unsubscribe(handler: MessageHandler<unknown>): MessageBus {
     this.subscribers = this.subscribers.filter((s) => s.handler !== handler);
     return this;
   }

@@ -1,7 +1,10 @@
-import { ComplexType } from "@/common/core.ts";
+import { ComplexType } from "catman-coder-core";
 import { BasicSelectTypePanelProps } from "@/components/TypeDefinitionEditor/EditorPanel/Row/SelectTypePanel";
 import TypeSelectorPanel from "@/components/TypeDefinitionEditor/EditorPanel/Row/TypeSelector";
-import { PeekTypeColor, PeekTypeIcon } from "@/components/TypeDefinitionEditor/EditorPanel/Row/TypeSelector/common.tsx";
+import {
+  PeekTypeColor,
+  PeekTypeIcon,
+} from "@/components/TypeDefinitionEditor/EditorPanel/Row/TypeSelector/common.tsx";
 import { Button, Popover } from "antd";
 
 export const RawTypeRender = (props: BasicSelectTypePanelProps) => {
@@ -9,7 +12,7 @@ export const RawTypeRender = (props: BasicSelectTypePanelProps) => {
     return (
       <Button
         style={{
-          color: PeekTypeColor(props.type.typeName)
+          color: PeekTypeColor(props.type.typeName),
         }}
         disabled={props.disabled}
         size={"small"}
@@ -38,7 +41,7 @@ export const RawTypeRender = (props: BasicSelectTypePanelProps) => {
         size={"small"}
         type={"dashed"}
         style={{
-          color: PeekTypeColor(props.type.typeName)
+          color: PeekTypeColor(props.type.typeName),
         }}
         icon={PeekTypeIcon(props.type.typeName)}
       >

@@ -1,5 +1,10 @@
-import { ComplexType, Scope } from "@/common/core.ts";
-import { ID } from "@/common/id";
+import {
+  ComplexType,
+  ID,
+  Scope,
+  TypeDefinition,
+  TypeDefinitionSchema,
+} from "catman-coder-core";
 import { TypeDefinitionSelect } from "@/components/TypeDefinitionEditor/EditorPanel/TypeDefinitionSelect";
 import { SettingOutlined } from "@ant-design/icons";
 import { Menu, Popover, Space } from "antd";
@@ -7,10 +12,10 @@ import * as React from "react";
 import { PeekTypeIcon } from "./common";
 
 export interface TypeSelectorMenuItem {
-  key: string,
-  icon: JSX.Element,
-  label: JSX.Element,
-  value: string
+  key: string;
+  icon: JSX.Element;
+  label: JSX.Element;
+  value: string;
 }
 
 function getMenuItem(name: string, label: string): TypeSelectorMenuItem {
@@ -91,7 +96,9 @@ function getRefferItem(name: string, label: string): TypeSelectorMenuItem {
 //   },
 // ];
 
-export type TypeSelectorMenuItemFilter = (item: TypeSelectorMenuItem) => boolean
+export type TypeSelectorMenuItemFilter = (
+  item: TypeSelectorMenuItem
+) => boolean;
 
 const TypeMenu: TypeSelectorMenuItem[] = [
   getMenuItem("string", "字符串"),
@@ -108,41 +115,41 @@ const TypeMenu: TypeSelectorMenuItem[] = [
   getMenuItem("anonymous", "匿名类型"),
 ];
 
-
-function buildComplexType(name: string): [ComplexType, Core.TypeDefinitionSchema?] {
+function buildComplexType(name: string): [ComplexType, TypeDefinitionSchema?] {
   const type = new ComplexType();
   const schema = {
     root: "",
     context: {},
-    definitions: {}
-  } as Core.TypeDefinitionSchema
-  schema.context.typeDefinitions = schema.definitions
+    definitions: {},
+  } as TypeDefinitionSchema;
+  schema.context.typeDefinitions = schema.definitions;
 
   type.typeName = name;
   if (name === "array") {
-    const itemId = ID()
+    const itemId = ID();
     // 如果是集合类型,则为其添加一个默认元素elements
-    type.sortedAllItems.push(
-      {
-        itemId: itemId,
-        name: "elements",
-        scope: Scope.PRIVATE
-      }
-    )
+    type.sortedAllItems.push({
+      itemId: itemId,
+      name: "elements",
+      scope: Scope.PRIVATE,
+    });
     schema.definitions[itemId] = {
       id: itemId,
       name: "elements",
       scope: Scope.PRIVATE,
-      type: ComplexType.ofType("string")
-    } as unknown as Core.TypeDefinition
+      type: ComplexType.ofType("string"),
+    } as unknown as TypeDefinition;
   }
   return [type, schema];
 }
 
 type Props = {
   type: ComplexType; // 当前所使用的类型,不同的类型将对应着不同的处理逻辑
-  completeTheSelection: (_type: ComplexType, _schema?: Core.TypeDefinitionSchema) => void; // 完成类型选择后,需要将选择的类型传递给父组件
-  filter?: TypeSelectorMenuItemFilter
+  completeTheSelection: (
+    _type: ComplexType,
+    _schema?: TypeDefinitionSchema
+  ) => void; // 完成类型选择后,需要将选择的类型传递给父组件
+  filter?: TypeSelectorMenuItemFilter;
 };
 
 type State = {
@@ -159,10 +166,10 @@ export default class TypeSelectorPanel extends React.Component<Props, State> {
   render() {
     const menus = TypeMenu.filter((item) => {
       if (this.props.filter) {
-        return this.props.filter(item)
+        return this.props.filter(item);
       }
-      return true
-    })
+      return true;
+    });
     return (
       <div>
         <Menu

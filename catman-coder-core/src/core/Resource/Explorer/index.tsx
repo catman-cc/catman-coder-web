@@ -1,59 +1,106 @@
 import React, { ReactNode } from "react";
-import { Item, ItemParams, Menu, Separator, Submenu } from "react-contexify";
+import { Item, ItemParams, Separator, Submenu } from "react-contexify";
+import { Menu as RcMenu } from "react-contexify";
 import IconCN from "@/core/component/Icon";
 import { DefaultLayoutNode } from "@/core";
-
-export class KindMatchResourceItemRender implements Core.ResourceItemRender {
+import {
+  IApplicationContext,
+  LayoutContext,
+  Menu,
+  Resource,
+  ResourceContext,
+  ResourceDataNode,
+  ResourceDetails,
+  ResourceExplorerContext,
+  ResourceItemIconFactory,
+  ResourceItemIconRender,
+  ResourceItemRender,
+  ResourceItemRenderFactory,
+  ResourceMenuContext,
+  ResourceRegistry,
+  ResourceService,
+  ResourceViewer,
+  ResourceViewerFactory,
+  ResourceViewerFunction,
+} from "@/core/entity/Common";
+export class KindMatchResourceItemIconRender implements ResourceItemIconRender {
   matchKind: string;
-  renderFunction: (_resource: Core.Resource) => Core.ResourceDataNode;
+  renderFunction: (_resource: Resource) => React.ReactNode;
+  public static of(
+    kindName: string,
+    render: (_resource: Resource) => React.ReactNode
+  ) {
+    return new KindMatchResourceItemIconRender(kindName, render);
+  }
+
+  constructor(
+    matchKind: string,
+    renderFunction: (_resource: Resource) => React.ReactNode
+  ) {
+    this.matchKind = matchKind;
+    this.renderFunction = renderFunction;
+  }
+
+  render(resource: Resource): React.ReactNode {
+    return this.renderFunction(resource);
+  }
+
+  support(resource: Resource): boolean {
+    return this.matchKind === resource.kind;
+  }
+}
+
+export class KindMatchResourceItemRender implements ResourceItemRender {
+  matchKind: string;
+  renderFunction: (_resource: Resource) => ResourceDataNode;
 
   static of(
     kindName: string,
-    render: (_resource: Core.Resource) => Core.ResourceDataNode
+    render: (_resource: Resource) => ResourceDataNode
   ) {
     return new KindMatchResourceItemRender(kindName, render);
   }
 
   constructor(
     matchKind: string,
-    render: (_resource: Core.Resource) => Core.ResourceDataNode
+    render: (_resource: Resource) => ResourceDataNode
   ) {
     this.matchKind = matchKind;
     this.renderFunction = render;
   }
 
-  support(resource: Core.Resource): boolean {
+  support(resource: Resource): boolean {
     return this.matchKind === resource.kind;
   }
 
-  render(resource: Core.Resource): Core.ResourceDataNode {
+  render(resource: Resource): ResourceDataNode {
     return this.renderFunction(resource);
   }
 }
 
 export class DefaultResourceItemRenderFactory
-  implements Core.ResourceItemRenderFactory
+  implements ResourceItemRenderFactory
 {
-  iconFactory?: Core.ResourceItemIconFactory;
-  factories: Core.ResourceItemRender[];
-  defaultResourceItemRender: Core.ResourceItemRender;
-  constructor(defaultResourceItemRender: Core.ResourceItemRender) {
+  iconFactory?: ResourceItemIconFactory;
+  factories: ResourceItemRender[];
+  defaultResourceItemRender: ResourceItemRender;
+  constructor(defaultResourceItemRender: ResourceItemRender) {
     this.factories = [];
     this.defaultResourceItemRender = defaultResourceItemRender;
   }
 
   setIconFactory(
-    iconFactory: Core.ResourceItemIconFactory
-  ): Core.ResourceItemRenderFactory {
+    iconFactory: ResourceItemIconFactory
+  ): ResourceItemRenderFactory {
     this.iconFactory = iconFactory;
     return this;
   }
 
-  registry(render: Core.ResourceItemRender): Core.ResourceItemRenderFactory {
+  registry(render: ResourceItemRender): ResourceItemRenderFactory {
     this.factories.push(render);
     return this;
   }
-  render(resource: Core.Resource): Core.ResourceDataNode | undefined {
+  render(resource: Resource): ResourceDataNode | undefined {
     let matched = this.factories.find((factory) => factory.support(resource));
     if (!matched) {
       matched = this.defaultResourceItemRender;
@@ -66,32 +113,28 @@ export class DefaultResourceItemRenderFactory
   }
 }
 
-export class DefaultResourceItemIconRender
-  implements Core.ResourceItemIconRender
-{
-  render(resource: Core.Resource): React.ReactNode {
+export class DefaultResourceItemIconRender implements ResourceItemIconRender {
+  render(resource: Resource): React.ReactNode {
     return <IconCN type={`icon-${resource.kind}`} />;
   }
   support(): boolean {
     return true;
   }
 }
-export class DefaultResourceItemIconFactory
-  implements Core.ResourceItemIconFactory
-{
-  defaultResourceItemRender: Core.ResourceItemIconRender;
-  renders: Core.ResourceItemIconRender[];
+export class DefaultResourceItemIconFactory implements ResourceItemIconFactory {
+  defaultResourceItemRender: ResourceItemIconRender;
+  renders: ResourceItemIconRender[];
 
-  constructor(defaultResourceItemRender: Core.ResourceItemIconRender) {
+  constructor(defaultResourceItemRender: ResourceItemIconRender) {
     this.defaultResourceItemRender = defaultResourceItemRender;
     this.renders = [];
   }
 
-  registry(render: Core.ResourceItemIconRender): Core.ResourceItemIconFactory {
+  registry(render: ResourceItemIconRender): ResourceItemIconFactory {
     this.renders.push(render);
     return this;
   }
-  render(resource: Core.Resource): React.ReactNode {
+  render(resource: Resource): React.ReactNode {
     const render =
       this.renders.find((r) => r.support(resource)) ||
       this.defaultResourceItemRender;
@@ -100,15 +143,15 @@ export class DefaultResourceItemIconFactory
 }
 
 export interface ResourceMenuRender {
-  support(menu: Core.Menu<Core.Resource>): boolean;
-  render(resource: Core.Resource, menu: Core.Menu<Core.Resource>): ReactNode;
+  support(menu: Menu<Resource>): boolean;
+  render(resource: Resource, menu: Menu<Resource>): ReactNode;
 }
 
 export interface ResourceMenuRenderFactory {
   registry(render: ResourceMenuRender): ResourceMenuRenderFactory;
-  render(resource: Core.Resource, menu: Core.Menu<Core.Resource>): ReactNode;
+  render(resource: Resource, menu: Menu<Resource>): ReactNode;
 }
-function checkEmptyMenu(menu: Core.Menu<Core.Resource>): boolean {
+function checkEmptyMenu(menu: Menu<Resource>): boolean {
   switch (menu.type) {
     case "submenu" || "menu":
       if (!menu.children) {
@@ -128,22 +171,22 @@ export class DefaultResourceMenuRenderFactory
 {
   renders: ResourceMenuRender[];
   onMenuClick?: (
-    menu: Core.Menu<Core.Resource>,
-    resource: Core.Resource,
+    menu: Menu<Resource>,
+    resource: Resource,
     itemParams: ItemParams
   ) => void;
   constructor() {
     const other = this;
     this.onMenuClick = (
-      _menu: Core.Menu<Core.Resource>,
-      _resource: Core.Resource,
+      _menu: Menu<Resource>,
+      _resource: Resource,
       _itemParams: ItemParams
     ) => {
       // 推送事件
     };
     const onMenuClickWrapper = (
-      menu: Core.Menu<Core.Resource>,
-      resource: Core.Resource,
+      menu: Menu<Resource>,
+      resource: Resource,
       itemParams: ItemParams
     ) => {
       if (menu.onMenuClick) {
@@ -155,33 +198,27 @@ export class DefaultResourceMenuRenderFactory
 
     this.renders = [
       {
-        support(menu: Core.Menu<Core.Resource>): boolean {
+        support(menu: Menu<Resource>): boolean {
           return menu.type == "menu";
         },
-        render(
-          resource: Core.Resource,
-          menu: Core.Menu<Core.Resource>
-        ): ReactNode {
+        render(resource: Resource, menu: Menu<Resource>): ReactNode {
           if (menu.filter!(resource)) {
             if (checkEmptyMenu(menu)) {
               return;
             }
             return (
-              <Menu key={menu.id} id={menu.id!}>
+              <RcMenu key={menu.id} id={menu.id!}>
                 {menu.children?.map((c) => other.render(resource, c))}
-              </Menu>
+              </RcMenu>
             );
           }
         },
       },
       {
-        support(menu: Core.Menu<Core.Resource>): boolean {
+        support(menu: Menu<Resource>): boolean {
           return menu.type === "item";
         },
-        render(
-          resource: Core.Resource,
-          menu: Core.Menu<Core.Resource>
-        ): ReactNode {
+        render(resource: Resource, menu: Menu<Resource>): ReactNode {
           if (menu.filter!(resource)) {
             return (
               <>
@@ -222,7 +259,7 @@ export class DefaultResourceMenuRenderFactory
         },
       },
       {
-        support(menu: Core.Menu<Core.Resource>): boolean {
+        support(menu: Menu<Resource>): boolean {
           return menu.type === "separator";
         },
         render(): ReactNode {
@@ -230,13 +267,10 @@ export class DefaultResourceMenuRenderFactory
         },
       },
       {
-        support(menu: Core.Menu<Core.Resource>): boolean {
+        support(menu: Menu<Resource>): boolean {
           return menu.type === "submenu";
         },
-        render(
-          resource: Core.Resource,
-          menu: Core.Menu<Core.Resource>
-        ): ReactNode {
+        render(resource: Resource, menu: Menu<Resource>): ReactNode {
           if (checkEmptyMenu(menu)) {
             return;
           }
@@ -261,10 +295,7 @@ export class DefaultResourceMenuRenderFactory
       },
     ];
   }
-  render(
-    resource: Core.Resource,
-    menu: Core.Menu<Core.Resource>
-  ): React.ReactNode {
+  render(resource: Resource, menu: Menu<Resource>): React.ReactNode {
     if (!menu.filter) {
       menu.filter = () => true;
     }
@@ -277,20 +308,17 @@ export class DefaultResourceMenuRenderFactory
   }
 }
 
-export class DefaultResourceMenuContext implements Core.ResourceMenuContext {
-  resourceMenus: Core.Menu<Core.Resource>;
+export class DefaultResourceMenuContext implements ResourceMenuContext {
+  resourceMenus: Menu<Resource>;
   resourceMenuRenderFactory: ResourceMenuRenderFactory;
 
-  constructor(resourceMenus: Core.Menu<Core.Resource>) {
+  constructor(resourceMenus: Menu<Resource>) {
     this.resourceMenus = resourceMenus;
     this.resourceMenuRenderFactory = new DefaultResourceMenuRenderFactory();
   }
   recursion(
-    menu: Core.Menu<Core.Resource>,
-    handler: (
-      menu: Core.Menu<Core.Resource>,
-      parent?: Core.Menu<Core.Resource>
-    ) => boolean
+    menu: Menu<Resource>,
+    handler: (menu: Menu<Resource>, parent?: Menu<Resource>) => boolean
   ): boolean {
     const next = handler(menu, undefined);
     if (next) {
@@ -304,29 +332,24 @@ export class DefaultResourceMenuContext implements Core.ResourceMenuContext {
     return false;
   }
 
-  deep(
-    handler: (
-      menu: Core.Menu<Core.Resource>,
-      parent?: Core.Menu<Core.Resource>
-    ) => boolean
-  ) {
+  deep(handler: (menu: Menu<Resource>, parent?: Menu<Resource>) => boolean) {
     const m = this.menus();
     this.recursion(m, handler);
   }
 
-  showMenus(resource: Core.Resource) {
+  showMenus(resource: Resource) {
     return this.resourceMenuRenderFactory.render(resource, this.resourceMenus);
   }
 
-  menus(): Core.Menu<Core.Resource> {
+  menus(): Menu<Resource> {
     return this.resourceMenus;
   }
 
-  process(handler: (context: Core.ResourceMenuContext) => void) {
+  process(handler: (context: ResourceMenuContext) => void) {
     handler(this);
   }
 
-  render(resource: Core.Resource): React.ReactNode {
+  render(resource: Resource): React.ReactNode {
     const render = this.resourceMenuRenderFactory.render(
       resource,
       this.resourceMenus
@@ -334,17 +357,17 @@ export class DefaultResourceMenuContext implements Core.ResourceMenuContext {
     return render;
   }
 }
-export class DefaultResourceViewer implements Core.ResourceViewer {
+export class DefaultResourceViewer implements ResourceViewer {
   support(): boolean {
     return true;
   }
   render(
-    resource: Core.ResourceDetails<unknown>,
-    _context: Core.ApplicationContext,
-    layout: Core.LayoutContext
+    resource: ResourceDetails<unknown>,
+    _context: IApplicationContext,
+    layout: LayoutContext
   ): void {
     console.log("require view for resource", resource);
-    const resourceDetails = resource as Core.ResourceDetails<unknown>;
+    const resourceDetails = resource as ResourceDetails<unknown>;
     const layoutNode = DefaultLayoutNode.ofResource(resourceDetails);
     layoutNode.componentName = "defaultResourceViewer";
     // 调用上下文展示资源
@@ -365,24 +388,22 @@ export class DefaultResourceViewer implements Core.ResourceViewer {
   }
 }
 
-export class DefaultResourceViewerFactory
-  implements Core.ResourceViewerFactory
-{
-  viewers: Core.ResourceViewer[];
-  defaultViewer: Core.ResourceViewer;
-  constructor(defaultViewer?: Core.ResourceViewer) {
+export class DefaultResourceViewerFactory implements ResourceViewerFactory {
+  viewers: ResourceViewer[];
+  defaultViewer: ResourceViewer;
+  constructor(defaultViewer?: ResourceViewer) {
     this.viewers = [];
     this.defaultViewer = defaultViewer || new DefaultResourceViewer();
   }
-  registry(viewer: Core.ResourceViewer): Core.ResourceViewerFactory {
+  registry(viewer: ResourceViewer): ResourceViewerFactory {
     this.viewers.push(viewer);
     return this;
   }
 
   view(
-    resource: Core.ResourceDetails<unknown>,
-    context: Core.ApplicationContext,
-    layoutContext: Core.LayoutContext
+    resource: ResourceDetails<unknown>,
+    context: IApplicationContext,
+    layoutContext: LayoutContext
   ): void {
     const viewer = this.viewers.find((v) => v.support(resource));
     if (viewer) {
@@ -392,69 +413,67 @@ export class DefaultResourceViewerFactory
     }
   }
 }
-export class DefaultResourceExplorerContext
-  implements Core.ResourceExplorerContext
-{
-  itemRenderFactory?: Core.ResourceItemRenderFactory;
-  menuContext?: Core.ResourceMenuContext;
-  viewFactory?: Core.ResourceViewerFactory;
+export class DefaultResourceExplorerContext implements ResourceExplorerContext {
+  itemRenderFactory?: ResourceItemRenderFactory;
+  menuContext?: ResourceMenuContext;
+  viewFactory?: ResourceViewerFactory;
 
   setResourceItemRenderFactory(
-    itemRenderFactory: Core.ResourceItemRenderFactory
-  ): Core.ResourceExplorerContext {
+    itemRenderFactory: ResourceItemRenderFactory
+  ): ResourceExplorerContext {
     this.itemRenderFactory = itemRenderFactory;
     return this;
   }
 
   setResourceMenuContext(
-    menuContext: Core.ResourceMenuContext
-  ): Core.ResourceExplorerContext {
+    menuContext: ResourceMenuContext
+  ): ResourceExplorerContext {
     this.menuContext = menuContext;
     return this;
   }
   setResourceViewerFactory(
-    viewFactory: Core.ResourceViewerFactory
-  ): Core.ResourceExplorerContext {
+    viewFactory: ResourceViewerFactory
+  ): ResourceExplorerContext {
     this.viewFactory = viewFactory;
     return this;
   }
 
-  flush(_resource: Core.Resource) {}
+  flush(_resource: Resource) {}
 }
 
-export class KindMatchResourceViewer implements Core.ResourceViewer {
+export class KindMatchResourceViewer implements ResourceViewer {
   kind: string;
-  viewer: Core.ResourceViewerFunction;
-  static of(kind: string, viewer: Core.ResourceViewerFunction) {
+  viewer: ResourceViewerFunction;
+  static of(kind: string, viewer: ResourceViewerFunction) {
     return new KindMatchResourceViewer(kind, viewer);
   }
-  constructor(kind: string, viewer: Core.ResourceViewerFunction) {
+  constructor(kind: string, viewer: ResourceViewerFunction) {
     this.kind = kind;
     this.viewer = viewer;
   }
 
-  support(resource: Core.Resource): boolean {
+  support(resource: Resource): boolean {
     return this.kind === resource.kind;
   }
 
   render(
-    resource: Core.ResourceDetails<unknown>,
-    context: Core.ApplicationContext,
-    layoutContext: Core.LayoutContext
+    resource: ResourceDetails<unknown>,
+    context: IApplicationContext,
+    layoutContext: LayoutContext
   ): void {
     this.viewer(resource, context, layoutContext);
   }
 }
 
-export class DefaultResourceContext implements Core.ResourceContext {
-  explorer?: Core.ResourceExplorerContext;
-  service?: Core.ResourceService;
-  applicationContext?: Core.ApplicationContext;
+export class DefaultResourceContext implements ResourceContext {
+  explorer?: ResourceExplorerContext;
+  service?: ResourceService;
+  applicationContext?: IApplicationContext;
   store?: {};
 
   setResourceExplorerContext(
-    explorer: Core.ResourceExplorerContext
-  ): Core.ResourceContext {
+    explorer: ResourceExplorerContext
+  ): ResourceContext {
     this.explorer = explorer;
     return this;
   }
@@ -462,14 +481,14 @@ export class DefaultResourceContext implements Core.ResourceContext {
     this.store = store;
     return this;
   }
-  setResourceService(service: Core.ResourceService): Core.ResourceContext {
+  setResourceService(service: ResourceService): ResourceContext {
     this.service = service;
     return this;
   }
 
   setApplicationContext(
-    applicationContext: Core.ApplicationContext
-  ): Core.ResourceContext {
+    applicationContext: IApplicationContext
+  ): ResourceContext {
     this.applicationContext = applicationContext;
     return this;
   }
@@ -490,7 +509,7 @@ export class DefaultResourceContext implements Core.ResourceContext {
       data: true,
     });
   }
-  register(kind: string, register: Core.ResourceRegistry) {
+  register(kind: string, register: ResourceRegistry) {
     // 依次执行register的注册方法
     if (register.itemRender) {
       const itemRender = register.itemRender(
@@ -523,7 +542,10 @@ export class DefaultResourceContext implements Core.ResourceContext {
       if (iconRender) {
         if (typeof iconRender === "function") {
           this.explorer?.itemRenderFactory?.iconFactory?.registry(
-            KindMatchResourceItemRender.of(kind, iconRender)
+            KindMatchResourceItemIconRender.of(
+              kind,
+              iconRender
+            ) as ResourceItemIconRender
           );
         } else {
           this.explorer?.itemRenderFactory?.iconFactory?.registry(iconRender);
@@ -590,10 +612,10 @@ export class DefaultResourceContext implements Core.ResourceContext {
 }
 
 const defaultResourceItemRenderFactory = new DefaultResourceItemRenderFactory({
-  support(_resource: Core.Resource): boolean {
+  support(_resource: Resource): boolean {
     return true;
   },
-  render(res: Core.Resource): Core.ResourceDataNode {
+  render(res: Resource): ResourceDataNode {
     return {
       key: res.id,
       title: res.name,
@@ -603,7 +625,7 @@ const defaultResourceItemRenderFactory = new DefaultResourceItemRenderFactory({
       icon: <IconCN type={"json"} />,
       children: [],
       resource: res,
-    } as Core.ResourceDataNode;
+    } as ResourceDataNode;
   },
 });
 

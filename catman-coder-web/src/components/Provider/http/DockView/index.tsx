@@ -6,7 +6,7 @@ import {
 import { DockViewContextRC } from "@/components/Provider/http/DockView/Context";
 import { DataSnapshot } from "@/components/Provider/http/Request/Body/DataSnapshot";
 import { ResponseView } from "@/components/Provider/http/Response";
-import { useApplicationContext } from "@/core";
+import { useApplicationContext } from "catman-coder-core";
 import { Button, Card } from "antd";
 import {
   DockviewDefaultTab,
@@ -25,7 +25,7 @@ import { FloatAbleTab } from "@/components/Provider/http/DockView/FloatAbleTab";
  * @param props
  * @constructor
  */
-export const DockViewHttpProvider = (props: { resource: Core.Resource }) => {
+export const DockViewHttpProvider = (props: { resource: Resource }) => {
   const [event, setEvent] = useState<DockviewReadyEvent>();
   const [ready, setReady] = useState(false);
   const [response, setResponse] = useState<{
@@ -145,7 +145,10 @@ export const DockViewHttpProvider = (props: { resource: Core.Resource }) => {
                       ) as HttpValueProviderInformation
                     }
                     onSave={(data) => {
-                      const newRes = { ...props.params.resource, extra: JSON.stringify(data) }
+                      const newRes = {
+                        ...props.params.resource,
+                        extra: JSON.stringify(data),
+                      };
                       context.resourceContext?.service
                         ?.save(newRes)
                         .then((res) => {

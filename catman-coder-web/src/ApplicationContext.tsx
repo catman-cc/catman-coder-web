@@ -111,12 +111,12 @@ const factory = RefuseNodeComponentFactory.of(
       })
       .nameMatch("ResourceExplorer", () => {
         return <ResourceExplorer />;
-      })
-  )
+      }),
+  ),
 );
 
 applicationContext.setLayoutContext(
-  new DefaultLayoutContext(factory, global.layout.model)
+  new DefaultLayoutContext(factory, global.layout.model),
 );
 
 // 配置资源管理器
@@ -125,7 +125,7 @@ resourceContext.setApplicationContext(applicationContext);
 resourceContext.setResourceService(new DefaultResourceService());
 const resourceExplorerContext = new DefaultResourceExplorerContext();
 resourceExplorerContext.setResourceViewerFactory(
-  new DefaultResourceViewerFactory()
+  new DefaultResourceViewerFactory(),
 );
 const defaultResourceItemRenderFactory = new DefaultResourceItemRenderFactory({
   support(): boolean {
@@ -158,7 +158,7 @@ defaultResourceItemRenderFactory
         children: [],
         resource: res,
       };
-    })
+    }),
   )
   .registry(
     KindMatchResourceItemRender.of("resource", (res) => {
@@ -172,15 +172,15 @@ defaultResourceItemRenderFactory
         children: [],
         resource: res,
       };
-    })
+    }),
   );
 
 defaultResourceItemRenderFactory.setIconFactory(
-  new DefaultResourceItemIconFactory(new DefaultResourceItemIconRender())
+  new DefaultResourceItemIconFactory(new DefaultResourceItemIconRender()),
 );
 
 resourceExplorerContext.setResourceItemRenderFactory(
-  defaultResourceItemRenderFactory
+  defaultResourceItemRenderFactory,
 );
 resourceExplorerContext.setResourceMenuContext(
   new DefaultResourceMenuContext({
@@ -290,10 +290,12 @@ resourceExplorerContext.setResourceMenuContext(
           );
         },
         children: [],
-        onMenuClick: (_menu, resource) => {},
+        onMenuClick: () => {
+          // console.log(menu, resource);
+        },
       } as unknown as Menu<Resource>,
     ],
-  } as unknown as Menu<Resource>)
+  } as unknown as Menu<Resource>),
 );
 
 resourceContext.setResourceExplorerContext(resourceExplorerContext);
@@ -301,12 +303,12 @@ applicationContext.setResourceContext(resourceContext);
 
 applicationContext.addProcessor({
   run(context: IApplicationContext) {
-    context.events!.watchByName("new-type-definition", (event, eventBus) => {
+    context.events!.watchByName("new-type-definition", (_event, eventBus) => {
       // 调用后端服务,新建一个类型定义
       eventBus.publish({
         name: "",
         data: {
-          callBack: (name: string) => {
+          callBack: (_name: string) => {
             // 将类型定义添加到资源树中
             context
               .resourceContext!.service!.save({
@@ -318,8 +320,8 @@ applicationContext.addProcessor({
                 parentId: "",
                 resourceId: "",
               })
-              .then((res) => {
-                const td = res.data;
+              .then((_res) => {
+                // const td = res.data;
                 // 继续推送事件, // 添加到布局中
               });
           },

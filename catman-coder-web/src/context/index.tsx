@@ -1,10 +1,11 @@
 import { createContext, PropsWithChildren, useContext } from "react";
-export const ApplicationContext = createContext<ApplicationContext | null>(
-  null
+import { IApplicationContext } from "catman-coder-core";
+export const ApplicationContext = createContext<IApplicationContext | null>(
+  null,
 );
 
 export function ApplicationContextRC(
-  props: PropsWithChildren<{ value: ApplicationContext }>
+  props: PropsWithChildren<{ value: IApplicationContext }>,
 ) {
   const { value, children } = props;
   return (
@@ -19,7 +20,7 @@ export function useApplicationContext() {
 }
 
 export function useEventBus() {
-  return useApplicationContext().events;
+  return useApplicationContext()?.events;
 }
 
 export function useLayoutContext() {
